@@ -1,0 +1,672 @@
+:root {
+    --lakers-purple: #552583;
+    --lakers-gold: #FDB927;
+    --blood-red: #C9082A;
+    --dark-bg: #0a0a0f;
+    --card-bg: #12121a;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8c8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    line-height: 1.8;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+}
+
+.logo-container {
+    margin-bottom: 30px;
+}
+
+.logo-image {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 3px solid #FDB927;
+    box-shadow: 0 0 30px rgba(253, 185, 39, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px rgba(253, 185, 39, 0.5);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #FDB927;
+    margin-bottom: 15px;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: #b8b8c8;
+    margin-bottom: 30px;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+
+/* 优化导航按钮样式 */
+
+.hero-nav-links {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    background: rgba(85, 37, 131, 0.2);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(253, 185, 39, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.nav-link:hover {
+    background: rgba(253, 185, 39, 0.2);
+    color: #FDB927;
+    border-color: #FDB927;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(253, 185, 39, 0.3);
+}
+
+.nav-link:hover::before {
+    left: 100%;
+}
+
+.nav-link.active {
+    background: rgba(253, 185, 39, 0.3);
+    color: #FDB927;
+    border-color: #FDB927;
+    box-shadow: 0 0 20px rgba(253, 185, 39, 0.4);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #FDB927;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #b8b8c8;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #C9082A, #ff4444);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: transform 0.3s;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+}
+
+.mamba-quote {
+    background: linear-gradient(135deg, #552583, #7c3a99);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.quote-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.quote-author {
+    color: #FDB927;
+}
+
+.about {
+    padding: 80px 0;
+    background: var(--card-bg);
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.about-text p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+.about-text strong {
+    color: #FDB927;
+}
+
+.highlight {
+    background: linear-gradient(135deg, #552583, #7c3a99);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #FDB927;
+    color: #fff !important;
+}
+
+.structure {
+    padding: 80px 0;
+    background: var(--card-bg);
+}
+
+.structure-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+
+/* 会长样式 */
+
+.structure-role.president {
+    background: var(--dark-bg);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid transparent;
+}
+
+.structure-role.president:hover {
+    border-color: #C9082A;
+}
+
+
+/* 副会长和组委会并列布局 */
+
+.structure-row {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+/* 副会长和组委会卡片样式 */
+
+.structure-role.vice-president,
+.structure-role.organizer {
+    background: var(--dark-bg);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid transparent;
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.structure-role.vice-president:hover {
+    border-color: #552583;
+}
+
+.structure-role.organizer:hover {
+    border-color: #7c3a99;
+}
+
+.role-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #FDB927;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.role-members {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.member-card {
+    padding: 15px 25px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 80px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 2px solid transparent;
+}
+
+.member-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+/* 会长样式 - 金色字体 */
+
+.president {
+    background: linear-gradient(135deg, #372349, #29123f);
+    border: 2px solid #8f65a0;
+    color: #FDB927;
+    /* 金色字体 */
+    font-weight: 900;
+}
+
+
+/* 副会长团样式 - 白色字体，紫色主题 */
+
+.vice-president {
+    background: linear-gradient(135deg, #190b25, #1c0d22);
+    border: 2px solid #552583;
+    color: white;
+    font-weight: 700;
+}
+
+
+/* 组委会样式 - 白色字体，深色主题 */
+
+.organizer {
+    background: linear-gradient(135deg, #0a0a0f, #1a0a2e);
+    border: 2px solid #7c3a99;
+    color: white;
+    font-weight: 700;
+}
+
+
+/* 成员名字通用样式 */
+
+.member-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: block;
+}
+
+
+/* 会长名字特殊样式 */
+
+.president .member-name {
+    color: #FDB927;
+    /* 金色 */
+    font-weight: 900;
+    font-size: 1.3rem;
+    text-shadow: 0 0 10px rgba(253, 185, 39, 0.5);
+}
+
+.role-desc {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-top: auto;
+}
+
+.tournaments-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.tournament-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: var(--dark-bg);
+}
+
+.tournament-s {
+    border: 2px solid #FDB927;
+}
+
+.tournament-q {
+    border: 2px solid #552583;
+}
+
+.tournament-l {
+    border: 2px solid #C9082A;
+}
+
+.tournament-label {
+    font-weight: 900;
+    font-size: 1.2rem;
+    min-width: 25px;
+    text-align: center;
+}
+
+.tournament-s .tournament-label {
+    color: #FDB927;
+}
+
+.tournament-q .tournament-label {
+    color: #552583;
+}
+
+.tournament-l .tournament-label {
+    color: #C9082A;
+}
+
+.tournaments {
+    padding: 80px 0;
+    background: var(--dark-bg);
+}
+
+.tournament-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.tournament-card {
+    padding: 40px 30px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    text-align: center;
+    transition: transform 0.3s;
+    border: 2px solid transparent;
+}
+
+.tournament-card:hover {
+    transform: translateY(-10px);
+}
+
+.tournament-s {
+    border-color: #FDB927;
+}
+
+.tournament-q {
+    border-color: #552583;
+}
+
+.tournament-l {
+    border-color: #C9082A;
+}
+
+.tournament-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+}
+
+.tournament-s .tournament-icon {
+    background: linear-gradient(135deg, #FDB927, #ffb700);
+    color: #552583;
+}
+
+.tournament-q .tournament-icon {
+    background: linear-gradient(135deg, #552583, #7c3a99);
+    color: #FDB927;
+}
+
+.tournament-l .tournament-icon {
+    background: linear-gradient(135deg, #C9082A, #ff4444);
+    color: #fff;
+}
+
+.tournament-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.tournament-card p {
+    color: var(--text-secondary);
+}
+
+.spirit {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #552583, #7c3a99);
+}
+
+.spirit-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #FDB927;
+}
+
+.spirit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+}
+
+.spirit-item {
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.spirit-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.spirit-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.spirit-item h4 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #FDB927;
+}
+
+.spirit-item p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.contact {
+    padding: 80px 0;
+    background: var(--card-bg);
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.contact-card {
+    padding: 30px;
+    background: var(--dark-bg);
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid #552583;
+    transition: all 0.3s;
+}
+
+.contact-card:hover {
+    border-color: #FDB927;
+    transform: translateY(-5px);
+}
+
+.contact-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.contact-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FDB927;
+}
+
+.contact-cta {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #C9082A, #ff4444);
+    border-radius: 20px;
+}
+
+.cta-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cta-sub {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer {
+    padding: 40px 0;
+    background: #050508;
+    border-top: 2px solid #552583;
+    text-align: center;
+}
+
+.footer-logo {
+    margin-bottom: 20px;
+}
+
+.footer-logo span:first-child {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #FDB927;
+}
+
+.footer-year {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: block;
+}
+
+.footer-text {
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.footer-mamba {
+    color: #FDB927;
+    font-weight: 700;
+}
+
+@media (max-width: 992px) {
+    .structure-row {
+        flex-direction: column;
+        gap: 30px;
+    }
+    .structure-role.vice-president,
+    .structure-role.organizer {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    .logo-image {
+        max-width: 150px;
+    }
+    .hero-stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .hero-nav-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .nav-link {
+        width: 200px;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+    .section-title {
+        font-size: 1.5rem;
+    }
+    .quote-text {
+        font-size: 1.2rem;
+    }
+    .member-card {
+        min-width: 70px;
+        padding: 12px 20px;
+    }
+    .tournament-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
