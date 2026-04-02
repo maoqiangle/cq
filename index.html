@@ -9,15 +9,57 @@
 </head>
 
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-basketball">🏀</div>
+        <div class="loading-text">苍穹俱乐部加载中...</div>
+    </div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation Bar - 顶部固定导航 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" id="navLogo" role="button" tabindex="0" aria-label="返回首页顶部">
+                <span>🏀</span>
+                <span class="nav-text">苍穹俱乐部</span>
+            </div>
+
+            <!-- 右侧快速导航 -->
+            <div class="nav-quick-links">
+                <button class="quick-link" data-section="about" title="跳转到简介">简介</button>
+                <button class="quick-link" data-section="structure" title="跳转到架构">架构</button>
+                <button class="quick-link" data-section="videos" title="跳转到视频">视频</button>
+                <button class="quick-link" data-section="tournaments" title="跳转到赛事">赛事</button>
+                <button class="quick-link" data-section="honors" title="跳转到荣誉">荣誉</button>
+                <button class="quick-link" data-section="contact" title="跳转到联系">联系</button>
+            </div>
+
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop" title="返回顶部">⬆️</div>
+
+    <!-- Hero Section -->
     <header class="hero">
         <div class="hero-bg"></div>
         <div class="hero-overlay"></div>
+        <div class="starry-sky"></div>
+        <div class="particles" id="particles"></div>
+        <div class="shooting-stars" id="shootingStars"></div>
         <div class="hero-content">
             <div class="logo-container">
-                <img src="logo.jpg" alt="苍穹俱乐部 Logo" class="logo-image">
+                <img src="logo.jpg" alt="苍穹俱乐部 Logo" class="logo-img">
             </div>
             <h1 class="hero-title">冠军旗帜永挂苍穹</h1>
-            <p class="hero-subtitle">2KOL 联合中心【苍穹】俱乐部 · 成立于 2013.5.4</p>
+            <p class="hero-subtitle">2KOL 联合中心【穹】俱乐部 · 成立于 2013</p>
             <div class="hero-stats">
                 <div class="stat">
                     <span class="stat-number">13</span>
@@ -32,183 +74,374 @@
                     <span class="stat-label">热血不灭</span>
                 </div>
             </div>
-            <div class="hero-nav-links">
-                <a href="#about" class="nav-link">俱乐部简介</a>
-                <a href="#structure" class="nav-link">组织架构</a>
-                <a href="#tournaments" class="nav-link">赛事体系</a>
-            </div>
             <a href="#about" class="cta-button">探索传奇</a>
         </div>
+        <div class="mamba-trail"></div>
     </header>
 
-    <section class="mamba-quote">
+    <!-- Mamba Quote Section -->
+    <section id="mamba" class="mamba-quote">
         <div class="quote-content">
+            <svg class="quote-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/>
+            </svg>
             <p class="quote-text">"总有人要赢的，为什么不能是我？"</p>
             <p class="quote-author">— Kobe Bryant 🐍</p>
         </div>
     </section>
 
+    <!-- About Section -->
     <section id="about" class="about">
         <div class="container">
-            <h2 class="section-title">🏀 俱乐部简介 🏀</h2>
+            <h2 class="section-title">
+                <span class="title-icon">🏀</span> 俱乐部简介
+                <span class="title-icon">🏀</span>
+            </h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p class="about-intro"><strong>2KOL 联合中心【苍穹】俱乐部</strong>诞生于 2013 年的五四青年节。</p>
-                    <p>13 年来，苍穹海纳百川，汇聚了五湖四海的朋友，从线上到线下，是游戏情谊延伸至生活；</p>
-                    <p>13 年间，花有重开日，人无再少年，热血常埋于心中。朋友来来往往，<strong>冠军旗帜永挂苍穹！</strong></p>
-                    <p class="highlight">篮球联系兄弟情，也教会了我们如何与生活对抗，就像在球场一样全力以赴。球场代有人才出，看风流人物还属今朝...</p>
+                    <p class="about-intro">
+                        <strong>2KOL 联合中心【苍穹】俱乐部</strong>诞生于 2013 年的五四青年节。
+                    </p>
+                    <p>
+                        13 年来，苍穹海纳百川，汇聚了五湖四海的朋友，从线上到线下，是游戏情谊延伸至生活；
+                    </p>
+                    <p>
+                        13 年间，花有重开日，人无再少年，热血常埋于心中。朋友来来往往，<strong>冠军旗帜永挂苍穹！</strong>
+                    </p>
+                    <p class="highlight">
+                        篮球联系兄弟情，也教会了我们如何与生活对抗，就像在球场一样全力以赴。 球场代有人才出，看风流人物还属今朝...
+                    </p>
+                </div>
+                <div class="about-badge">
+                    <div class="badge-inner">
+                        <span class="badge-year">2013</span>
+                        <span class="badge-text">至今</span>
+                        <span class="badge-emblem">🏆</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Structure Section -->
     <section id="structure" class="structure">
         <div class="container">
-            <h2 class="section-title">俱乐部管理架构</h2>
+            <h2 class="section-title">
+                <span class="title-icon">👔</span> 俱乐部管理架构
+                <span class="title-icon">👔</span>
+            </h2>
             <div class="structure-content">
                 <!-- 会长 -->
-                <div class="structure-role president">
-                    <h3 class="role-title">会长</h3>
-                    <div class="role-members">
-                        <div class="member-card president">
-                            <span class="member-name">雷</span>
-                        </div>
+                <div class="structure-president">
+                    <div class="president-card">
+                        <div class="role-icon">👑</div>
+                        <h3 class="role-title">会长</h3>
+                        <div class="member-name president">雷</div>
                     </div>
                 </div>
 
-                <!-- 副会长和组委会并列 -->
-                <div class="structure-row">
+                <!-- 副会长团和组委会并列 -->
+                <div class="structure-organs">
                     <!-- 副会长团 -->
-                    <div class="structure-role vice-president">
-                        <h3 class="role-title">副会长团</h3>
+                    <div class="organ-box vice-president">
+                        <div class="organ-header">
+                            <div class="role-icon">🎖️</div>
+                            <h3 class="role-title">副会长团</h3>
+                        </div>
                         <div class="role-members">
-                            <div class="member-card vice-president">
-                                <span class="member-name">峰少</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">十三</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">小龙</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">老铁</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">雨</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">妃子</span>
-                            </div>
-                            <div class="member-card vice-president">
-                                <span class="member-name">小包子</span>
-                            </div>
+                            <div class="member-chip vice-president">峰少</div>
+                            <div class="member-chip vice-president">十三</div>
+                            <div class="member-chip vice-president">小龙</div>
+                            <div class="member-chip vice-president">老铁</div>
+                            <div class="member-chip vice-president">雨</div>
+                            <div class="member-chip vice-president">妃子</div>
+                            <div class="member-chip vice-president">小包子</div>
                         </div>
                         <p class="role-desc">负责俱乐部日程活动管理，招人纳新，内战组织，重大商议和决策投票等。</p>
                     </div>
 
                     <!-- 《苍穹杯》组委会 -->
-                    <div class="structure-role organizer">
-                        <h3 class="role-title">《苍穹杯》组委会</h3>
+                    <div class="organ-box organizer">
+                        <div class="organ-header">
+                            <div class="role-icon">🏆</div>
+                            <h3 class="role-title">《苍穹杯》组委会</h3>
+                        </div>
                         <div class="role-members">
-                            <div class="member-card organizer">
-                                <span class="member-name">十三</span>
-                            </div>
-                            <div class="member-card organizer">
-                                <span class="member-name">小龙</span>
-                            </div>
-                            <div class="member-card organizer">
-                                <span class="member-name">魔卡</span>
-                            </div>
-                            <div class="member-card organizer">
-                                <span class="member-name">少女</span>
-                            </div>
-                            <!-- <div class="tournament-item tournament-s">
-                            <span class="tournament-label">S</span>
-                            <span class="tournament-name">苍穹杯·群雄争霸</span>
+                            <div class="member-chip organizer">十三</div>
+                            <div class="member-chip organizer">小龙</div>
+                            <div class="member-chip organizer">魔卡</div>
+                            <div class="member-chip organizer">少女</div>
                         </div>
-                        <div class="tournament-item tournament-l">
-                            <span class="tournament-label">L</span>
-                            <span class="tournament-name">苍穹杯·全国联赛</span>
+                        <p class="role-desc">负责苍穹杯比赛规则制定，赛事运营，数据整理，结果发布，素材剪辑，平台发布等。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Gallery Section -->
+    <section id="videos" class="videos">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-icon">🎬</span> 精彩集锦
+                <span class="title-icon">🎬</span>
+            </h2>
+            <p class="section-desc">
+                关注抖音号 CQ86670，获取更多精彩内容
+            </p>
+
+            <!-- Video Category Tabs -->
+            <div class="video-tabs">
+                <button class="tab-btn active" data-tab="stars">
+                    <span class="tab-icon">⭐</span>
+                    <span class="tab-text">球星传</span>
+                    <span class="tab-count" id="video-stars-count">6</span>
+                </button>
+                <button class="tab-btn" data-tab="cup">
+                    <span class="tab-icon">🏆</span>
+                    <span class="tab-text">杯赛冠军</span>
+                    <span class="tab-count" id="video-cup-count">5</span>
+                </button>
+                <button class="tab-btn" data-tab="allstar">
+                    <span class="tab-icon">🌟</span>
+                    <span class="tab-text">全明星赛</span>
+                    <span class="tab-count" id="video-allstar-count">5</span>
+                </button>
+                <button class="tab-btn" data-tab="league">
+                    <span class="tab-icon">🔥</span>
+                    <span class="tab-text">全国联赛</span>
+                    <span class="tab-count" id="video-league-count">5</span>
+                </button>
+            </div>
+
+            <!-- Video Directory List -->
+            <div class="video-directory">
+                <!-- 球星传 -->
+                <div class="tab-panel active" id="video-stars">
+                    <div class="video-list-header">
+                        <span class="list-icon">⭐</span>
+                        <span class="list-title">球星传</span>
+                        <span class="list-info">传奇球星经典集锦</span>
+                    </div>
+                    <div class="video-list" id="video-list-stars"></div>
+                </div>
+
+                <!-- 杯赛冠军 -->
+                <div class="tab-panel" id="video-cup">
+                    <div class="video-list-header">
+                        <span class="list-icon">🏆</span>
+                        <span class="list-title">杯赛冠军</span>
+                        <span class="list-info">苍穹杯历届决赛集锦</span>
+                    </div>
+                    <div class="video-list" id="video-list-cup"></div>
+                </div>
+
+                <!-- 全明星赛 -->
+                <div class="tab-panel" id="video-allstar">
+                    <div class="video-list-header">
+                        <span class="list-icon">🌟</span>
+                        <span class="list-title">全明星赛</span>
+                        <span class="list-info">Q1-Q10历届精彩集锦</span>
+                    </div>
+                    <div class="video-list" id="video-list-allstar"></div>
+                </div>
+
+                <!-- 全国联赛 -->
+                <div class="tab-panel" id="video-league">
+                    <div class="video-list-header">
+                        <span class="list-icon">🔥</span>
+                        <span class="list-title">全国联赛</span>
+                        <span class="list-info">L1-L4 联赛精彩瞬间</span>
+                    </div>
+                    <div class="video-list" id="video-list-league"></div>
+                </div>
+
+                <!-- 抖音引导卡片 -->
+                <div class="douyin-cta-card">
+                    <div class="douyin-icon">📱</div>
+                    <h3>更多精彩视频 尽在抖音</h3>
+                    <p>官网仅展示部分高赞作品，更多经典集锦、独家花絮、幕后故事</p>
+                    <p class="douyin-sub">关注抖音官方账号，第一时间获取最新视频</p>
+                    <a href="https://www.douyin.com/jingxuan/search/CQ86670?aid=44cab2e8-ba33-4169-ae49-bb4937143051&type=general" target="_blank" rel="noopener" class="douyin-btn">
+                        <span class="douyin-logo">🎵</span>
+                        <span>打开抖音关注 CQ86670</span>
+                        <span class="douyin-arrow">→</span>
+                    </a>
+                    <div class="douyin-stats">
+                        <span class="stat-item">🔥 高赞作品</span>
+                        <span class="stat-item">📺 持续更新</span>
+                        <span class="stat-item">💯 独家内容</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tournaments Section -->
+    <section id="tournaments" class="tournaments">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-icon">🔥</span> 赛事体系
+                <span class="title-icon">🔥</span>
+            </h2>
+            <p class="section-desc">
+                【苍穹杯】是苍穹俱乐部对抗激情与捍卫荣耀的延续，也是各兄弟展现团队篮球与英雄时刻的舞台。
+            </p>
+            <div class="tournament-grid">
+                <div class="tournament-card tournament-s">
+                    <div class="tournament-icon">S</div>
+                    <h3>苍穹杯</h3>
+                    <p>俱乐部顶级赛事</p>
+                    <div class="tournament-glow"></div>
+                </div>
+                <div class="tournament-card tournament-q">
+                    <div class="tournament-icon">Q</div>
+                    <h3>全明星</h3>
+                    <p>星光熠熠对决</p>
+                    <div class="tournament-glow"></div>
+                </div>
+                <div class="tournament-card tournament-l">
+                    <div class="tournament-icon">L</div>
+                    <h3>全国联赛</h3>
+                    <p>群雄逐鹿争霸</p>
+                    <div class="tournament-glow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Honors Section -->
+    <section id="honors" class="honors">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-icon">🏆</span> 荣誉殿堂
+                <span class="title-icon">🏆</span>
+            </h2>
+            <p class="section-desc">
+                13 年辉煌历程，见证无数荣耀时刻
+            </p>
+
+            <!-- Honor Search & Filter -->
+            <div class="honor-search-container">
+                <input type="text" class="honor-search" id="honorSearch" placeholder="🔍 搜索队员、赛季、MVP...">
+                <button class="honor-filter-btn active" data-filter="all">全部</button>
+                <button class="honor-filter-btn" data-filter="recent">最近 10 条</button>
+            </div>
+
+            <!-- Honor Tabs - 卡片式切换 -->
+            <div class="honor-tabs-card">
+                <div class="honor-tab-card active" data-honor="cup">
+                    <div class="tab-card-icon">🏆</div>
+                    <div class="tab-card-title">苍穹杯</div>
+                    <div class="tab-card-count" id="honor-cup-count">34 届</div>
+                    <div class="tab-card-glow"></div>
+                </div>
+                <div class="honor-tab-card" data-honor="allstar">
+                    <div class="tab-card-icon">🌟</div>
+                    <div class="tab-card-title">全明星赛</div>
+                    <div class="tab-card-count" id="honor-allstar-count">10 项</div>
+                    <div class="tab-card-glow"></div>
+                </div>
+                <div class="honor-tab-card" data-honor="league">
+                    <div class="tab-card-icon">🔥</div>
+                    <div class="tab-card-title">全国联赛</div>
+                    <div class="tab-card-count" id="honor-league-count">6 届</div>
+                    <div class="tab-card-glow"></div>
+                </div>
+            </div>
+
+            <!-- Honor Tables -->
+            <div class="honor-tables">
+                <!-- 苍穹杯荣誉表 -->
+                <div class="honor-table-panel active" id="cup">
+                    <div class="honor-table-wrapper">
+                        <div class="table-responsive">
+                            <table class="honor-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                        <div class="tournament-item tournament-q">
-                            <span class="tournament-label">Q</span>
-                            <span class="tournament-name">苍穹杯·诸王之战</span>
-                        </div> -->
+                    </div>
+                </div>
+
+                <!-- 全明星荣誉表 -->
+                <div class="honor-table-panel" id="allstar">
+                    <div class="honor-table-wrapper">
+                        <div class="table-responsive">
+                            <table class="honor-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                        <p class="role-desc">负责苍穹杯比赛规则制定，赛事运营，数据整理,结果发布，素材剪辑，平台发布等。</p>
-                        <div class="tournaments-list">
+                    </div>
+                </div>
+
+                <!-- 全国联赛荣誉表 -->
+                <div class="honor-table-panel" id="league">
+                    <div class="honor-table-wrapper">
+                        <div class="table-responsive">
+                            <table class="honor-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <section id="tournaments" class="tournaments">
-        <div class="container">
-            <h2 class="section-title">🔥 赛事体系 🔥</h2>
-            <p class="section-desc">【苍穹杯】是苍穹俱乐部对抗激情与捍卫荣耀的延续，也是各兄弟展现团队篮球与英雄时刻的舞台。</p>
-            <div class="tournament-grid">
-                <div class="tournament-card tournament-s">
-                    <div class="tournament-icon">S</div>
-                    <h3>苍穹杯·群雄争霸</h3>
-                    <p>顶级赛事</p>
-                </div>
-                <div class="tournament-card tournament-q">
-                    <div class="tournament-icon">Q</div>
-                    <h3>苍穹杯·全明星</h3>
-                    <p>诸王之战</p>
-                </div>
-                <div class="tournament-card tournament-l">
-                    <div class="tournament-icon">L</div>
-                    <h3>苍穹杯·全国联赛</h3>
-                    <p>群雄逐鹿</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
+    <!-- Spirit Section -->
     <section id="spirit" class="spirit">
         <div class="container">
-            <h2 class="spirit-title">黑曼巴精神 🐍</h2>
-            <div class="spirit-grid">
-                <div class="spirit-item">
-                    <span class="spirit-icon">💜</span>
-                    <h4>永不言弃</h4>
-                    <p>即使跌倒 100 次，也要第 101 次站起来</p>
-                </div>
-                <div class="spirit-item">
-                    <span class="spirit-icon">🏀</span>
-                    <h4>全力以赴</h4>
-                    <p>每一球都当作最后一球来打</p>
-                </div>
-                <div class="spirit-item">
-                    <span class="spirit-icon">👥</span>
-                    <h4>兄弟同心</h4>
-                    <p>一个人可以走得快，一群人才能走得远</p>
-                </div>
-                <div class="spirit-item">
-                    <span class="spirit-icon">🏆</span>
-                    <h4>追求卓越</h4>
-                    <p>冠军不是终点，而是新的起点</p>
+            <div class="spirit-content">
+                <h2 class="spirit-title">黑曼巴精神 🐍</h2>
+                <div class="spirit-grid">
+                    <div class="spirit-item">
+                        <span class="spirit-icon">💜</span>
+                        <h4>永不言弃</h4>
+                        <p>即使跌倒 100 次，也要第 101 次站起来</p>
+                    </div>
+                    <div class="spirit-item">
+                        <span class="spirit-icon">🏀</span>
+                        <h4>全力以赴</h4>
+                        <p>每一球都当作最后一球来打</p>
+                    </div>
+                    <div class="spirit-item">
+                        <span class="spirit-icon">👥</span>
+                        <h4>兄弟同心</h4>
+                        <p>一个人可以走得快，一群人才能走得远</p>
+                    </div>
+                    <div class="spirit-item">
+                        <span class="spirit-icon">🏆</span>
+                        <h4>追求卓越</h4>
+                        <p>冠军不是终点，而是新的起点</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Contact Section -->
     <section id="contact" class="contact">
         <div class="container">
-            <h2 class="section-title">📞 联系我们 📞</h2>
+            <h2 class="section-title">
+                <span class="title-icon">📞</span> 联系我们
+                <span class="title-icon">📞</span>
+            </h2>
             <div class="contact-grid">
                 <div class="contact-card">
+                    <div class="contact-icon"></div>
                     <h3>俱乐部编号</h3>
                     <p class="contact-value">86670</p>
                 </div>
                 <div class="contact-card">
+                    <div class="contact-icon">📱</div>
                     <h3>抖音号</h3>
                     <p class="contact-value">CQ86670</p>
                 </div>
                 <div class="contact-card">
+                    <div class="contact-icon">🎮</div>
                     <h3>游戏平台</h3>
                     <p class="contact-value">2KOL 联合中心</p>
                 </div>
@@ -220,11 +453,12 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <span>苍穹</span>
+                    <img src="logo.jpg" alt="苍穹俱乐部" class="footer-logo-img">
                     <span class="footer-year">2013 - 2026</span>
                 </div>
                 <p class="footer-text">花有重开日，人无再少年，热血常埋于心中</p>
@@ -233,7 +467,12 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- Snake Animation -->
+    <div class="snake-trail" id="snakeTrail"></div>
+
+    <!-- Data & App -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>
