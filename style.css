@@ -14,2693 +14,3239 @@
  * 6. 各功能区块
  * 7. 响应式设计
  */
- /* ===== 1. CSS Variables ===== */
- 
- :root {
-     --lakers-purple: #552583;
-     --lakers-gold: #FDB927;
-     --blood-red: #C9082A;
-     --dark-bg: #0a0a0f;
-     --darker-bg: #050508;
-     --card-bg: #12121a;
-     --text-primary: #ffffff;
-     --text-secondary: #b8b8c8;
-     --gradient-purple: linear-gradient(135deg, #552583 0%, #7c3a99 100%);
-     --gradient-gold: linear-gradient(135deg, #FDB927 0%, #ffb700 100%);
-     --gradient-fire: linear-gradient(135deg, #C9082A 0%, #ff4444 100%);
-     --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
-     --shadow-glow: 0 0 40px rgba(253, 185, 39, 0.3);
- }
- /* ===== 2. Reset & Base ===== */
- 
- * {
-     margin: 0;
-     padding: 0;
-     box-sizing: border-box;
- }
- 
- html {
-     scroll-behavior: smooth;
-     scroll-padding-top: 80px;
-     /* 导航栏高度 */
- }
- 
- body {
-     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif;
-     background: var(--dark-bg);
-     color: var(--text-primary);
-     line-height: 1.8;
-     overflow-x: hidden;
-     /* 性能优化：启用 GPU 加速 */
-     -webkit-font-smoothing: antialiased;
-     -moz-osx-font-smoothing: grayscale;
-     text-rendering: optimizeLegibility;
- }
- /* 可访问性：Skip Link */
- 
- .skip-link:focus {
-     position: fixed;
-     left: 20px;
-     top: 20px;
-     width: auto;
-     height: auto;
-     padding: 12px 24px;
-     background: var(--lakers-gold);
-     color: var(--lakers-purple);
-     font-weight: 700;
-     z-index: 99999;
-     overflow: visible;
-     text-decoration: none;
-     border-radius: 8px;
-     box-shadow: 0 4px 20px rgba(253, 185, 39, 0.4);
- }
- /* 可访问性：焦点样式 */
- 
- a:focus,
- button:focus,
- [tabindex]:focus {
-     outline: 3px solid var(--lakers-gold);
-     outline-offset: 2px;
- }
- /* 可访问性：减少动画 */
- 
- @media (prefers-reduced-motion: reduce) {
-     *,
-     *::before,
-     *::after {
-         animation-duration: 0.01ms !important;
-         animation-iteration-count: 1 !important;
-         transition-duration: 0.01ms !important;
-         scroll-behavior: auto !important;
-     }
- }
- /* 打印样式 */
- 
- @media print {
-     .navbar,
-     .back-to-top,
-     .loading-screen,
-     .scroll-progress,
-     .snake-trail,
-     .video-tabs,
-     .honor-search-container {
-         display: none !important;
-     }
-     body {
-         background: white;
-         color: black;
-     }
-     a {
-         text-decoration: underline;
-     }
- }
- /* 性能优化：减少重绘 */
- 
- .hero,
- .navbar,
- .back-to-top {
-     will-change: transform;
- }
- /* 动画性能优化 */
- 
- .particle,
- .shooting-star,
- .starry-sky {
-     will-change: transform, opacity;
-     transform: translateZ(0);
-     backface-visibility: hidden;
- }
- /* 表格滚动性能优化 */
- 
- .table-responsive {
-     contain: layout style paint;
- }
- /* ===== 全国联赛分组样式 ===== */
- 
- .league-round-header {
-     background: linear-gradient(90deg, rgba(201, 8, 42, 0.2) 0%, rgba(85, 37, 131, 0.15) 50%, rgba(201, 8, 42, 0.2) 100%);
-     border-left: 4px solid var(--blood-red);
-     border-right: 4px solid var(--blood-red);
- }
- 
- .league-round-header td {
-     padding: 15px 20px !important;
-     text-align: center;
-     background: transparent !important;
- }
- 
- .round-badge {
-     display: inline-block;
-     background: linear-gradient(135deg, var(--blood-red) 0%, #ff4444 100%);
-     color: white;
-     padding: 6px 20px;
-     border-radius: 20px;
-     font-weight: 800;
-     font-size: 0.95rem;
-     letter-spacing: 1px;
-     box-shadow: 0 4px 15px rgba(201, 8, 42, 0.4);
-     margin-right: 15px;
- }
- 
- .round-season {
-     display: inline-block;
-     color: var(--lakers-gold);
-     font-weight: 700;
-     font-size: 0.9rem;
-     background: rgba(253, 185, 39, 0.1);
-     padding: 6px 15px;
-     border-radius: 15px;
-     border: 1px solid rgba(253, 185, 39, 0.3);
- }
- /* 同一届的数据行样式统一 */
- 
- .league-row {
-     transition: all 0.3s ease;
- }
- 
- .league-row[data-round] {
-     border-left: 3px solid transparent;
- }
- 
- .league-row[data-round="1"] {
-     border-left-color: rgba(201, 8, 42, 0.5);
- }
- 
- .league-row[data-round="2"] {
-     border-left-color: rgba(201, 8, 42, 0.6);
- }
- 
- .league-row[data-round="3"] {
-     border-left-color: rgba(201, 8, 42, 0.7);
- }
- 
- .league-row[data-round="4"] {
-     border-left-color: rgba(201, 8, 42, 0.8);
- }
- /* 每届之间的分隔 */
- 
- .league-round-header+.league-row {
-     border-top: 2px solid rgba(201, 8, 42, 0.3);
- }
- /* 届内数据行背景交替 */
- 
- .league-row:nth-of-type(3n+1) {
-     background: rgba(201, 8, 42, 0.08) !important;
- }
- 
- .league-row:nth-of-type(3n+2) {
-     background: rgba(201, 8, 42, 0.12) !important;
- }
- 
- .league-row:nth-of-type(3n+3) {
-     background: rgba(201, 8, 42, 0.16) !important;
- }
- /* 金银铜牌排名样式增强 */
- 
- .honor-table tbody tr.gold {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(253, 185, 39, 0.08) 100%) !important;
-     border-left: 4px solid var(--lakers-gold);
- }
- 
- .honor-table tbody tr.gold:hover {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.25) 0%, rgba(253, 185, 39, 0.15) 100%) !important;
-     box-shadow: 0 4px 15px rgba(253, 185, 39, 0.2);
- }
- 
- .honor-table tbody tr.silver {
-     background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.08) 100%) !important;
-     border-left: 4px solid #c0c0c0;
- }
- 
- .honor-table tbody tr.silver:hover {
-     background: linear-gradient(90deg, rgba(192, 192, 192, 0.25) 0%, rgba(192, 192, 192, 0.15) 100%) !important;
-     box-shadow: 0 4px 15px rgba(192, 192, 192, 0.2);
- }
- 
- .honor-table tbody tr.bronze {
-     background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.08) 100%) !important;
-     border-left: 4px solid #cd7f32;
- }
- 
- .honor-table tbody tr.bronze:hover {
-     background: linear-gradient(90deg, rgba(205, 127, 50, 0.25) 0%, rgba(205, 127, 50, 0.15) 100%) !important;
-     box-shadow: 0 4px 15px rgba(205, 127, 50, 0.2);
- }
- /* 减少移动端动画提升性能 */
- 
- @media (prefers-reduced-motion: reduce) {
-     *,
-     *::before,
-     *::after {
-         animation-duration: 0.01ms !important;
-         animation-iteration-count: 1 !important;
-         transition-duration: 0.01ms !important;
-         scroll-behavior: auto !important;
-     }
- }
- /* ===== Loading Screen ===== */
- 
- .loading-screen {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background: var(--darker-bg);
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     z-index: 10000;
-     transition: opacity 0.5s ease, visibility 0.5s ease;
- }
- 
- .loading-screen.hidden {
-     opacity: 0;
-     visibility: hidden;
- }
- 
- .loading-basketball {
-     font-size: 4rem;
-     animation: loadingBounce 1s ease-in-out infinite;
- }
- 
- @keyframes loadingBounce {
-     0%,
-     100% {
-         transform: translateY(0) scale(1);
-     }
-     50% {
-         transform: translateY(-30px) scale(1.1);
-     }
- }
- 
- .loading-text {
-     position: absolute;
-     bottom: 20%;
-     font-size: 1.2rem;
-     color: var(--lakers-gold);
-     animation: pulse 1.5s ease-in-out infinite;
- }
- /* ===== Scroll Progress Bar ===== */
- 
- .scroll-progress {
-     position: fixed;
-     top: 0;
-     left: 0;
-     height: 3px;
-     background: var(--gradient-gold);
-     z-index: 10001;
-     transition: width 0.1s ease;
- }
- /* ===== Navigation Bar - 顶部固定导航 ===== */
- 
- .navbar {
-     position: fixed;
-     top: 0;
-     left: 0;
-     right: 0;
-     background: rgba(10, 10, 15, 0.98);
-     backdrop-filter: blur(10px);
-     z-index: 10000;
-     border-bottom: 1px solid rgba(85, 37, 131, 0.3);
-     transition: all 0.3s ease;
-     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
- }
- 
- .navbar.scrolled {
-     background: rgba(5, 5, 8, 0.98);
-     box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
-     border-bottom-color: rgba(253, 185, 39, 0.5);
- }
- 
- .nav-container {
-     max-width: 1400px;
-     margin: 0 auto;
-     padding: 12px 30px;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     gap: 20px;
- }
- 
- .nav-logo {
-     display: flex;
-     align-items: center;
-     gap: 10px;
-     font-size: 1.4rem;
-     font-weight: 700;
-     color: var(--lakers-gold);
-     cursor: pointer;
-     transition: transform 0.3s;
-     flex-shrink: 0;
- }
- 
- .nav-logo:hover {
-     transform: scale(1.05);
- }
- 
- .nav-text {
-     background: var(--gradient-gold);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
- }
- /* 主导航菜单 */
- 
- .nav-menu {
-     display: flex;
-     list-style: none;
-     gap: 8px;
-     margin: 0;
-     padding: 0;
-     flex: 1;
-     justify-content: center;
- }
- 
- .nav-menu li {
-     position: relative;
- }
- 
- .nav-menu a {
-     color: var(--text-primary);
-     text-decoration: none;
-     font-weight: 600;
-     padding: 10px 18px;
-     border-radius: 8px;
-     transition: all 0.3s ease;
-     display: block;
-     font-size: 0.95rem;
- }
- 
- .nav-menu a::after {
-     content: '';
-     position: absolute;
-     bottom: 0;
-     left: 50%;
-     transform: translateX(-50%);
-     width: 0;
-     height: 3px;
-     background: var(--gradient-gold);
-     transition: width 0.3s ease;
-     border-radius: 2px 2px 0 0;
- }
- 
- .nav-menu a:hover {
-     color: var(--lakers-gold);
-     background: rgba(253, 185, 39, 0.1);
- }
- 
- .nav-menu a:hover::after {
-     width: 80%;
- }
- 
- .nav-menu a.active {
-     color: var(--lakers-gold);
-     background: rgba(253, 185, 39, 0.15);
- }
- 
- .nav-menu a.active::after {
-     width: 80%;
- }
- /* 右侧快速导航 - 纯文字专业形式 */
- 
- .nav-quick-links {
-     display: flex;
-     align-items: center;
-     gap: 6px;
-     flex-shrink: 0;
-     margin-left: auto;
-     /* 确保快速导航尽可能靠右 */
- }
- 
- .quick-link {
-     padding: 8px 16px;
-     background: rgba(85, 37, 131, 0.15);
-     border: 1px solid transparent;
-     border-radius: 8px;
-     color: var(--text-secondary);
-     font-size: 0.85rem;
-     font-weight: 600;
-     cursor: pointer;
-     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-     position: relative;
-     overflow: hidden;
- }
- /* 金色光效动画 */
- 
- .quick-link::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: -100%;
-     width: 100%;
-     height: 100%;
-     background: linear-gradient(90deg, transparent, rgba(253, 185, 39, 0.15), transparent);
-     transition: left 0.5s ease;
- }
- 
- .quick-link:hover::before {
-     left: 100%;
- }
- 
- .quick-link:hover {
-     background: rgba(253, 185, 39, 0.1);
-     border-color: rgba(253, 185, 39, 0.3);
-     color: var(--lakers-gold);
-     transform: translateY(-2px);
-     box-shadow: 0 4px 12px rgba(253, 185, 39, 0.15);
- }
- 
- .quick-link.active {
-     background: var(--gradient-gold);
-     border-color: var(--lakers-gold);
-     color: var(--lakers-purple);
-     font-weight: 700;
-     box-shadow: 0 4px 12px rgba(253, 185, 39, 0.3);
- }
- /* 点击动画 */
- 
- .quick-link:active {
-     transform: translateY(0) scale(0.96);
- }
- /* Mobile Menu */
- 
- @media (max-width: 768px) {
-     .nav-container {
-         padding: 10px 15px;
-     }
-     .nav-logo {
-         font-size: 1.2rem;
-     }
-     .nav-menu {
-         position: fixed;
-         top: 60px;
-         left: -100%;
-         width: 100%;
-         background: rgba(10, 10, 15, 0.98);
-         flex-direction: column;
-         padding: 20px;
-         gap: 10px;
-         transition: left 0.3s ease;
-         border-bottom: 1px solid rgba(85, 37, 131, 0.3);
-     }
-     .nav-menu.active {
-         left: 0;
-     }
-     .nav-menu a {
-         padding: 12px 15px;
-         font-size: 1rem;
-     }
-     .nav-toggle {
-         display: flex;
-     }
- }
- 
- .container {
-     max-width: 1200px;
-     margin: 0 auto;
-     padding: 0 20px;
- }
- /* ===== Hero Section ===== */
- 
- .hero {
-     position: relative;
-     min-height: 100vh;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     overflow: hidden;
-     background: var(--darker-bg);
- }
- 
- .hero::after {
-     content: '';
-     position: absolute;
-     bottom: 0;
-     left: 0;
-     right: 0;
-     height: 100px;
-     background: linear-gradient(to bottom, transparent, var(--dark-bg));
-     pointer-events: none;
- }
- 
- .hero-bg {
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: radial-gradient(ellipse at 50% 0%, var(--lakers-purple) 0%, transparent 70%), radial-gradient(ellipse at 80% 50%, var(--blood-red) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, var(--lakers-gold) 0%, transparent 40%);
-     opacity: 0.3;
-     animation: pulse 4s ease-in-out infinite;
- }
- 
- @keyframes pulse {
-     0%,
-     100% {
-         opacity: 0.3;
-     }
-     50% {
-         opacity: 0.5;
-     }
- }
- 
- .hero-overlay {
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23552583' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
- }
- /* ===== 星星动画背景 ===== */
- 
- .particles {
-     position: absolute;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     overflow: hidden;
-     pointer-events: none;
-     z-index: 1;
- }
- 
- .particle {
-     position: absolute;
-     background: radial-gradient(circle, var(--lakers-gold) 0%, transparent 70%);
-     border-radius: 50%;
-     opacity: 0;
-     animation: particleFloat 15s infinite, starTwinkle 3s ease-in-out infinite;
- }
- 
- @keyframes particleFloat {
-     0%,
-     100% {
-         transform: translateY(0) translateX(0);
-         opacity: 0;
-     }
-     10% {
-         opacity: 0.3;
-     }
-     90% {
-         opacity: 0.3;
-     }
-     100% {
-         transform: translateY(-100vh) translateX(50px);
-         opacity: 0;
-     }
- }
- /* 星星闪烁效果 */
- 
- @keyframes starTwinkle {
-     0%,
-     100% {
-         opacity: 0.2;
-         transform: scale(1);
-         box-shadow: 0 0 5px rgba(253, 185, 39, 0.3);
-     }
-     50% {
-         opacity: 0.8;
-         transform: scale(1.2);
-         box-shadow: 0 0 15px rgba(253, 185, 39, 0.8), 0 0 30px rgba(253, 185, 39, 0.4);
-     }
- }
- /* 流星效果 */
- 
- .shooting-star {
-     position: absolute;
-     width: 4px;
-     height: 4px;
-     background: linear-gradient(135deg, var(--lakers-gold), transparent);
-     border-radius: 50%;
-     box-shadow: 0 0 10px var(--lakers-gold), 0 0 20px var(--lakers-gold);
-     animation: shootingStar 3s linear infinite;
-     opacity: 0;
- }
- 
- @keyframes shootingStar {
-     0% {
-         opacity: 0;
-         transform: translateX(0) translateY(0);
-     }
-     10% {
-         opacity: 1;
-     }
-     30% {
-         opacity: 1;
-         transform: translateX(-300px) translateY(300px);
-     }
-     100% {
-         opacity: 0;
-         transform: translateX(-300px) translateY(300px);
-     }
- }
- /* 星空背景层 */
- 
- .starry-sky {
-     position: absolute;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background-image: radial-gradient(2px 2px at 20px 30px, rgba(253, 185, 39, 0.8), transparent), radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.6), transparent), radial-gradient(1px 1px at 90px 40px, rgba(253, 185, 39, 0.7), transparent), radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.5), transparent), radial-gradient(1px 1px at 160px 120px, rgba(253, 185, 39, 0.6), transparent), radial-gradient(2px 2px at 200px 50px, rgba(255, 255, 255, 0.7), transparent), radial-gradient(1px 1px at 250px 160px, rgba(253, 185, 39, 0.5), transparent), radial-gradient(2px 2px at 300px 90px, rgba(255, 255, 255, 0.6), transparent), radial-gradient(1px 1px at 350px 200px, rgba(253, 185, 39, 0.7), transparent), radial-gradient(2px 2px at 400px 140px, rgba(255, 255, 255, 0.5), transparent);
-     background-size: 450px 300px;
-     animation: twinkleSky 5s ease-in-out infinite;
-     opacity: 0.6;
-     pointer-events: none;
- }
- 
- @keyframes twinkleSky {
-     0%,
-     100% {
-         opacity: 0.4;
-     }
-     50% {
-         opacity: 0.8;
-     }
- }
- 
- .hero-content {
-     position: relative;
-     z-index: 10;
-     text-align: center;
-     padding: 40px 20px;
- }
- 
- .logo-container {
-     margin-bottom: 30px;
- }
- 
- .logo {
-     display: inline-block;
-     padding: 20px 40px;
-     background: var(--gradient-purple);
-     border: 3px solid var(--lakers-gold);
-     border-radius: 10px;
-     box-shadow: 0 0 30px rgba(85, 37, 131, 0.5), 0 0 60px rgba(253, 185, 39, 0.3);
-     animation: glow 2s ease-in-out infinite;
-     transition: transform 0.3s, box-shadow 0.3s;
- }
- 
- .logo:hover {
-     transform: scale(1.05);
-     box-shadow: 0 0 50px rgba(85, 37, 131, 0.8), 0 0 90px rgba(253, 185, 39, 0.6);
- }
- 
- .logo-img {
-     max-width: 200px;
-     height: auto;
-     margin-bottom: 30px;
-     filter: drop-shadow(0 0 20px rgba(253, 185, 39, 0.4));
-     transition: transform 0.3s, filter 0.3s;
-     animation: logoFloat 3s ease-in-out infinite;
-     cursor: pointer;
- }
- 
- .logo-img:hover {
-     transform: scale(1.1) rotate(5deg);
-     filter: drop-shadow(0 0 40px rgba(253, 185, 39, 0.8));
- }
- 
- @keyframes logoFloat {
-     0%,
-     100% {
-         transform: translateY(0);
-     }
-     50% {
-         transform: translateY(-10px);
-     }
- }
- 
- @keyframes glow {
-     0%,
-     100% {
-         box-shadow: 0 0 30px rgba(85, 37, 131, 0.5), 0 0 60px rgba(253, 185, 39, 0.3);
-     }
-     50% {
-         box-shadow: 0 0 50px rgba(85, 37, 131, 0.8), 0 0 90px rgba(253, 185, 39, 0.5);
-     }
- }
- 
- .logo-text {
-     display: block;
-     font-size: 3rem;
-     font-weight: 900;
-     color: var(--lakers-gold);
-     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
- }
- 
- .logo-sub {
-     display: block;
-     font-size: 0.9rem;
-     color: var(--text-primary);
-     letter-spacing: 4px;
-     margin-top: 5px;
- }
- 
- .hero-title {
-     font-size: 3.5rem;
-     font-weight: 900;
-     margin-bottom: 15px;
-     background: var(--gradient-gold);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
-     text-shadow: 0 0 30px rgba(253, 185, 39, 0.5);
-     animation: slideUp 1s ease-out;
- }
- 
- @keyframes slideUp {
-     from {
-         opacity: 0;
-         transform: translateY(30px);
-     }
-     to {
-         opacity: 1;
-         transform: translateY(0);
-     }
- }
- 
- .hero-subtitle {
-     font-size: 1.2rem;
-     color: var(--text-secondary);
-     margin-bottom: 40px;
-     animation: slideUp 1s ease-out 0.2s both;
- }
- 
- .hero-stats {
-     display: flex;
-     justify-content: center;
-     gap: 40px;
-     margin-bottom: 40px;
-     animation: slideUp 1s ease-out 0.4s both;
- }
- 
- .stat {
-     text-align: center;
- }
- 
- .stat-number {
-     display: block;
-     font-size: 2.5rem;
-     font-weight: 900;
-     color: var(--lakers-gold);
- }
- 
- .stat-label {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
- }
- 
- .cta-button {
-     display: inline-block;
-     padding: 15px 40px;
-     background: var(--gradient-fire);
-     color: white;
-     text-decoration: none;
-     font-weight: 700;
-     border-radius: 50px;
-     transition: all 0.3s ease;
-     box-shadow: 0 5px 20px rgba(201, 8, 42, 0.4);
-     animation: slideUp 1s ease-out 0.6s both, pulse 2s ease-in-out infinite;
-     position: relative;
-     overflow: hidden;
- }
- 
- .cta-button::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: -100%;
-     width: 100%;
-     height: 100%;
-     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-     transition: left 0.5s ease;
- }
- 
- .cta-button:hover::before {
-     left: 100%;
- }
- 
- .cta-button:hover {
-     transform: translateY(-5px) scale(1.05);
-     box-shadow: 0 15px 40px rgba(201, 8, 42, 0.6);
- }
- /* ===== Mamba Quote Section ===== */
- 
- .mamba-quote {
-     background: var(--gradient-purple);
-     padding: 60px 20px;
-     text-align: center;
-     position: relative;
-     overflow: hidden;
- }
- 
- .mamba-quote::before {
-     content: '🐍';
-     position: absolute;
-     font-size: 200px;
-     opacity: 0.05;
-     top: 50%;
-     left: 50%;
-     transform: translate(-50%, -50%);
-     animation: snakePulse 3s ease-in-out infinite;
- }
- 
- @keyframes snakePulse {
-     0%,
-     100% {
-         opacity: 0.05;
-         transform: translate(-50%, -50%) scale(1);
-     }
-     50% {
-         opacity: 0.1;
-         transform: translate(-50%, -50%) scale(1.1);
-     }
- }
- 
- .quote-content {
-     position: relative;
-     z-index: 1;
-     max-width: 600px;
-     margin: 0 auto;
- }
- 
- .quote-icon {
-     width: 40px;
-     height: 40px;
-     color: var(--lakers-gold);
-     margin-bottom: 20px;
-     opacity: 0.5;
- }
- 
- .quote-text {
-     font-size: 1.5rem;
-     font-weight: 700;
-     font-style: italic;
-     margin-bottom: 15px;
-     color: var(--text-primary);
- }
- 
- .quote-author {
-     font-size: 1rem;
-     color: var(--lakers-gold);
- }
- /* ===== Section Titles ===== */
- 
- .section-title {
-     font-size: 2.5rem;
-     font-weight: 900;
-     text-align: center;
-     margin-bottom: 20px;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     gap: 15px;
- }
- 
- .title-icon {
-     font-size: 2rem;
- }
- 
- .section-desc {
-     text-align: center;
-     color: var(--text-secondary);
-     max-width: 700px;
-     margin: 0 auto 50px;
-     font-size: 1.1rem;
- }
- /* ===== Structure Section ===== */
- 
- .structure {
-     padding: 100px 0;
-     background: var(--dark-bg);
- }
- 
- .structure-content {
-     max-width: 900px;
-     margin: 0 auto;
- }
- /* 会长区域 */
- 
- .structure-president {
-     display: flex;
-     justify-content: center;
-     margin-bottom: 50px;
- }
- 
- .president-card {
-     background: linear-gradient(135deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.1) 100%);
-     border: 2px solid var(--lakers-gold);
-     border-radius: 20px;
-     padding: 40px 60px;
-     text-align: center;
-     min-width: 280px;
-     box-shadow: 0 10px 40px rgba(253, 185, 39, 0.2);
-     transition: all 0.3s ease;
- }
- 
- .president-card:hover {
-     transform: translateY(-5px);
-     box-shadow: 0 15px 50px rgba(253, 185, 39, 0.3);
- }
- /* 组织框区域 */
- 
- .structure-organs {
-     display: grid;
-     grid-template-columns: repeat(2, 1fr);
-     gap: 40px;
- }
- 
- .organ-box {
-     background: var(--card-bg);
-     border-radius: 20px;
-     padding: 35px;
-     text-align: center;
-     transition: all 0.3s ease;
-     min-height: 380px;
-     display: flex;
-     flex-direction: column;
- }
- 
- .organ-box.vice-president {
-     border: 2px solid var(--lakers-purple);
- }
- 
- .organ-box.organizer {
-     border: 2px solid var(--blood-red);
- }
- 
- .organ-box:hover {
-     transform: translateY(-5px);
- }
- 
- .organ-box.vice-president:hover {
-     box-shadow: 0 15px 40px rgba(85, 37, 131, 0.3);
- }
- 
- .organ-box.organizer:hover {
-     box-shadow: 0 15px 40px rgba(201, 8, 42, 0.3);
- }
- 
- .organ-header {
-     margin-bottom: 25px;
- }
- 
- .organ-header .role-icon {
-     font-size: 3rem;
-     display: block;
-     margin-bottom: 10px;
- }
- 
- .organ-header .role-title {
-     font-size: 1.5rem;
-     font-weight: 900;
-     margin: 0;
- }
- 
- .organ-box.vice-president .role-title {
-     background: var(--gradient-purple);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
- }
- 
- .organ-box.organizer .role-title {
-     background: var(--gradient-fire);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
- }
- /* 成员标签 */
- 
- .role-members {
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: center;
-     gap: 10px;
-     margin-bottom: 25px;
-     flex: 1;
-     align-content: center;
- }
- 
- .member-chip {
-     padding: 8px 18px;
-     border-radius: 20px;
-     font-size: 0.95rem;
-     font-weight: 600;
-     color: white;
-     transition: all 0.3s ease;
-     cursor: pointer;
- }
- 
- .member-chip:hover {
-     transform: scale(1.08);
- }
- 
- .member-chip.vice-president {
-     background: var(--gradient-purple);
-     border: 1px solid var(--lakers-purple);
- }
- 
- .member-chip.organizer {
-     background: var(--gradient-fire);
-     border: 1px solid var(--blood-red);
- }
- 
- .member-chip.president {
-     background: var(--gradient-gold);
-     color: var(--lakers-purple);
-     font-size: 1.3rem;
-     padding: 12px 30px;
- }
- /* 职责描述 */
- 
- .role-desc {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
-     line-height: 1.8;
-     padding: 15px;
-     background: rgba(85, 37, 131, 0.1);
-     border-radius: 10px;
-     border-left: 3px solid var(--lakers-gold);
-     margin-top: auto;
- }
- /* ===== About Section ===== */
- 
- .about {
-     padding: 100px 0;
-     background: var(--card-bg);
- }
- 
- .about-content {
-     display: grid;
-     grid-template-columns: 1fr auto;
-     gap: 50px;
-     align-items: center;
- }
- 
- .about-text p {
-     margin-bottom: 20px;
-     font-size: 1.1rem;
-     color: var(--text-secondary);
-     line-height: 2;
- }
- 
- .about-text strong {
-     color: var(--lakers-gold);
- }
- 
- .about-intro {
-     font-size: 1.2rem !important;
- }
- 
- .highlight {
-     background: var(--gradient-purple);
-     padding: 20px;
-     border-radius: 10px;
-     border-left: 4px solid var(--lakers-gold);
-     color: var(--text-primary) !important;
- }
- 
- .about-badge {
-     flex-shrink: 0;
- }
- 
- .badge-inner {
-     width: 150px;
-     height: 150px;
-     background: var(--gradient-gold);
-     border-radius: 50%;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     box-shadow: 0 0 40px rgba(253, 185, 39, 0.4);
-     animation: rotate 20s linear infinite;
- }
- 
- @keyframes rotate {
-     from {
-         transform: rotate(0deg);
-     }
-     to {
-         transform: rotate(360deg);
-     }
- }
- 
- .badge-year {
-     font-size: 2rem;
-     font-weight: 900;
-     color: var(--lakers-purple);
- }
- 
- .badge-text {
-     font-size: 0.9rem;
-     color: var(--lakers-purple);
- }
- 
- .badge-emblem {
-     font-size: 2.5rem;
-     margin-top: 5px;
- }
- /* ===== Tournaments Section ===== */
- 
- .tournaments {
-     padding: 100px 0;
-     background: var(--dark-bg);
- }
- 
- .tournament-grid {
-     display: grid;
-     grid-template-columns: repeat(3, 1fr);
-     gap: 30px;
-     margin-top: 50px;
- }
- 
- .tournament-card {
-     position: relative;
-     padding: 40px 30px;
-     background: var(--card-bg);
-     border-radius: 20px;
-     text-align: center;
-     overflow: hidden;
-     transition: all 0.3s ease;
-     border: 2px solid transparent;
-     transform-style: preserve-3d;
- }
- 
- .tournament-card::before {
-     content: '';
-     position: absolute;
-     top: -50%;
-     left: -50%;
-     width: 200%;
-     height: 200%;
-     background: radial-gradient(circle, rgba(253, 185, 39, 0.1) 0%, transparent 70%);
-     opacity: 0;
-     transition: opacity 0.4s ease;
-     pointer-events: none;
- }
- 
- .tournament-card:hover::before {
-     opacity: 1;
- }
- 
- .tournament-s {
-     border-color: var(--lakers-gold);
- }
- 
- .tournament-s:hover {
-     box-shadow: 0 20px 40px rgba(253, 185, 39, 0.3);
- }
- 
- .tournament-q {
-     border-color: var(--lakers-purple);
- }
- 
- .tournament-q:hover {
-     box-shadow: 0 20px 40px rgba(85, 37, 131, 0.3);
- }
- 
- .tournament-l {
-     border-color: var(--blood-red);
- }
- 
- .tournament-l:hover {
-     box-shadow: 0 20px 40px rgba(201, 8, 42, 0.3);
- }
- 
- .tournament-icon {
-     width: 80px;
-     height: 80px;
-     margin: 0 auto 20px;
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 2.5rem;
-     font-weight: 900;
- }
- 
- .tournament-s .tournament-icon {
-     background: var(--gradient-gold);
-     color: var(--lakers-purple);
- }
- 
- .tournament-q .tournament-icon {
-     background: var(--gradient-purple);
-     color: var(--lakers-gold);
- }
- 
- .tournament-l .tournament-icon {
-     background: var(--gradient-fire);
-     color: white;
- }
- 
- .tournament-card h3 {
-     font-size: 1.5rem;
-     margin-bottom: 10px;
- }
- 
- .tournament-card p {
-     color: var(--text-secondary);
- }
- 
- .tournament-glow {
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-     opacity: 0;
-     transition: opacity 0.3s ease;
- }
- 
- .tournament-card:hover .tournament-glow {
-     opacity: 1;
- }
- /* ===== Video Directory List ===== */
- /* ===== Video Gallery Section - 专业目录样式 ===== */
- 
- .videos {
-     padding: 100px 0;
-     background: var(--dark-bg);
- }
- 
- .video-tabs {
-     display: flex;
-     justify-content: center;
-     gap: 15px;
-     margin-bottom: 40px;
-     flex-wrap: wrap;
- }
- 
- .tab-btn {
-     display: flex;
-     align-items: center;
-     gap: 8px;
-     padding: 12px 24px;
-     background: var(--card-bg);
-     border: 2px solid var(--lakers-purple);
-     border-radius: 25px;
-     color: var(--text-primary);
-     font-weight: 600;
-     cursor: pointer;
-     transition: all 0.3s ease;
-     min-width: 140px;
- }
- 
- .tab-btn:hover {
-     border-color: var(--lakers-gold);
-     transform: translateY(-3px);
- }
- 
- .tab-btn.active {
-     background: var(--gradient-gold);
-     border-color: var(--lakers-gold);
-     color: var(--lakers-purple);
-     box-shadow: 0 5px 20px rgba(253, 185, 39, 0.3);
- }
- 
- .tab-icon {
-     font-size: 1.2rem;
- }
- 
- .tab-text {
-     font-size: 0.95rem;
-     font-weight: 700;
- }
- 
- .tab-count {
-     background: rgba(85, 37, 131, 0.3);
-     color: var(--lakers-gold);
-     padding: 2px 8px;
-     border-radius: 10px;
-     font-size: 0.8rem;
-     font-weight: 700;
-     min-width: 28px;
-     text-align: center;
- }
- 
- .tab-btn.active .tab-count {
-     background: var(--lakers-purple);
-     color: white;
- }
- /* ===== Video Directory - 视频目录 ===== */
- 
- .video-directory {
-     max-width: 900px;
-     margin: 0 auto;
- }
- 
- .tab-panel {
-     display: none;
-     animation: fadeIn 0.5s ease;
- }
- 
- .tab-panel.active {
-     display: block;
- }
- 
- @keyframes fadeIn {
-     from {
-         opacity: 0;
-         transform: translateY(20px);
-     }
-     to {
-         opacity: 1;
-         transform: translateY(0);
-     }
- }
- /* ===== Video List Header - 目录头部 ===== */
- 
- .video-list-header {
-     display: flex;
-     align-items: center;
-     gap: 12px;
-     padding: 20px 25px;
-     background: linear-gradient(135deg, rgba(85, 37, 131, 0.2) 0%, rgba(18, 18, 26, 0.8) 100%);
-     border-radius: 15px 15px 0 0;
-     border: 1px solid rgba(85, 37, 131, 0.3);
-     border-bottom: none;
- }
- 
- .list-icon {
-     font-size: 1.8rem;
- }
- 
- .list-title {
-     font-size: 1.3rem;
-     font-weight: 800;
-     color: var(--lakers-gold);
-     flex: 1;
- }
- 
- .list-info {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
-     background: rgba(85, 37, 131, 0.3);
-     padding: 6px 15px;
-     border-radius: 12px;
- }
- /* ===== Video List - 目录列表 ===== */
- 
- .video-list {
-     display: flex;
-     flex-direction: column;
-     gap: 12px;
-     background: var(--card-bg);
-     border-radius: 0 0 15px 15px;
-     border: 1px solid rgba(85, 37, 131, 0.3);
-     border-top: none;
-     padding: 15px;
- }
- 
- .video-list-item {
-     display: flex;
-     gap: 20px;
-     background: rgba(85, 37, 131, 0.08);
-     border-radius: 12px;
-     padding: 18px 20px;
-     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-     cursor: pointer;
-     border: 1px solid transparent;
-     position: relative;
-     overflow: hidden;
- }
- 
- .video-list-item::before {
-     content: '';
-     position: absolute;
-     left: 0;
-     top: 0;
-     width: 4px;
-     height: 100%;
-     background: var(--gradient-purple);
-     opacity: 0;
-     transition: opacity 0.3s ease;
- }
- 
- .video-list-item:hover::before {
-     opacity: 1;
- }
- 
- .video-list-item:hover {
-     background: rgba(85, 37, 131, 0.15);
-     border-color: rgba(253, 185, 39, 0.3);
-     transform: translateX(8px);
-     box-shadow: 0 5px 20px rgba(85, 37, 131, 0.3);
- }
- 
- .video-rank {
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     min-width: 50px;
-     height: 50px;
-     background: var(--gradient-purple);
-     border-radius: 10px;
-     font-size: 1.1rem;
-     font-weight: 900;
-     color: var(--lakers-gold);
-     flex-shrink: 0;
-     box-shadow: 0 4px 15px rgba(85, 37, 131, 0.4);
- }
- 
- .video-meta {
-     flex: 1;
-     display: flex;
-     flex-direction: column;
-     gap: 8px;
-     min-width: 0;
- }
- 
- .video-title {
-     font-size: 1.05rem;
-     font-weight: 700;
-     color: var(--text-primary);
-     margin: 0;
-     line-height: 1.4;
- }
- 
- .video-desc {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
-     margin: 0;
-     line-height: 1.5;
-     display: -webkit-box;
-     -webkit-line-clamp: 2;
-     -webkit-box-orient: vertical;
-     overflow: hidden;
- }
- 
- .video-stats {
-     display: flex;
-     gap: 20px;
-     align-items: center;
-     margin-top: 5px;
- }
- 
- .video-duration,
- .video-views {
-     display: flex;
-     align-items: center;
-     gap: 5px;
-     font-size: 0.85rem;
-     font-weight: 600;
-     padding: 4px 10px;
-     border-radius: 8px;
-     background: rgba(85, 37, 131, 0.3);
- }
- 
- .video-duration {
-     color: var(--lakers-gold);
- }
- 
- .video-views {
-     color: var(--text-secondary);
- }
- /* 移动端适配 */
- 
- @media (max-width: 768px) {
-     .tab-btn {
-         min-width: 120px;
-         padding: 10px 18px;
-     }
-     .tab-text {
-         font-size: 0.85rem;
-     }
-     .video-list-header {
-         flex-direction: column;
-         gap: 10px;
-         text-align: center;
-     }
-     .list-info {
-         width: 100%;
-     }
-     .video-list-item {
-         flex-direction: column;
-         gap: 12px;
-     }
-     .video-rank {
-         width: 100%;
-         height: 40px;
-     }
- }
- /* ===== Honor Stats ===== */
- 
- .honor-stats {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     gap: 20px;
-     margin-top: 50px;
- }
- 
- .stat-card {
-     background: var(--card-bg);
-     border-radius: 15px;
-     padding: 25px;
-     text-align: center;
-     border: 2px solid var(--lakers-purple);
-     transition: all 0.3s ease;
- }
- 
- .stat-card:hover {
-     border-color: var(--lakers-gold);
-     transform: translateY(-5px);
- }
- 
- .stat-icon {
-     font-size: 2.5rem;
-     display: block;
-     margin-bottom: 10px;
- }
- 
- .stat-value {
-     display: block;
-     font-size: 2.5rem;
-     font-weight: 900;
-     color: var(--lakers-gold);
-     margin-bottom: 5px;
- }
- 
- .stat-label {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
- }
- /* ===== Honor Tables - 优化大数据量展示 ===== */
- 
- .honor-tables {
-     margin-top: 30px;
- }
- 
- .honor-table-panel {
-     display: none;
-     animation: fadeIn 0.5s ease;
- }
- 
- .honor-table-panel.active {
-     display: block;
- }
- 
- .honor-table-wrapper {
-     background: var(--card-bg);
-     border-radius: 15px;
-     overflow: hidden;
-     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-     border: 1px solid rgba(85, 37, 131, 0.3);
-     max-height: 600px;
-     position: relative;
- }
- /* 表格容器滚动优化 */
- 
- .table-responsive {
-     overflow-x: auto;
-     overflow-y: auto;
-     -webkit-overflow-scrolling: touch;
-     max-height: 600px;
-     scrollbar-width: thin;
-     scrollbar-color: var(--lakers-purple) var(--dark-bg);
- }
- 
- .table-responsive::-webkit-scrollbar {
-     width: 8px;
-     height: 8px;
- }
- 
- .table-responsive::-webkit-scrollbar-track {
-     background: var(--dark-bg);
-     border-radius: 4px;
- }
- 
- .table-responsive::-webkit-scrollbar-thumb {
-     background: linear-gradient(135deg, var(--lakers-purple), var(--lakers-gold));
-     border-radius: 4px;
-     transition: background 0.3s;
- }
- 
- .table-responsive::-webkit-scrollbar-thumb:hover {
-     background: var(--lakers-gold);
- }
- 
- .honor-table {
-     width: 100%;
-     border-collapse: collapse;
-     font-size: 0.85rem;
-     min-width: 800px;
- }
- 
- .honor-table thead {
-     background: linear-gradient(135deg, var(--lakers-purple) 0%, #3a1a5c 100%);
-     position: sticky;
-     top: 0;
-     z-index: 100;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
- }
- 
- .honor-table th {
-     padding: 18px 15px;
-     text-align: left;
-     font-weight: 700;
-     color: var(--lakers-gold);
-     font-size: 0.85rem;
-     text-transform: uppercase;
-     letter-spacing: 1px;
-     white-space: nowrap;
-     border-bottom: 2px solid var(--lakers-gold);
- }
- 
- .honor-table td {
-     padding: 12px 15px;
-     border-bottom: 1px solid rgba(85, 37, 131, 0.15);
-     color: var(--text-secondary);
-     font-size: 0.85rem;
-     white-space: nowrap;
-     transition: all 0.2s ease;
- }
- /* 斑马纹效果 - 提高可读性 */
- 
- .honor-table tbody tr:nth-child(odd) {
-     background: rgba(85, 37, 131, 0.05);
- }
- 
- .honor-table tbody tr:nth-child(even) {
-     background: rgba(85, 37, 131, 0.08);
- }
- 
- .honor-table tbody tr {
-     transition: all 0.25s ease;
- }
- 
- .honor-table tbody tr:hover {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.1) 100%);
-     transform: translateX(5px);
-     box-shadow: 0 2px 10px rgba(253, 185, 39, 0.1);
- }
- 
- .honor-table tbody tr:last-child td {
-     border-bottom: none;
- }
- /* 赛季徽章 - 增强视觉层次 */
- 
- .season-badge {
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     padding: 5px 14px;
-     background: linear-gradient(135deg, var(--lakers-gold) 0%, #e0a800 100%);
-     color: var(--lakers-purple);
-     border-radius: 15px;
-     font-weight: 800;
-     font-size: 0.8rem;
-     box-shadow: 0 2px 8px rgba(253, 185, 39, 0.3);
-     min-width: 60px;
-     letter-spacing: 0.5px;
- }
- /* 冠军队员列表 - 高亮显示 */
- 
- .champions {
-     font-weight: 700;
-     color: var(--lakers-gold);
-     text-shadow: 0 0 10px rgba(253, 185, 39, 0.3);
- }
- /* 冠军戒指 - 添加图标效果 */
- 
- .ring {
-     color: var(--lakers-gold);
-     font-weight: 700;
-     display: flex;
-     align-items: center;
-     gap: 5px;
- }
- 
- .ring::before {
-     content: '💍';
-     font-size: 1rem;
- }
- /* 团队名称 - 突出显示 */
- 
- .team-name {
-     font-weight: 800;
-     color: var(--text-primary);
-     background: linear-gradient(135deg, var(--text-primary) 0%, var(--lakers-gold) 100%);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
- }
- /* 队员列表 - 优化排版 */
- 
- .players {
-     color: var(--text-secondary);
-     font-size: 0.8rem;
-     line-height: 1.6;
-     max-width: 200px;
-     white-space: normal;
-     word-wrap: break-word;
-     word-break: break-word;
-     overflow-wrap: break-word;
- }
- /* 队长标记 */
- 
- .players .captain-mark {
-     color: var(--lakers-gold);
-     font-weight: 700;
-     position: relative;
- }
- 
- .players .captain-mark::after {
-     content: '👑';
-     font-size: 0.7rem;
-     margin-left: 3px;
- }
- /* FMVP 标记 - 增强视觉效果 */
- 
- .players .fmvp-mark {
-     color: var(--lakers-gold);
-     font-weight: 800;
-     background: linear-gradient(135deg, rgba(253, 185, 39, 0.2) 0%, rgba(253, 185, 39, 0.1) 100%);
-     padding: 3px 8px;
-     border-radius: 6px;
-     border: 1px solid rgba(253, 185, 39, 0.3);
-     box-shadow: 0 2px 5px rgba(253, 185, 39, 0.1);
- }
- /* 金银铜牌排名样式 */
- 
- .honor-table tbody tr.gold {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.12) 0%, transparent 100%);
-     border-left: 3px solid var(--lakers-gold);
- }
- 
- .honor-table tbody tr.gold:hover {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.25) 0%, rgba(253, 185, 39, 0.1) 100%);
- }
- 
- .honor-table tbody tr.silver {
-     background: linear-gradient(90deg, rgba(192, 192, 192, 0.1) 0%, transparent 100%);
-     border-left: 3px solid #c0c0c0;
- }
- 
- .honor-table tbody tr.bronze {
-     background: linear-gradient(90deg, rgba(205, 127, 50, 0.1) 0%, transparent 100%);
-     border-left: 3px solid #cd7f32;
- }
- /* 年份高亮 */
- 
- .honor-table td:first-child {
-     font-weight: 600;
-     color: var(--text-primary);
-     background: rgba(85, 37, 131, 0.1);
-     border-radius: 8px 0 0 8px;
- }
- /* 表格加载动画 */
- 
- .honor-table.loading {
-     opacity: 0.5;
- }
- /* 空数据提示 */
- 
- .honor-table-empty {
-     text-align: center;
-     padding: 60px 20px;
-     color: var(--text-secondary);
-     font-size: 1.1rem;
- }
- 
- .honor-table-empty::before {
-     content: '📊';
-     display: block;
-     font-size: 3rem;
-     margin-bottom: 15px;
-     opacity: 0.5;
- }
- /* ===== Honors Section ===== */
- 
- .honors {
-     padding: 100px 0;
-     background: var(--dark-bg);
- }
- /* ===== 荣誉堂卡片式标签切换 ===== */
- 
- .honor-tabs-card {
-     display: grid;
-     grid-template-columns: repeat(3, 1fr);
-     gap: 25px;
-     margin-bottom: 30px;
-     max-width: 900px;
-     margin-left: auto;
-     margin-right: auto;
- }
- 
- .honor-tab-card {
-     position: relative;
-     padding: 30px 20px;
-     background: linear-gradient(135deg, rgba(85, 37, 131, 0.15) 0%, rgba(18, 18, 26, 0.8) 100%);
-     border: 2px solid rgba(85, 37, 131, 0.3);
-     border-radius: 20px;
-     text-align: center;
-     cursor: pointer;
-     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-     overflow: hidden;
-     min-height: 140px;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     gap: 10px;
- }
- 
- .honor-tab-card::before {
-     content: '';
-     position: absolute;
-     top: -50%;
-     left: -50%;
-     width: 200%;
-     height: 200%;
-     background: radial-gradient(circle, rgba(253, 185, 39, 0.1) 0%, transparent 70%);
-     opacity: 0;
-     transition: opacity 0.4s ease;
-     pointer-events: none;
- }
- 
- .honor-tab-card:hover::before {
-     opacity: 1;
- }
- 
- .honor-tab-card.active {
-     border-color: var(--lakers-gold);
-     background: linear-gradient(135deg, rgba(253, 185, 39, 0.2) 0%, rgba(85, 37, 131, 0.3) 100%);
-     box-shadow: 0 10px 40px rgba(253, 185, 39, 0.3), inset 0 0 30px rgba(253, 185, 39, 0.1);
-     transform: translateY(-5px);
- }
- 
- .honor-tab-card.active .tab-card-icon {
-     transform: scale(1.2) rotate(5deg);
-     filter: drop-shadow(0 0 15px rgba(253, 185, 39, 0.8));
- }
- 
- .tab-card-icon {
-     font-size: 3rem;
-     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-     z-index: 2;
- }
- 
- .tab-card-title {
-     font-size: 1.3rem;
-     font-weight: 800;
-     color: var(--text-primary);
-     transition: all 0.3s ease;
-     z-index: 2;
- }
- 
- .honor-tab-card.active .tab-card-title {
-     color: var(--lakers-gold);
-     text-shadow: 0 0 20px rgba(253, 185, 39, 0.5);
- }
- 
- .tab-card-count {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
-     background: rgba(85, 37, 131, 0.3);
-     padding: 4px 12px;
-     border-radius: 12px;
-     transition: all 0.3s ease;
-     z-index: 2;
- }
- 
- .honor-tab-card.active .tab-card-count {
-     background: var(--gradient-gold);
-     color: var(--lakers-purple);
-     font-weight: 700;
- }
- 
- .tab-card-glow {
-     position: absolute;
-     bottom: -50%;
-     left: 50%;
-     transform: translateX(-50%);
-     width: 150px;
-     height: 150px;
-     background: radial-gradient(circle, rgba(253, 185, 39, 0.3) 0%, transparent 70%);
-     filter: blur(30px);
-     opacity: 0;
-     transition: opacity 0.4s ease;
- }
- 
- .honor-tab-card.active .tab-card-glow {
-     opacity: 1;
- }
- 
- .honor-tab-card:hover {
-     transform: translateY(-3px);
-     border-color: rgba(253, 185, 39, 0.5);
- }
- /* 移动端适配 */
- 
- @media (max-width: 768px) {
-     .honor-tabs-card {
-         grid-template-columns: 1fr;
-         gap: 15px;
-     }
-     .honor-tab-card {
-         min-height: 100px;
-         flex-direction: row;
-         justify-content: flex-start;
-         padding: 20px;
-         gap: 15px;
-     }
-     .tab-card-icon {
-         font-size: 2.5rem;
-         flex-shrink: 0;
-     }
-     .tab-card-content {
-         flex: 1;
-         text-align: left;
-     }
- }
- /* ===== 荣誉堂搜索和筛选 ===== */
- 
- .honor-search-container {
-     display: flex;
-     justify-content: center;
-     gap: 10px;
-     margin-bottom: 25px;
-     flex-wrap: wrap;
- }
- 
- .honor-search {
-     padding: 10px 20px;
-     background: var(--card-bg);
-     border: 2px solid var(--lakers-purple);
-     border-radius: 25px;
-     color: var(--text-primary);
-     font-size: 0.9rem;
-     min-width: 200px;
-     transition: all 0.3s ease;
- }
- 
- .honor-search:focus {
-     outline: none;
-     border-color: var(--lakers-gold);
-     box-shadow: 0 0 15px rgba(253, 185, 39, 0.3);
- }
- 
- .honor-search::placeholder {
-     color: var(--text-secondary);
- }
- 
- .honor-filter-btn {
-     padding: 10px 20px;
-     background: var(--card-bg);
-     border: 2px solid var(--lakers-purple);
-     border-radius: 25px;
-     color: var(--text-primary);
-     font-size: 0.9rem;
-     cursor: pointer;
-     transition: all 0.3s ease;
- }
- 
- .honor-filter-btn:hover,
- .honor-filter-btn.active {
-     border-color: var(--lakers-gold);
-     background: rgba(253, 185, 39, 0.1);
-     color: var(--lakers-gold);
- }
- /* 搜索结果高亮 */
- 
- .honor-table .highlight-match {
-     background: rgba(253, 185, 39, 0.3);
-     color: var(--lakers-gold);
-     padding: 2px 5px;
-     border-radius: 3px;
-     font-weight: 700;
- }
- /* ===== Members Section (Removed) ===== */
- /* ===== Spirit Section ===== */
- 
- .spirit {
-     padding: 100px 0;
-     background: var(--gradient-purple);
-     position: relative;
- }
- 
- .spirit-content {
-     text-align: center;
- }
- 
- .spirit-title {
-     font-size: 2.5rem;
-     font-weight: 900;
-     margin-bottom: 50px;
-     color: var(--lakers-gold);
- }
- 
- .spirit-grid {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     gap: 30px;
- }
- 
- .spirit-item {
-     padding: 30px;
-     background: rgba(255, 255, 255, 0.1);
-     border-radius: 15px;
-     backdrop-filter: blur(10px);
-     transition: all 0.3s ease;
-     border: 1px solid rgba(255, 255, 255, 0.1);
-     transform-style: preserve-3d;
- }
- 
- .spirit-icon {
-     font-size: 3rem;
-     display: block;
-     margin-bottom: 15px;
- }
- 
- .spirit-item h4 {
-     font-size: 1.2rem;
-     margin-bottom: 10px;
-     color: var(--lakers-gold);
- }
- 
- .spirit-item p {
-     font-size: 0.95rem;
-     color: var(--text-secondary);
- }
- /* ===== Contact Section ===== */
- 
- .contact {
-     padding: 100px 0;
-     background: var(--card-bg);
- }
- 
- .contact-grid {
-     display: grid;
-     grid-template-columns: repeat(3, 1fr);
-     gap: 30px;
-     margin-bottom: 50px;
- }
- 
- .contact-card {
-     padding: 40px;
-     background: var(--dark-bg);
-     border-radius: 15px;
-     text-align: center;
-     border: 2px solid var(--lakers-purple);
-     transition: all 0.3s ease;
-     position: relative;
-     overflow: hidden;
-     transform-style: preserve-3d;
- }
- 
- .contact-card::after {
-     content: '';
-     position: absolute;
-     bottom: 0;
-     left: 0;
-     width: 100%;
-     height: 3px;
-     background: var(--gradient-gold);
-     transform: scaleX(0);
-     transition: transform 0.3s ease;
- }
- 
- .contact-card:hover {
-     border-color: var(--lakers-gold);
-     box-shadow: 0 15px 40px rgba(85, 37, 131, 0.3);
- }
- 
- .contact-card:hover::after {
-     transform: scaleX(1);
- }
- 
- .contact-icon {
-     font-size: 3rem;
-     margin-bottom: 20px;
- }
- 
- .contact-card h3 {
-     font-size: 1.1rem;
-     margin-bottom: 10px;
-     color: var(--text-secondary);
- }
- 
- .contact-value {
-     font-size: 1.5rem;
-     font-weight: 700;
-     color: var(--lakers-gold);
- }
- 
- .contact-cta {
-     text-align: center;
-     padding: 40px;
-     background: var(--gradient-fire);
-     border-radius: 20px;
- }
- 
- .cta-text {
-     font-size: 1.5rem;
-     font-weight: 700;
-     margin-bottom: 10px;
- }
- 
- .cta-sub {
-     color: rgba(255, 255, 255, 0.8);
- }
- /* ===== Footer ===== */
- 
- .footer {
-     padding: 50px 0;
-     background: var(--darker-bg);
-     border-top: 2px solid var(--lakers-purple);
- }
- 
- .footer-content {
-     text-align: center;
- }
- 
- .footer-logo {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     margin-bottom: 20px;
- }
- 
- .footer-logo-img {
-     max-width: 100px;
-     height: auto;
-     margin-bottom: 10px;
-     filter: drop-shadow(0 0 10px rgba(253, 185, 39, 0.3));
- }
- 
- .footer-logo span:first-child {
-     font-size: 2.5rem;
-     font-weight: 900;
-     color: var(--lakers-gold);
- }
- 
- .footer-year {
-     font-size: 0.9rem;
-     color: var(--text-secondary);
- }
- 
- .footer-text {
-     color: var(--text-secondary);
-     margin-bottom: 10px;
-     font-style: italic;
- }
- 
- .footer-mamba {
-     color: var(--lakers-gold);
-     font-weight: 700;
- }
- /* ===== Snake Trail Animation ===== */
- 
- .snake-trail {
-     position: fixed;
-     pointer-events: none;
-     z-index: 9999;
- }
- /* ===== Back to Top Button ===== */
- 
- .back-to-top {
-     position: fixed;
-     bottom: 30px;
-     right: 30px;
-     width: 50px;
-     height: 50px;
-     background: var(--gradient-gold);
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 1.5rem;
-     cursor: pointer;
-     opacity: 0;
-     visibility: hidden;
-     transform: translateY(20px);
-     transition: all 0.3s ease;
-     z-index: 1000;
-     box-shadow: 0 5px 20px rgba(253, 185, 39, 0.4);
- }
- 
- .back-to-top.visible {
-     opacity: 1;
-     visibility: visible;
-     transform: translateY(0);
- }
- 
- .back-to-top:hover {
-     transform: translateY(-5px) scale(1.1);
-     box-shadow: 0 10px 30px rgba(253, 185, 39, 0.6);
- }
- /* ===== Section Transitions ===== */
- 
- section {
-     opacity: 1 !important;
-     transform: translateY(0) !important;
- }
- 
- section.visible {
-     opacity: 1 !important;
-     transform: translateY(0) !important;
- }
- /* ===== Click Animations ===== */
- 
- @keyframes basketballBounce {
-     0% {
-         opacity: 1;
-         transform: translate(-50%, -50%) scale(1);
-     }
-     100% {
-         opacity: 0;
-         transform: translate(-50%, -150%) scale(0.5);
-     }
- }
- 
- @keyframes confettiFly {
-     0% {
-         opacity: 1;
-         transform: translate(0, 0) rotate(0deg) scale(1);
-     }
-     100% {
-         opacity: 0;
-         transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0.5);
-     }
- }
- /* ===== Responsive Design ===== */
- 
- @media (max-width: 1024px) {
-     .tournament-grid,
-     .spirit-grid,
-     .contact-grid {
-         grid-template-columns: repeat(2, 1fr);
-     }
-     .spirit-grid {
-         grid-template-columns: repeat(2, 1fr);
-     }
-     .structure-organs {
-         grid-template-columns: 1fr;
-     }
-     .organ-box {
-         min-height: auto;
-     }
- }
- 
- @media (max-width: 768px) {
-     .hero-title {
-         font-size: 2.5rem;
-     }
-     .logo-text {
-         font-size: 2rem;
-     }
-     .hero-stats {
-         flex-direction: column;
-         gap: 20px;
-     }
-     .about-content {
-         grid-template-columns: 1fr;
-     }
-     .about-badge {
-         display: none;
-     }
-     .tournament-grid,
-     .spirit-grid,
-     .contact-grid,
-     .honor-stats {
-         grid-template-columns: 1fr;
-     }
-     .section-title {
-         font-size: 2rem;
-     }
-     .quote-text {
-         font-size: 1.2rem;
-     }
-     .spirit-title {
-         font-size: 2rem;
-     }
-     .loading-basketball {
-         font-size: 3rem;
-     }
-     .back-to-top {
-         bottom: 20px;
-         right: 20px;
-         width: 45px;
-         height: 45px;
-     }
-     .nav-menu {
-         gap: 15px;
-     }
-     .president-card {
-         padding: 30px 40px;
-         min-width: auto;
-     }
-     .organ-box {
-         padding: 25px;
-     }
-     /* Video List Mobile */
-     .video-list-item {
-         flex-direction: column;
-     }
-     .video-rank {
-         min-height: 40px;
-     }
-     /* Honor Table Mobile */
-     .honor-table th,
-     .honor-table td {
-         padding: 10px 8px;
-         font-size: 0.8rem;
-     }
-     /* 移动端优化表格 */
-     .honor-table-wrapper {
-         max-height: 500px;
-     }
-     .honor-search {
-         min-width: 150px;
-     }
-     /* 移动端减少动画提升性能 */
-     .particle,
-     .shooting-star {
-         animation-duration: 20s;
-     }
-     /* 抖音引导卡片移动端 */
-     .douyin-cta-card {
-         padding: 25px;
-     }
-     .douyin-icon {
-         font-size: 3rem;
-     }
-     .douyin-btn {
-         padding: 14px 28px;
-         font-size: 0.95rem;
-     }
-     .douyin-stats {
-         flex-direction: column;
-         gap: 8px;
-     }
- }
- 
- @media (max-width: 480px) {
-     .hero-title {
-         font-size: 2rem;
-     }
-     .hero-subtitle {
-         font-size: 1rem;
-     }
-     .stat-number {
-         font-size: 2rem;
-     }
-     .cta-button {
-         padding: 12px 30px;
-         font-size: 0.9rem;
-     }
-     .section-title {
-         font-size: 1.8rem;
-     }
-     .quote-content {
-         padding: 0 10px;
-     }
-     .quote-text {
-         font-size: 1.1rem;
-     }
-     .back-to-top {
-         bottom: 15px;
-         right: 15px;
-         width: 40px;
-         height: 40px;
-         font-size: 1.2rem;
-     }
- }
- /* ===== 视频列表小提示 ===== */
- 
- .video-list-prompt {
-     margin-top: 15px;
-     padding: 12px 20px;
-     background: rgba(254, 44, 85, 0.08);
-     border-left: 3px solid #FE2C55;
-     border-radius: 8px;
-     text-align: center;
-     font-size: 0.85rem;
-     color: var(--text-secondary);
- }
- 
- .video-list-prompt span {
-     color: #FF6B81;
-     font-weight: 600;
- }
- /* ===== 抖音引导卡片 ===== */
- 
- .douyin-cta-card {
-     margin-top: 40px;
-     padding: 40px;
-     background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(30, 30, 40, 0.9) 100%);
-     border: 2px solid rgba(254, 44, 85, 0.3);
-     border-radius: 20px;
-     text-align: center;
-     position: relative;
-     overflow: hidden;
- }
- 
- .douyin-cta-card::before {
-     content: '';
-     position: absolute;
-     top: -50%;
-     left: -50%;
-     width: 200%;
-     height: 200%;
-     background: radial-gradient(circle, rgba(254, 44, 85, 0.1) 0%, transparent 70%);
-     animation: rotate 20s linear infinite;
- }
- 
- @keyframes rotate {
-     from {
-         transform: rotate(0deg);
-     }
-     to {
-         transform: rotate(360deg);
-     }
- }
- 
- .douyin-cta-card>* {
-     position: relative;
-     z-index: 1;
- }
- 
- .douyin-icon {
-     font-size: 4rem;
-     margin-bottom: 15px;
-     animation: bounce 2s ease-in-out infinite;
- }
- 
- .douyin-cta-card h3 {
-     font-size: 1.8rem;
-     font-weight: 900;
-     color: var(--text-primary);
-     margin-bottom: 10px;
-     background: linear-gradient(135deg, #FE2C55, #FF6B81);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
- }
- 
- .douyin-cta-card p {
-     font-size: 1rem;
-     color: var(--text-secondary);
-     margin-bottom: 8px;
-     line-height: 1.6;
- }
- 
- .douyin-sub {
-     font-size: 0.9rem !important;
-     color: #888 !important;
-     margin-bottom: 25px !important;
- }
- 
- .douyin-btn {
-     display: inline-flex;
-     align-items: center;
-     gap: 12px;
-     padding: 16px 36px;
-     background: linear-gradient(135deg, #FE2C55 0%, #FF6B81 100%);
-     color: white;
-     text-decoration: none;
-     font-weight: 700;
-     font-size: 1.05rem;
-     border-radius: 50px;
-     transition: all 0.3s ease;
-     box-shadow: 0 8px 25px rgba(254, 44, 85, 0.4);
-     margin-bottom: 25px;
- }
- 
- .douyin-btn:hover {
-     transform: translateY(-3px) scale(1.05);
-     box-shadow: 0 15px 40px rgba(254, 44, 85, 0.6);
- }
- 
- .douyin-btn:active {
-     transform: translateY(-1px) scale(1.02);
- }
- 
- .douyin-logo {
-     font-size: 1.5rem;
- }
- 
- .douyin-arrow {
-     font-size: 1.2rem;
-     transition: transform 0.3s ease;
- }
- 
- .douyin-btn:hover .douyin-arrow {
-     transform: translateX(5px);
- }
- 
- .douyin-stats {
-     display: flex;
-     justify-content: center;
-     gap: 25px;
-     flex-wrap: wrap;
- }
- 
- .stat-item {
-     display: inline-flex;
-     align-items: center;
-     gap: 6px;
-     padding: 8px 16px;
-     background: rgba(254, 44, 85, 0.1);
-     border: 1px solid rgba(254, 44, 85, 0.3);
-     border-radius: 20px;
-     color: var(--text-secondary);
-     font-size: 0.9rem;
-     font-weight: 600;
- }
- /* ===== 全明星赛表格样式优化 ===== */
- 
- .allstar-row {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.05) 0%, rgba(85, 37, 131, 0.05) 100%) !important;
-     transition: all 0.3s ease;
- }
- 
- .allstar-row:hover {
-     background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.15) 100%) !important;
-     box-shadow: 0 4px 20px rgba(253, 185, 39, 0.2);
-     transform: translateX(5px);
- }
- 
- .mvp-highlight {
-     color: var(--lakers-gold);
-     font-weight: 700;
-     background: rgba(253, 185, 39, 0.1);
-     padding: 4px 10px;
-     border-radius: 8px;
-     display: inline-block;
-     min-width: 60px;
-     text-align: center;
- }
- /* 全明星表格列宽 */
- 
- .honor-table th:nth-child(1),
- .honor-table td:nth-child(1) {
-     width: 100px;
- }
- 
- .honor-table th:nth-child(2),
- .honor-table td:nth-child(2) {
-     width: 80px;
- }
- 
- .honor-table th:nth-child(3),
- .honor-table td:nth-child(3) {
-     width: 100px;
- }
- 
- .honor-table th:nth-child(4),
- .honor-table td:nth-child(4) {
-     width: 230px;
- }
- 
- .honor-table th:nth-child(5),
- .honor-table td:nth-child(5) {
-     width: 150px;
- }
- 
- .honor-table th:nth-child(6),
- .honor-table td:nth-child(6) {
-     width: 100px;
- }
- 
- .honor-table th:nth-child(7),
- .honor-table td:nth-child(7) {
-     width: 80px;
- }
- 
- .honor-table th:nth-child(8),
- .honor-table td:nth-child(8) {
-     width: 80px;
- }
- /* 全国联赛专属列宽配置 */
- 
- #league .honor-table th:nth-child(1),
- #league .honor-table td:nth-child(1) {
-     width: 90px;
- }
- 
- #league .honor-table th:nth-child(4),
- #league .honor-table td:nth-child(4) {
-     width: 90px;
- }
- 
- #league .honor-table th:nth-child(5),
- #league .honor-table td:nth-child(5) {
-     width: 90px;
- }
- 
- #league .honor-table th:nth-child(6),
- #league .honor-table td:nth-child(6) {
-     width: 240px;
- }
- /* 杯赛专属列宽配置 */
- 
- #cup .honor-table th:nth-child(1),
- #cup .honor-table td:nth-child(1) {
-     width: 100px;
- }
- 
- #cup .honor-table th:nth-child(2),
- #cup .honor-table td:nth-child(2) {
-     width: 80px;
- }
- 
- #cup .honor-table th:nth-child(3),
- #cup .honor-table td:nth-child(3) {
-     width: 200px;
-     /* 夺冠队员列 - 保持不换行 */
-     white-space: nowrap !important;
- }
- 
- #cup .honor-table th:nth-child(4),
- #cup .honor-table td:nth-child(4) {
-     width: 100px;
- }
- 
- #cup .honor-table th:nth-child(5) {
-     width: 120px;
- }
- 
- #cup .honor-table td:nth-child(5) {
-     width: 120px;
-     /* 最佳球员列 - MVP样式（仅数据行） */
-     color: var(--lakers-gold);
-     font-weight: 700;
-     background: rgba(253, 185, 39, 0.1);
-     padding: 4px 10px !important;
-     border-radius: 8px;
-     min-width: 60px;
-     text-align: center;
- }
- 
- #cup .honor-table th:nth-child(6),
- #cup .honor-table td:nth-child(6) {
-     width: 120px;
- }
+
+/* ===== 1. CSS Variables ===== */
+:root {
+    --lakers-purple: #552583;
+    --lakers-gold: #FDB927;
+    --blood-red: #C9082A;
+    --dark-bg: #0a0a0f;
+    --darker-bg: #050508;
+    --card-bg: #12121a;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8c8;
+    --gradient-purple: linear-gradient(135deg, #552583 0%, #7c3a99 100%);
+    --gradient-gold: linear-gradient(135deg, #FDB927 0%, #ffb700 100%);
+    --gradient-fire: linear-gradient(135deg, #C9082A 0%, #ff4444 100%);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 40px rgba(253, 185, 39, 0.3);
+}
+
+/* ===== 2. Reset & Base ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* 导航栏高度 */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    line-height: 1.8;
+    /* 性能优化：启用 GPU 加速 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* 可访问性：Skip Link */
+.skip-link:focus {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    width: auto;
+    height: auto;
+    padding: 12px 24px;
+    background: var(--lakers-gold);
+    color: var(--lakers-purple);
+    font-weight: 700;
+    z-index: 99999;
+    overflow: visible;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(253, 185, 39, 0.4);
+}
+
+/* 可访问性：焦点样式 */
+a:focus,
+button:focus,
+[tabindex]:focus {
+    outline: 3px solid var(--lakers-gold);
+    outline-offset: 2px;
+}
+
+/* 可访问性：减少动画 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .navbar,
+    .back-to-top,
+    .loading-screen,
+    .scroll-progress,
+    .snake-trail,
+    .video-tabs,
+    .honor-search-container {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    a {
+        text-decoration: underline;
+    }
+}
+
+/* 性能优化：减少重绘 */
+.hero,
+.navbar,
+.back-to-top {
+    will-change: transform;
+}
+
+/* 动画性能优化 */
+.particle,
+.shooting-star,
+.starry-sky {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 表格滚动性能优化 */
+.table-responsive {
+    contain: layout style paint;
+}
+
+/* ===== 全国联赛分组样式 ===== */
+.league-round-header {
+    background: linear-gradient(90deg, rgba(201, 8, 42, 0.2) 0%, rgba(85, 37, 131, 0.15) 50%, rgba(201, 8, 42, 0.2) 100%);
+    border-left: 4px solid var(--blood-red);
+    border-right: 4px solid var(--blood-red);
+}
+
+.league-round-header td {
+    padding: 15px 20px !important;
+    text-align: center;
+    background: transparent !important;
+}
+
+.round-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--blood-red) 0%, #ff4444 100%);
+    color: white;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(201, 8, 42, 0.4);
+    margin-right: 15px;
+}
+
+.round-season {
+    display: inline-block;
+    color: var(--lakers-gold);
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: rgba(253, 185, 39, 0.1);
+    padding: 6px 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(253, 185, 39, 0.3);
+}
+
+/* 同一届的数据行样式统一 */
+.league-row {
+    transition: all 0.3s ease;
+}
+
+.league-row[data-round] {
+    border-left: 3px solid transparent;
+}
+
+.league-row[data-round="1"] {
+    border-left-color: rgba(201, 8, 42, 0.5);
+}
+
+.league-row[data-round="2"] {
+    border-left-color: rgba(201, 8, 42, 0.6);
+}
+
+.league-row[data-round="3"] {
+    border-left-color: rgba(201, 8, 42, 0.7);
+}
+
+.league-row[data-round="4"] {
+    border-left-color: rgba(201, 8, 42, 0.8);
+}
+
+/* 每届之间的分隔 */
+.league-round-header + .league-row {
+    border-top: 2px solid rgba(201, 8, 42, 0.3);
+}
+
+/* 届内数据行背景交替 */
+.league-row:nth-of-type(3n+1) {
+    background: rgba(201, 8, 42, 0.08) !important;
+}
+
+.league-row:nth-of-type(3n+2) {
+    background: rgba(201, 8, 42, 0.12) !important;
+}
+
+.league-row:nth-of-type(3n+3) {
+    background: rgba(201, 8, 42, 0.16) !important;
+}
+
+/* 金银铜牌排名样式增强 */
+.honor-table tbody tr.gold {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(253, 185, 39, 0.08) 100%) !important;
+    border-left: 4px solid var(--lakers-gold);
+}
+
+.honor-table tbody tr.gold:hover {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.25) 0%, rgba(253, 185, 39, 0.15) 100%) !important;
+    box-shadow: 0 4px 15px rgba(253, 185, 39, 0.2);
+}
+
+.honor-table tbody tr.silver {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.08) 100%) !important;
+    border-left: 4px solid #c0c0c0;
+}
+
+.honor-table tbody tr.silver:hover {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.25) 0%, rgba(192, 192, 192, 0.15) 100%) !important;
+    box-shadow: 0 4px 15px rgba(192, 192, 192, 0.2);
+}
+
+.honor-table tbody tr.bronze {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.08) 100%) !important;
+    border-left: 4px solid #cd7f32;
+}
+
+.honor-table tbody tr.bronze:hover {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.25) 0%, rgba(205, 127, 50, 0.15) 100%) !important;
+    box-shadow: 0 4px 15px rgba(205, 127, 50, 0.2);
+}
+
+/* 减少移动端动画提升性能 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ===== Loading Screen ===== */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--darker-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-basketball {
+    font-size: 4rem;
+    animation: loadingBounce 1s ease-in-out infinite;
+}
+
+@keyframes loadingBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.1); }
+}
+
+.loading-text {
+    position: absolute;
+    bottom: 20%;
+    font-size: 1.2rem;
+    color: var(--lakers-gold);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== Scroll Progress Bar ===== */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--gradient-gold);
+    z-index: 10001;
+    transition: width 0.1s ease;
+}
+
+/* ===== Navigation Bar - 顶部固定导航 ===== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 15, 0.98);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    border-bottom: 1px solid rgba(85, 37, 131, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.navbar.scrolled {
+    background: rgba(5, 5, 8, 0.98);
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+    border-bottom-color: rgba(253, 185, 39, 0.5);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 12px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--lakers-gold);
+    cursor: pointer;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+}
+
+.nav-logo:hover {
+    transform: scale(1.05);
+}
+
+.nav-text {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 主导航菜单 */
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-menu li {
+    position: relative;
+}
+
+.nav-menu a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: block;
+    font-size: 0.95rem;
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: var(--gradient-gold);
+    transition: width 0.3s ease;
+    border-radius: 2px 2px 0 0;
+}
+
+.nav-menu a:hover {
+    color: var(--lakers-gold);
+    background: rgba(253, 185, 39, 0.1);
+}
+
+.nav-menu a:hover::after {
+    width: 80%;
+}
+
+.nav-menu a.active {
+    color: var(--lakers-gold);
+    background: rgba(253, 185, 39, 0.15);
+}
+
+.nav-menu a.active::after {
+    width: 80%;
+}
+
+/* 右侧快速导航 - 纯文字专业形式 */
+.nav-quick-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: auto; /* 确保快速导航尽可能靠右 */
+}
+
+.quick-link {
+    padding: 8px 16px;
+    background: rgba(85, 37, 131, 0.15);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 金色光效动画 */
+.quick-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(253, 185, 39, 0.15), transparent);
+    transition: left 0.5s ease;
+}
+
+.quick-link:hover::before {
+    left: 100%;
+}
+
+.quick-link:hover {
+    background: rgba(253, 185, 39, 0.1);
+    border-color: rgba(253, 185, 39, 0.3);
+    color: var(--lakers-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 185, 39, 0.15);
+}
+
+.quick-link.active {
+    background: var(--gradient-gold);
+    border-color: var(--lakers-gold);
+    color: var(--lakers-purple);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(253, 185, 39, 0.3);
+}
+
+/* 点击动画 */
+.quick-link:active {
+    transform: translateY(0) scale(0.96);
+}
+
+/* Mobile Menu */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 10px 15px;
+    }
+    
+    .nav-logo {
+        font-size: 1.2rem;
+    }
+    
+    /* 修复移动端导航栏无法滑动的问题 */
+    .nav-menu {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 15, 0.98);
+        flex-direction: row;
+        padding: 12px 16px;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(85, 37, 131, 0.3);
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        max-height: calc(100vh - 60px);
+        scrollbar-width: thin;
+        scrollbar-color: var(--lakers-purple) var(--dark-bg);
+        /* 确保容器可以正确滚动 */
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        /* 防止iOS上的bounce效果 */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+    
+    .nav-menu::-webkit-scrollbar {
+        height: 5px;
+    }
+    
+    .nav-menu::-webkit-scrollbar-track {
+        background: var(--dark-bg);
+        border-radius: 2px;
+    }
+    
+    .nav-menu::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, var(--lakers-purple), var(--lakers-gold));
+        border-radius: 2px;
+    }
+    
+    .nav-menu.active {
+        left: 0;
+        right: 0;
+        top: 60px;
+        bottom: auto;
+        flex-direction: row;
+        padding: 12px 16px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        display: flex;
+        align-items: center;
+        overscroll-behavior-x: contain;
+    }
+    
+    .nav-menu li {
+        display: inline-block;
+        flex: 0 0 auto;
+        width: auto;
+    }
+    
+    .nav-menu a {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===== Hero Section ===== */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--darker-bg);
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, var(--dark-bg));
+    pointer-events: none;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 50% 0%, var(--lakers-purple) 0%, transparent 70%),
+        radial-gradient(ellipse at 80% 50%, var(--blood-red) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, var(--lakers-gold) 0%, transparent 40%);
+    opacity: 0.3;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23552583' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ===== 星星动画背景 ===== */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    background: radial-gradient(circle, var(--lakers-gold) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 15s infinite, starTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* 星星闪烁效果 */
+@keyframes starTwinkle {
+    0%, 100% { 
+        opacity: 0.2; 
+        transform: scale(1);
+        box-shadow: 0 0 5px rgba(253, 185, 39, 0.3);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.2);
+        box-shadow: 0 0 15px rgba(253, 185, 39, 0.8), 0 0 30px rgba(253, 185, 39, 0.4);
+    }
+}
+
+/* 流星效果 */
+.shooting-star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--lakers-gold), transparent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--lakers-gold), 0 0 20px var(--lakers-gold);
+    animation: shootingStar 3s linear infinite;
+    opacity: 0;
+}
+
+@keyframes shootingStar {
+    0% {
+        opacity: 0;
+        transform: translateX(0) translateY(0);
+    }
+    10% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 1;
+        transform: translateX(-300px) translateY(300px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-300px) translateY(300px);
+    }
+}
+
+/* 星空背景层 */
+.starry-sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(253, 185, 39, 0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(253, 185, 39, 0.7), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.5), transparent),
+        radial-gradient(1px 1px at 160px 120px, rgba(253, 185, 39, 0.6), transparent),
+        radial-gradient(2px 2px at 200px 50px, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1px 1px at 250px 160px, rgba(253, 185, 39, 0.5), transparent),
+        radial-gradient(2px 2px at 300px 90px, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1px 1px at 350px 200px, rgba(253, 185, 39, 0.7), transparent),
+        radial-gradient(2px 2px at 400px 140px, rgba(255, 255, 255, 0.5), transparent);
+    background-size: 450px 300px;
+    animation: twinkleSky 5s ease-in-out infinite;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+@keyframes twinkleSky {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.logo-container {
+    margin-bottom: 30px;
+}
+
+.logo {
+    display: inline-block;
+    padding: 20px 40px;
+    background: var(--gradient-purple);
+    border: 3px solid var(--lakers-gold);
+    border-radius: 10px;
+    box-shadow: 
+        0 0 30px rgba(85, 37, 131, 0.5),
+        0 0 60px rgba(253, 185, 39, 0.3);
+    animation: glow 2s ease-in-out infinite;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 0 50px rgba(85, 37, 131, 0.8),
+        0 0 90px rgba(253, 185, 39, 0.6);
+}
+
+.logo-img {
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 20px rgba(253, 185, 39, 0.4));
+    transition: transform 0.3s, filter 0.3s;
+    animation: logoFloat 3s ease-in-out infinite;
+    cursor: pointer;
+}
+
+.logo-img:hover {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 40px rgba(253, 185, 39, 0.8));
+}
+
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 30px rgba(85, 37, 131, 0.5), 0 0 60px rgba(253, 185, 39, 0.3); }
+    50% { box-shadow: 0 0 50px rgba(85, 37, 131, 0.8), 0 0 90px rgba(253, 185, 39, 0.5); }
+}
+
+.logo-text {
+    display: block;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--lakers-gold);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.logo-sub {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    letter-spacing: 4px;
+    margin-top: 5px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(253, 185, 39, 0.5);
+    animation: slideUp 1s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    animation: slideUp 1s ease-out 0.2s both;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    animation: slideUp 1s ease-out 0.4s both;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--lakers-gold);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background: var(--gradient-fire);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(201, 8, 42, 0.4);
+    animation: slideUp 1s ease-out 0.6s both, pulse 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(201, 8, 42, 0.6);
+}
+
+/* ===== Mamba Quote Section ===== */
+.mamba-quote {
+    background: var(--gradient-purple);
+    padding: 60px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.mamba-quote::before {
+    content: '🐍';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.05;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: snakePulse 3s ease-in-out infinite;
+}
+
+@keyframes snakePulse {
+    0%, 100% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.quote-content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.quote-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--lakers-gold);
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.quote-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.quote-author {
+    font-size: 1rem;
+    color: var(--lakers-gold);
+}
+
+/* ===== Section Titles ===== */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.title-icon {
+    font-size: 2rem;
+}
+
+.section-desc {
+    text-align: center;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 50px;
+    font-size: 1.1rem;
+}
+
+/* ===== Structure Section ===== */
+.structure {
+    padding: 100px 0;
+    background: var(--dark-bg);
+}
+
+.structure-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 会长区域 */
+.structure-president {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.president-card {
+    background: linear-gradient(135deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.1) 100%);
+    border: 2px solid var(--lakers-gold);
+    border-radius: 20px;
+    padding: 40px 60px;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 10px 40px rgba(253, 185, 39, 0.2);
+    transition: all 0.3s ease;
+}
+
+.president-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(253, 185, 39, 0.3);
+}
+
+/* 组织框区域 */
+.structure-organs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+}
+
+.organ-box {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 35px;
+    text-align: center;
+    transition: all 0.3s ease;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+}
+
+.organ-box.vice-president {
+    border: 2px solid var(--lakers-purple);
+}
+
+.organ-box.organizer {
+    border: 2px solid var(--blood-red);
+}
+
+.organ-box:hover {
+    transform: translateY(-5px);
+}
+
+.organ-box.vice-president:hover {
+    box-shadow: 0 15px 40px rgba(85, 37, 131, 0.3);
+}
+
+.organ-box.organizer:hover {
+    box-shadow: 0 15px 40px rgba(201, 8, 42, 0.3);
+}
+
+.organ-header {
+    margin-bottom: 25px;
+}
+
+.organ-header .role-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.organ-header .role-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.organ-box.vice-president .role-title {
+    background: var(--gradient-purple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.organ-box.organizer .role-title {
+    background: var(--gradient-fire);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 成员标签 */
+.role-members {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex: 1;
+    align-content: center;
+}
+
+.member-chip {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.member-chip:hover {
+    transform: scale(1.08);
+}
+
+.member-chip.vice-president {
+    background: var(--gradient-purple);
+    border: 1px solid var(--lakers-purple);
+}
+
+.member-chip.organizer {
+    background: var(--gradient-fire);
+    border: 1px solid var(--blood-red);
+}
+
+.member-chip.president {
+    background: var(--gradient-gold);
+    color: var(--lakers-purple);
+    font-size: 1.3rem;
+    padding: 12px 30px;
+}
+
+/* 职责描述 */
+.role-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    padding: 15px;
+    background: rgba(85, 37, 131, 0.1);
+    border-radius: 10px;
+    border-left: 3px solid var(--lakers-gold);
+    margin-top: auto;
+}
+
+/* ===== About Section ===== */
+.about {
+    padding: 100px 0;
+    background: var(--card-bg);
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 50px;
+    align-items: center;
+}
+
+.about-text p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+.about-text strong {
+    color: var(--lakers-gold);
+}
+
+.about-intro {
+    font-size: 1.2rem !important;
+}
+
+.highlight {
+    background: var(--gradient-purple);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--lakers-gold);
+    color: var(--text-primary) !important;
+}
+
+.about-badge {
+    flex-shrink: 0;
+}
+
+.badge-inner {
+    width: 150px;
+    height: 150px;
+    background: var(--gradient-gold);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(253, 185, 39, 0.4);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.badge-year {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--lakers-purple);
+}
+
+.badge-text {
+    font-size: 0.9rem;
+    color: var(--lakers-purple);
+}
+
+.badge-emblem {
+    font-size: 2.5rem;
+    margin-top: 5px;
+}
+
+/* ===== Tournaments Section ===== */
+.tournaments {
+    padding: 100px 0;
+    background: var(--dark-bg);
+}
+
+.tournament-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.tournament-card {
+    position: relative;
+    padding: 40px 30px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    text-align: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    transform-style: preserve-3d;
+}
+
+.tournament-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(253, 185, 39, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.tournament-card:hover::before {
+    opacity: 1;
+}
+
+.tournament-s {
+    border-color: var(--lakers-gold);
+}
+
+.tournament-s:hover {
+    box-shadow: 0 20px 40px rgba(253, 185, 39, 0.3);
+}
+
+.tournament-q {
+    border-color: var(--lakers-purple);
+}
+
+.tournament-q:hover {
+    box-shadow: 0 20px 40px rgba(85, 37, 131, 0.3);
+}
+
+.tournament-l {
+    border-color: var(--blood-red);
+}
+
+.tournament-l:hover {
+    box-shadow: 0 20px 40px rgba(201, 8, 42, 0.3);
+}
+
+.tournament-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+}
+
+.tournament-s .tournament-icon {
+    background: var(--gradient-gold);
+    color: var(--lakers-purple);
+}
+
+.tournament-q .tournament-icon {
+    background: var(--gradient-purple);
+    color: var(--lakers-gold);
+}
+
+.tournament-l .tournament-icon {
+    background: var(--gradient-fire);
+    color: white;
+}
+
+.tournament-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.tournament-card p {
+    color: var(--text-secondary);
+}
+
+.tournament-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tournament-card:hover .tournament-glow {
+    opacity: 1;
+}
+
+/* ===== Video Directory ===== */
+.video-directory {
+    margin-top: 40px;
+}
+
+.video-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: rgba(85, 37, 131, 0.2);
+    border: 1px solid rgba(85, 37, 131, 0.4);
+    color: var(--text-primary);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.tab-btn:hover {
+    background: rgba(85, 37, 131, 0.3);
+    border-color: var(--lakers-purple);
+}
+
+.tab-btn.active {
+    background: var(--gradient-purple);
+    border-color: var(--lakers-purple);
+    color: white;
+    box-shadow: 0 5px 15px rgba(85, 37, 131, 0.3);
+}
+
+.video-list-item {
+    display: flex;
+    gap: 20px;
+    background: rgba(85, 37, 131, 0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-list-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gradient-purple);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.video-list-item:hover::before {
+    opacity: 1;
+}
+
+.video-list-item:hover {
+    background: rgba(85, 37, 131, 0.15);
+    border-color: rgba(253, 185, 39, 0.3);
+    transform: translateX(8px);
+    box-shadow: 0 5px 20px rgba(85, 37, 131, 0.3);
+}
+
+.video-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    min-height: 50px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    border: 2px solid var(--lakers-purple);
+}
+
+.video-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.video-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.video-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.video-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.video-tag {
+    display: inline-block;
+    background: rgba(253, 185, 39, 0.15);
+    color: var(--lakers-gold);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .video-tabs {
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+    
+    .tab-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .video-list-item {
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+    
+    .video-rank {
+        width: 100%;
+        height: 36px;
+        min-height: 36px;
+        font-size: 1rem;
+    }
+    
+    .video-title {
+        font-size: 1rem;
+        margin-bottom: 3px;
+        gap: 6px;
+    }
+    
+    .video-desc {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+    
+    .video-meta {
+        gap: 12px;
+        font-size: 0.8rem;
+    }
+    
+    .video-tag {
+        padding: 1px 6px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-tabs {
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+    
+    .tab-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .video-list-item {
+        padding: 12px 14px;
+        gap: 8px;
+    }
+    
+    .video-rank {
+        height: 32px;
+        min-height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .video-title {
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+        gap: 5px;
+    }
+    
+    .video-desc {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+    
+    .video-meta {
+        gap: 10px;
+        font-size: 0.75rem;
+    }
+    
+    .video-tag {
+        padding: 1px 5px;
+        font-size: 0.65rem;
+    }
+}
+
+/* ===== Video Gallery Section - 专业目录样式 ===== */
+.videos {
+    padding: 100px 0;
+    background: var(--dark-bg);
+}
+
+.video-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--card-bg);
+    border: 2px solid var(--lakers-purple);
+    border-radius: 25px;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+.tab-btn:hover {
+    border-color: var(--lakers-gold);
+    transform: translateY(-3px);
+}
+
+.tab-btn.active {
+    background: var(--gradient-gold);
+    border-color: var(--lakers-gold);
+    color: var(--lakers-purple);
+    box-shadow: 0 5px 20px rgba(253, 185, 39, 0.3);
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+.tab-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.tab-count {
+    background: rgba(85, 37, 131, 0.3);
+    color: var(--lakers-gold);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 28px;
+    text-align: center;
+}
+
+.tab-btn.active .tab-count {
+    background: var(--lakers-purple);
+    color: white;
+}
+
+/* ===== Video Directory - 视频目录 ===== */
+.video-directory {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Video List Header - 目录头部 ===== */
+.video-list-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, rgba(85, 37, 131, 0.2) 0%, rgba(18, 18, 26, 0.8) 100%);
+    border-radius: 15px 15px 0 0;
+    border: 1px solid rgba(85, 37, 131, 0.3);
+    border-bottom: none;
+}
+
+.list-icon {
+    font-size: 1.8rem;
+}
+
+.list-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--lakers-gold);
+    flex: 1;
+}
+
+.list-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: rgba(85, 37, 131, 0.3);
+    padding: 6px 15px;
+    border-radius: 12px;
+}
+
+/* ===== Video List - 目录列表 ===== */
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--card-bg);
+    border-radius: 0 0 15px 15px;
+    border: 1px solid rgba(85, 37, 131, 0.3);
+    border-top: none;
+    padding: 15px;
+}
+
+.video-list-item {
+    display: flex;
+    gap: 20px;
+    background: rgba(85, 37, 131, 0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-list-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gradient-purple);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.video-list-item:hover::before {
+    opacity: 1;
+}
+
+.video-list-item:hover {
+    background: rgba(85, 37, 131, 0.15);
+    border-color: rgba(253, 185, 39, 0.3);
+    transform: translateX(8px);
+    box-shadow: 0 5px 20px rgba(85, 37, 131, 0.3);
+}
+
+.video-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 50px;
+    background: var(--gradient-purple);
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--lakers-gold);
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(85, 37, 131, 0.4);
+}
+
+.video-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.video-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.video-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.video-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.video-duration,
+.video-views {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(85, 37, 131, 0.3);
+}
+
+.video-duration {
+    color: var(--lakers-gold);
+}
+
+.video-views {
+    color: var(--text-secondary);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .tab-btn {
+        min-width: 120px;
+        padding: 10px 18px;
+    }
+    
+    .tab-text {
+        font-size: 0.85rem;
+    }
+    
+    .video-list-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .list-info {
+        width: 100%;
+    }
+    
+    .video-list-item {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .video-rank {
+        width: 100%;
+        height: 40px;
+    }
+}
+
+/* ===== Honor Stats ===== */
+.honor-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 50px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    border: 2px solid var(--lakers-purple);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--lakers-gold);
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--lakers-gold);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* ===== Honor Tables - 优化大数据量展示 ===== */
+.honor-tables {
+    margin-top: 30px;
+}
+
+.honor-table-panel {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.honor-table-panel.active {
+    display: block;
+}
+
+.honor-table-wrapper {
+    background: var(--card-bg);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(85, 37, 131, 0.3);
+    max-height: 600px;
+    position: relative;
+}
+
+/* 表格容器滚动优化 - 移动端增强 */
+.table-responsive {
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 600px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--lakers-purple) var(--dark-bg);
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        max-height: 400px;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    /* 移动端表格优化 - 更紧凑的布局 */
+    .honor-table {
+        min-width: 600px;
+        font-size: 0.75rem;
+    }
+    
+    .honor-table th,
+    .honor-table td {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+    
+    /* 移动端列宽调整 */
+    .honor-table th:nth-child(1),
+    .honor-table td:nth-child(1) { width: 80px; }
+    .honor-table th:nth-child(2),
+    .honor-table td:nth-child(2) { width: 60px; }
+    .honor-table th:nth-child(3),
+    .honor-table td:nth-child(3) { width: 120px; }
+    .honor-table th:nth-child(4),
+    .honor-table td:nth-child(4) { width: 80px; }
+    .honor-table th:nth-child(5),
+    .honor-table td:nth-child(5) { width: 100px; }
+    .honor-table th:nth-child(6),
+    .honor-table td:nth-child(6) { width: 80px; }
+    
+    /* 全明星赛移动端列宽 */
+    .allstar-row .honor-table th:nth-child(4),
+    .allstar-row .honor-table td:nth-child(4) { width: 150px; }
+    .allstar-row .honor-table th:nth-child(5),
+    .allstar-row .honor-table td:nth-child(5) { width: 100px; }
+    
+    /* 全国联赛移动端列宽 */
+    #league .honor-table th:nth-child(6),
+    #league .honor-table td:nth-child(6) { width: 160px; }
+    
+    /* 杯赛移动端列宽 */
+    #cup .honor-table th:nth-child(3),
+    #cup .honor-table td:nth-child(3) { width: 140px; }
+    
+    /* 移动端表格优化 - 更好的文本处理 */
+    .honor-table td {
+        /* 允许长文本换行 */
+        white-space: normal !important;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.4;
+    }
+    
+    /* 夺冠队员列特殊处理 */
+    #cup .honor-table td:nth-child(3),
+    #allstar .honor-table td:nth-child(4),
+    #league .honor-table td:nth-child(6) {
+        max-width: 120px;
+        min-width: 100px;
+    }
+    
+    /* 全国联赛队员名称展示优化 - 增加宽度 */
+    #league .honor-table td:nth-child(6),
+    #league .honor-table .players {
+        max-width: 200px !important;
+        min-width: 150px !important;
+        white-space: normal !important;
+        word-wrap: break-word;
+        word-break: break-word;
+        line-height: 1.4;
+        padding: 8px 10px !important;
+    }
+    
+    /* 队员名单列增加高度和行数 */
+    .players {
+        max-width: 200px !important;
+        min-height: 50px;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.3;
+    }
+    
+    /* MVP列优化 */
+    #cup .honor-table td:nth-child(5) {
+        min-width: 80px;
+        padding: 6px 8px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    /* 赛季徽章移动端优化 */
+    .season-badge {
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+        min-width: 50px;
+    }
+    
+    /* 表格头部优化 */
+    .honor-table th {
+        font-size: 0.7rem;
+        padding: 10px 8px;
+        white-space: normal !important;
+        line-height: 1.3;
+    }
+    
+    /* 减少表格行高 */
+    .honor-table tbody tr {
+        height: auto;
+    }
+    
+    /* 搜索框和过滤器优化 */
+    .honor-search-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .honor-search,
+    .honor-filter-btn {
+        min-width: auto;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* 极小屏幕优化 (iPhone SE等) */
+@media (max-width: 480px) {
+    .honor-table {
+        min-width: 500px;
+        font-size: 0.7rem;
+    }
+    
+    .honor-table th,
+    .honor-table td {
+        padding: 6px 8px;
+    }
+    
+    /* 进一步压缩列宽 */
+    .honor-table th:nth-child(1),
+    .honor-table td:nth-child(1) { width: 70px; }
+    .honor-table th:nth-child(2),
+    .honor-table td:nth-child(2) { width: 50px; }
+    .honor-table th:nth-child(3),
+    .honor-table td:nth-child(3) { width: 100px; }
+    .honor-table th:nth-child(4),
+    .honor-table td:nth-child(4) { width: 70px; }
+    .honor-table th:nth-child(5),
+    .honor-table td:nth-child(5) { width: 80px; }
+    .honor-table th:nth-child(6),
+    .honor-table td:nth-child(6) { width: 70px; }
+    
+    /* 全明星赛极小屏 */
+    .allstar-row .honor-table th:nth-child(4),
+    .allstar-row .honor-table td:nth-child(4) { width: 120px; }
+    .allstar-row .honor-table th:nth-child(5),
+    .allstar-row .honor-table td:nth-child(5) { width: 80px; }
+    
+    /* 全国联赛极小屏 */
+    #league .honor-table th:nth-child(6),
+    #league .honor-table td:nth-child(6) { width: 140px; }
+    
+    /* 杯赛极小屏 */
+    #cup .honor-table th:nth-child(3),
+    #cup .honor-table td:nth-child(3) { width: 120px; }
+    
+    /* 全国联赛极小屏 - 进一步优化队员名称 */
+    #league .honor-table th:nth-child(6),
+    #league .honor-table td:nth-child(6) { 
+        width: 200px; 
+        max-width: 200px !important;
+        min-width: 140px !important;
+        padding: 6px 8px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    #league .honor-table .players {
+        max-width: 200px !important;
+        min-height: 60px;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.3;
+        font-size: 0.7rem !important;
+    }
+}
+
+/* 表格容器滚动优化 */
+.table-responsive {
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 600px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--lakers-purple) var(--dark-bg);
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--lakers-purple), var(--lakers-gold));
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--lakers-gold);
+}
+
+.honor-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    min-width: 800px;
+}
+
+.honor-table thead {
+    background: linear-gradient(135deg, var(--lakers-purple) 0%, #3a1a5c 100%);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.honor-table th {
+    padding: 18px 15px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--lakers-gold);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--lakers-gold);
+}
+
+.honor-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(85, 37, 131, 0.15);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* 斑马纹效果 - 提高可读性 */
+.honor-table tbody tr:nth-child(odd) {
+    background: rgba(85, 37, 131, 0.05);
+}
+
+.honor-table tbody tr:nth-child(even) {
+    background: rgba(85, 37, 131, 0.08);
+}
+
+.honor-table tbody tr {
+    transition: all 0.25s ease;
+}
+
+.honor-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.1) 100%);
+    transform: translateX(5px);
+    box-shadow: 0 2px 10px rgba(253, 185, 39, 0.1);
+}
+
+.honor-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 赛季徽章 - 增强视觉层次 */
+.season-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    background: linear-gradient(135deg, var(--lakers-gold) 0%, #e0a800 100%);
+    color: var(--lakers-purple);
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(253, 185, 39, 0.3);
+    min-width: 60px;
+    letter-spacing: 0.5px;
+}
+
+/* 冠军队员列表 - 高亮显示 */
+.champions {
+    font-weight: 700;
+    color: var(--lakers-gold);
+    text-shadow: 0 0 10px rgba(253, 185, 39, 0.3);
+}
+
+/* 冠军戒指 - 添加图标效果 */
+.ring {
+    color: var(--lakers-gold);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ring::before {
+    content: '💍';
+    font-size: 1rem;
+}
+
+/* 团队名称 - 突出显示 */
+.team-name {
+    font-weight: 800;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--lakers-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 队员列表 - 优化排版 */
+.players {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    max-width: 200px;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 队长标记 */
+.players .captain-mark {
+    color: var(--lakers-gold);
+    font-weight: 700;
+    position: relative;
+}
+
+.players .captain-mark::after {
+    content: '👑';
+    font-size: 0.7rem;
+    margin-left: 3px;
+}
+
+/* FMVP 标记 - 增强视觉效果 */
+.players .fmvp-mark {
+    color: var(--lakers-gold);
+    font-weight: 800;
+    background: linear-gradient(135deg, rgba(253, 185, 39, 0.2) 0%, rgba(253, 185, 39, 0.1) 100%);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(253, 185, 39, 0.3);
+    box-shadow: 0 2px 5px rgba(253, 185, 39, 0.1);
+}
+
+/* 金银铜牌排名样式 */
+.honor-table tbody tr.gold {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.12) 0%, transparent 100%);
+    border-left: 3px solid var(--lakers-gold);
+}
+
+.honor-table tbody tr.gold:hover {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.25) 0%, rgba(253, 185, 39, 0.1) 100%);
+}
+
+.honor-table tbody tr.silver {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.1) 0%, transparent 100%);
+    border-left: 3px solid #c0c0c0;
+}
+
+.honor-table tbody tr.bronze {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.1) 0%, transparent 100%);
+    border-left: 3px solid #cd7f32;
+}
+
+/* 年份高亮 */
+.honor-table td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(85, 37, 131, 0.1);
+    border-radius: 8px 0 0 8px;
+}
+
+/* 表格加载动画 */
+.honor-table.loading {
+    opacity: 0.5;
+}
+
+/* 空数据提示 */
+.honor-table-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.honor-table-empty::before {
+    content: '📊';
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* ===== Honors Section ===== */
+.honors {
+    padding: 100px 0;
+    background: var(--dark-bg);
+}
+
+/* ===== 荣誉堂卡片式标签切换 ===== */
+.honor-tabs-card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.honor-tab-card {
+    position: relative;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, rgba(85, 37, 131, 0.15) 0%, rgba(18, 18, 26, 0.8) 100%);
+    border: 2px solid rgba(85, 37, 131, 0.3);
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.honor-tab-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(253, 185, 39, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.honor-tab-card:hover::before {
+    opacity: 1;
+}
+
+.honor-tab-card.active {
+    border-color: var(--lakers-gold);
+    background: linear-gradient(135deg, rgba(253, 185, 39, 0.2) 0%, rgba(85, 37, 131, 0.3) 100%);
+    box-shadow: 0 10px 40px rgba(253, 185, 39, 0.3), inset 0 0 30px rgba(253, 185, 39, 0.1);
+    transform: translateY(-5px);
+}
+
+.honor-tab-card.active .tab-card-icon {
+    transform: scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 0 15px rgba(253, 185, 39, 0.8));
+}
+
+.tab-card-icon {
+    font-size: 3rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+.tab-card-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.honor-tab-card.active .tab-card-title {
+    color: var(--lakers-gold);
+    text-shadow: 0 0 20px rgba(253, 185, 39, 0.5);
+}
+
+.tab-card-count {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: rgba(85, 37, 131, 0.3);
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.honor-tab-card.active .tab-card-count {
+    background: var(--gradient-gold);
+    color: var(--lakers-purple);
+    font-weight: 700;
+}
+
+.tab-card-glow {
+    position: absolute;
+    bottom: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(253, 185, 39, 0.3) 0%, transparent 70%);
+    filter: blur(30px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.honor-tab-card.active .tab-card-glow {
+    opacity: 1;
+}
+
+.honor-tab-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(253, 185, 39, 0.5);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .honor-tabs-card {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .honor-tab-card {
+        min-height: 100px;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .tab-card-icon {
+        font-size: 2.5rem;
+        flex-shrink: 0;
+    }
+    
+    .tab-card-content {
+        flex: 1;
+        text-align: left;
+    }
+}
+
+/* ===== 荣誉堂搜索和筛选 ===== */
+.honor-search-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.honor-search {
+    padding: 10px 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--lakers-purple);
+    border-radius: 25px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.honor-search:focus {
+    outline: none;
+    border-color: var(--lakers-gold);
+    box-shadow: 0 0 15px rgba(253, 185, 39, 0.3);
+}
+
+.honor-search::placeholder {
+    color: var(--text-secondary);
+}
+
+.honor-filter-btn {
+    padding: 10px 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--lakers-purple);
+    border-radius: 25px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.honor-filter-btn:hover,
+.honor-filter-btn.active {
+    border-color: var(--lakers-gold);
+    background: rgba(253, 185, 39, 0.1);
+    color: var(--lakers-gold);
+}
+
+/* 搜索结果高亮 */
+.honor-table .highlight-match {
+    background: rgba(253, 185, 39, 0.3);
+    color: var(--lakers-gold);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+/* ===== Members Section (Removed) ===== */
+
+/* ===== Spirit Section ===== */
+.spirit {
+    padding: 100px 0;
+    background: var(--gradient-purple);
+    position: relative;
+}
+
+.spirit-content {
+    text-align: center;
+}
+
+.spirit-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 50px;
+    color: var(--lakers-gold);
+}
+
+.spirit-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.spirit-item {
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform-style: preserve-3d;
+}
+
+.spirit-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.spirit-item h4 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--lakers-gold);
+}
+
+.spirit-item p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+/* ===== Contact Section ===== */
+.contact {
+    padding: 100px 0;
+    background: var(--card-bg);
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.contact-card {
+    padding: 40px;
+    background: var(--dark-bg);
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid var(--lakers-purple);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+.contact-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gradient-gold);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.contact-card:hover {
+    border-color: var(--lakers-gold);
+    box-shadow: 0 15px 40px rgba(85, 37, 131, 0.3);
+}
+
+.contact-card:hover::after {
+    transform: scaleX(1);
+}
+
+.contact-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.contact-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.contact-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--lakers-gold);
+}
+
+.contact-cta {
+    text-align: center;
+    padding: 40px;
+    background: var(--gradient-fire);
+    border-radius: 20px;
+}
+
+.cta-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cta-sub {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== Footer ===== */
+.footer {
+    padding: 50px 0;
+    background: var(--darker-bg);
+    border-top: 2px solid var(--lakers-purple);
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.footer-logo-img {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(253, 185, 39, 0.3));
+}
+
+.footer-logo span:first-child {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--lakers-gold);
+}
+
+.footer-year {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.footer-text {
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.footer-mamba {
+    color: var(--lakers-gold);
+    font-weight: 700;
+}
+
+/* ===== Snake Trail Animation ===== */
+.snake-trail {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ===== Back to Top Button ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 5px 20px rgba(253, 185, 39, 0.4);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 10px 30px rgba(253, 185, 39, 0.6);
+}
+
+/* ===== Section Transitions ===== */
+section {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+section.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* ===== Click Animations ===== */
+@keyframes basketballBounce {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -150%) scale(0.5);
+    }
+}
+
+@keyframes confettiFly {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0.5);
+    }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 1024px) {
+    .tournament-grid,
+    .spirit-grid,
+    .contact-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .spirit-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .structure-organs {
+        grid-template-columns: 1fr;
+    }
+    
+    .organ-box {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .logo-text {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-badge {
+        display: none;
+    }
+    
+    .tournament-grid,
+    .spirit-grid,
+    .contact-grid,
+    .honor-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .quote-text {
+        font-size: 1.2rem;
+    }
+    
+    .spirit-title {
+        font-size: 2rem;
+    }
+    
+    .loading-basketball {
+        font-size: 3rem;
+    }
+    
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+    }
+    
+    .nav-menu {
+        gap: 15px;
+    }
+    
+    .president-card {
+        padding: 30px 40px;
+        min-width: auto;
+    }
+    
+    .organ-box {
+        padding: 25px;
+    }
+    
+    /* Video List Mobile */
+    .video-list-item {
+        flex-direction: column;
+    }
+    
+    .video-rank {
+        min-height: 40px;
+    }
+    
+    /* Honor Table Mobile */
+    .honor-table th,
+    .honor-table td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* 移动端优化表格 */
+    .honor-table-wrapper {
+        max-height: 500px;
+    }
+    
+    .honor-search {
+        min-width: 150px;
+    }
+    
+    /* 移动端减少动画提升性能 */
+    .particle,
+    .shooting-star {
+        animation-duration: 20s;
+    }
+    
+    /* 抖音引导卡片移动端 */
+    .douyin-cta-card {
+        padding: 25px;
+    }
+    
+    .douyin-icon {
+        font-size: 3rem;
+    }
+    
+    .douyin-btn {
+        padding: 14px 28px;
+        font-size: 0.95rem;
+    }
+    
+    .douyin-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .cta-button {
+        padding: 12px 30px;
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .quote-content {
+        padding: 0 10px;
+    }
+    
+    .quote-text {
+        font-size: 1.1rem;
+    }
+    
+    .back-to-top {
+        bottom: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+/* ===== 视频列表小提示 ===== */
+.video-list-prompt {
+    margin-top: 15px;
+    padding: 12px 20px;
+    background: rgba(254, 44, 85, 0.08);
+    border-left: 3px solid #FE2C55;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.video-list-prompt span {
+    color: #FF6B81;
+    font-weight: 600;
+}
+
+/* ===== 抖音引导卡片 ===== */
+.douyin-cta-card {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(30, 30, 40, 0.9) 100%);
+    border: 2px solid rgba(254, 44, 85, 0.3);
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.douyin-cta-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(254, 44, 85, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.douyin-cta-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.douyin-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.douyin-cta-card h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #FE2C55, #FF6B81);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.douyin-cta-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.douyin-sub {
+    font-size: 0.85rem !important;
+    color: #888 !important;
+    margin-bottom: 15px !important;
+}
+
+.douyin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #FE2C55 0%, #FF6B81 100%);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(254, 44, 85, 0.4);
+    margin-bottom: 15px;
+}
+
+.douyin-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(254, 44, 85, 0.6);
+}
+
+.douyin-btn:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.douyin-logo {
+    font-size: 1.3rem;
+}
+
+.douyin-arrow {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.douyin-btn:hover .douyin-arrow {
+    transform: translateX(5px);
+}
+
+.douyin-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(254, 44, 85, 0.1);
+    border: 1px solid rgba(254, 44, 85, 0.3);
+    border-radius: 15px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .douyin-cta-card {
+        margin-top: 25px;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .douyin-icon {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .douyin-cta-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .douyin-cta-card p {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+    
+    .douyin-sub {
+        font-size: 0.8rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .douyin-btn {
+        padding: 10px 24px;
+        font-size: 0.9rem;
+        gap: 8px;
+        margin-bottom: 12px;
+        box-shadow: 0 5px 18px rgba(254, 44, 85, 0.3);
+    }
+    
+    .douyin-logo {
+        font-size: 1.2rem;
+    }
+    
+    .douyin-arrow {
+        font-size: 0.9rem;
+    }
+    
+    .douyin-stats {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    
+    .stat-item {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+        gap: 4px;
+    }
+}
+
+/* 极小屏幕优化 */
+@media (max-width: 480px) {
+    .douyin-cta-card {
+        margin-top: 20px;
+        padding: 16px;
+        border-radius: 10px;
+    }
+    
+    .douyin-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .douyin-cta-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+    
+    .douyin-cta-card p {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+    
+    .douyin-sub {
+        font-size: 0.75rem !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .douyin-btn {
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+    
+    .douyin-logo {
+        font-size: 1.1rem;
+    }
+    
+    .douyin-arrow {
+        font-size: 0.85rem;
+    }
+    
+    .stat-item {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        border-radius: 10px;
+    }
+}
+
+/* ===== 全明星赛表格样式优化 ===== */
+.allstar-row {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.05) 0%, rgba(85, 37, 131, 0.05) 100%) !important;
+    transition: all 0.3s ease;
+}
+
+.allstar-row:hover {
+    background: linear-gradient(90deg, rgba(253, 185, 39, 0.15) 0%, rgba(85, 37, 131, 0.15) 100%) !important;
+    box-shadow: 0 4px 20px rgba(253, 185, 39, 0.2);
+    transform: translateX(5px);
+}
+
+.mvp-highlight {
+    color: var(--lakers-gold);
+    font-weight: 700;
+    background: rgba(253, 185, 39, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* 全明星表格列宽 */
+.honor-table th:nth-child(1), .honor-table td:nth-child(1) { width: 100px; }
+.honor-table th:nth-child(2), .honor-table td:nth-child(2) { width: 80px; }
+.honor-table th:nth-child(3), .honor-table td:nth-child(3) { width: 100px; }
+.honor-table th:nth-child(4), .honor-table td:nth-child(4) { width: 230px; }
+.honor-table th:nth-child(5), .honor-table td:nth-child(5) { width: 150px; }
+.honor-table th:nth-child(6), .honor-table td:nth-child(6) { width: 100px; }
+.honor-table th:nth-child(7), .honor-table td:nth-child(7) { width: 80px; }
+.honor-table th:nth-child(8), .honor-table td:nth-child(8) { width: 80px; }
+
+/* 全国联赛专属列宽配置 */
+#league .honor-table th:nth-child(1),
+#league .honor-table td:nth-child(1) { 
+    width: 90px; 
+}
+
+#league .honor-table th:nth-child(4),
+#league .honor-table td:nth-child(4) { 
+    width: 90px; 
+}
+
+#league .honor-table th:nth-child(5),
+#league .honor-table td:nth-child(5) { 
+    width: 90px; 
+}
+
+#league .honor-table th:nth-child(6),
+#league .honor-table td:nth-child(6) { 
+    width: 240px; 
+}
+
+/* 杯赛专属列宽配置 */
+#cup .honor-table th:nth-child(1),
+#cup .honor-table td:nth-child(1) { width: 100px; }
+#cup .honor-table th:nth-child(2),
+#cup .honor-table td:nth-child(2) { width: 80px; }
+#cup .honor-table th:nth-child(3),
+#cup .honor-table td:nth-child(3) { 
+    width: 200px; 
+    /* 夺冠队员列 - 保持不换行 */
+    white-space: nowrap !important;
+}
+#cup .honor-table th:nth-child(4),
+#cup .honor-table td:nth-child(4) { width: 100px; }
+#cup .honor-table th:nth-child(5) { width: 120px; }
+#cup .honor-table td:nth-child(5) { 
+    width: 120px; 
+    /* 最佳球员列 - MVP样式（仅数据行） */
+    color: var(--lakers-gold);
+    font-weight: 700;
+    background: rgba(253, 185, 39, 0.1);
+    padding: 4px 10px !important;
+    border-radius: 8px;
+    min-width: 60px;
+    text-align: center;
+}
+#cup .honor-table th:nth-child(6),
+#cup .honor-table td:nth-child(6) { width: 120px; }
