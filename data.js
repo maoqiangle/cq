@@ -141,7 +141,7 @@ const CLUB_DATA = {
             description: "L1-L4 联赛精彩瞬间，见证成长与荣耀",
             list: [{
                     title: "全国联赛总决赛L1 比赛集锦",
-                    desc: "2025-05-23 发布，点赞 12089。联赛绝杀与高光操作",
+                    desc: "2025-05-23 发布，点赞 1208。联赛绝杀与高光操作",
                     duration: "05:30",
                     views: "1.2 万",
                     highlight: "绝杀 + 高光操作",
@@ -163,10 +163,11 @@ const CLUB_DATA = {
     honors: {
         cup: {
             title: "🥇 苍穹杯历届冠军榜",
-            // subtitle: "S1-S34 完整记录",
+            // subtitle: "S1-S35 完整记录",
             columns: ["比赛时间", "届数", "夺冠队员", "队长", "最佳球员", "冠军戒指"],
             data: [
                 // 2026 年
+                { date: "2026.04.18", season: "S35", champions: "雷，妃子，雨", captain: "雷", mvp: "雷", ring: "1957 勇士" },
                 { date: "2026.03.14", season: "S34", champions: "皮鞋，老铁，李小龙", captain: "皮鞋", mvp: "皮鞋", ring: "1956 勇士" },
                 { date: "2026.03.07", season: "S33", champions: "雷，牧师，小熊", captain: "雷", mvp: "牧师", ring: "1958 老鹰" },
                 // 2025 年
@@ -242,7 +243,7 @@ const CLUB_DATA = {
                 { year: "2025", season: "L3", round: "3", rank: "🥉 季军", team: "赣皖渝联队", count: "4 人", players: "李小龙△，妃子，皮鞋，雨" },
                 // L2 - 2024 年（第 2 届）
                 { year: "2024", season: "L2", round: "2", rank: "🏆 冠军", team: "湘鄂联队", count: "3 人", players: "小雨干△ (FMVP)，石头，老马" },
-                { year: "2024", season: "L2", round: "2", rank: "🥈 亚军", team: "湘宁联队", count: "3 人", players: "杜，修，阿诺比" },
+                { year: "2024", season: "L2", round: "2", rank: "🥈 亚军", team: "湘宁浙联队", count: "3 人", players: "杜，修，阿诺比" },
                 { year: "2024", season: "L2", round: "2", rank: "🥉 季军", team: "广东队", count: "5 人", players: "牧师，雷，吹杨，玫瑰△，阿哲" },
                 // L1 - 2024 年（第 1 届）
                 { year: "2024", season: "L1", round: "1", rank: "🏆 冠军", team: "苏贵联队", count: "3 人", players: "小虫△，包子 (FMVP)，雨果" },
