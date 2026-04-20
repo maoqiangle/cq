@@ -167,7 +167,7 @@ const CLUB_DATA = {
             columns: ["比赛时间", "届数", "夺冠队员", "队长", "最佳球员", "冠军戒指"],
             data: [
                 // 2026 年
-                { date: "2026.04.18", season: "S35", champions: "雷，妃子，雨", captain: "雷", mvp: "雷", ring: "1957 勇士" },
+                { date: "2026.04.18", season: "S35", champions: "雷，妃子，雨", captain: "雷", mvp: "雷", ring: "1955 76人" },
                 { date: "2026.03.14", season: "S34", champions: "皮鞋，老铁，李小龙", captain: "皮鞋", mvp: "皮鞋", ring: "1956 勇士" },
                 { date: "2026.03.07", season: "S33", champions: "雷，牧师，小熊", captain: "雷", mvp: "牧师", ring: "1958 老鹰" },
                 // 2025 年
