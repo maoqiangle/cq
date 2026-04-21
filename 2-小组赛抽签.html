@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>小组赛抽签</title>
+    <script src="https://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+    <style>
+        /* 图片区域： */
+        
+        body {
+            background-image: url('basketball1.jpg');
+            background-repeat: no-repeat;
+            background-size: 120%;
+            background-attachment: fixed;
+        }
+        /* 头部位置 */
+        
+        .header {
+            /* background-color: #fff; */
+            padding: 20px;
+            text-align: center;
+        }
+        /* 下拉框 */
+        
+        #overflowTest {
+            background: #cfe0d0;
+            color: white;
+            padding: 15px;
+            width: 80%;
+            height: 100px;
+            overflow: scroll;
+            border: 1px solid #ccc;
+        }
+        
+        .wrapDiv {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .leftBox {
+            display: flex;
+            flex-wrap: wrap;
+            clear: both;
+            font-size: 150%;
+            ;
+        }
+        
+        #span {
+            float: right;
+            top: 30px;
+            right: 185px;
+        }
+        
+        #btn {
+            width: 100px;
+            height: 30px;
+            position: absolute;
+            left: 50%;
+            bottom: 5%;
+            transform: translate(-50%, 0);
+            background-color: dodgerblue;
+            color: white;
+            width: 100px;
+            height: 45px;
+            border: 0;
+            font-size: 16px;
+            box-sizing: content-box;
+            border-radius: 5px;
+        }
+        
+        .nameBox {
+            width: 180px;
+            height: 35px;
+            float: right;
+            background-color: transparent;
+            margin-right: 10px;
+            margin-top: 10px;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to bottom, #ffff, #f8fdff, #ffd1ac, #ff9267, #ff4524);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-size: 25px;
+        }
+        
+        .ulBox {
+            height: 500px;
+            font-weight: bold;
+            padding-left: 0;
+            font-size: 25px;
+            color: #fff;
+            background: linear-gradient(to bottom, #ffff, #f8fdff, #ffd1ac, #ff9267, #ff4524);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: bold;
+            /* overflow: hidden; */
+            white-space: nowrap;
+            letter-spacing: 0.15em;
+            animation: siz 5s steps(60) forwards;
+            font-weight: bold;
+        }
+        
+        .liBox {
+            width: 270px;
+            float: left;
+            background-color: #fff;
+            font-weight: bold;
+        }
+        
+        .selectedName {
+            float: left;
+            width: 340px;
+            background: transparent;
+            /* margin-top: 10px; */
+            margin-left: 50px;
+            /* overflow: hidden; */
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: rgb(233, 225, 225);
+            font: 0.875em/1.5em"黑体", "PTSans", "Arial", sans-serif;
+            font-size: 40px;
+            font-weight: bolder;
+            text-align: center;
+            background: linear-gradient(to bottom, #ffff, #f8fdff, #ffd1ac, #ff9267, #ff4524);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        
+        h3 {
+            font-weight: bolder;
+            text-align: center;
+            float: left;
+            color: rgb(221, 213, 213);
+            font: 0.875em/1.5em"黑体", "PTSans", "Arial", sans-serif;
+            font-size: 30px;
+            background: linear-gradient(to bottom, #ffff, #f8fdff, #ffd1ac, #ff9267, #ff4524);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: bold;
+        }
+        /* 字体闪动 */
+        
+        @keyframes siz {
+            0% {
+                color: #ffd1ac;
+            }
+            50% {
+                color: #ff9267;
+            }
+            100% {
+                color: #ff4524;
+            }
+        }
+        /* 字体逐渐出 */
+        
+        @keyframes siz {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+        
+        svg line {
+            stroke: #999;
+            stroke-width: 4;
+            fill: none;
+            stroke-dasharray: 43.5;
+        }
+        
+        svg line:fisrt-child {
+            stroke-dashoffset: 0;
+        }
+        
+        @keyframes depict {
+            from {
+                stroke: red;
+                stroke-dashoffset: 100;
+            }
+            to {
+                stroke: red;
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .gem {
+            font-weight: bolder;
+            text-align: center;
+            float: left;
+            color: rgb(221, 213, 213);
+            font: 0.875em/1.5em"黑体", "PTSans", "Arial", sans-serif;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+	<button id="refreshBtn">刷新</button>
+    <h1 id="h1-title" linear-gradient class="header">`《苍穹杯》S${sort1}届3v3正赛 小组赛抽签`</h1>
+    <!-- <h1>抽签功能</h1> -->
+    <span id="span"></span>
+    <div class="wrapDiv">
+        <div style="flex:1">
+            <h3 style="margin:1;"> 队伍候选区:</h3>
+            <div id="leftBox" class="leftBox"></div>
+        </div>
+        <div id="selectedName" class="selectedName">
+            <h1>对阵图</h1>
+            <ol id="results" class="ulBox"></ol>
+
+
+            <input type="button" id="btn" value="开始抽签" class="center">
+            <div id="results" class="selectedName"></div>
+
+            <script>
+                // 初始化数据
+            let arr = JSON.parse(localStorage.getItem('myArray')) || [];
+            const sort = JSON.parse(localStorage.getItem('sort')) || 1;
+
+        // 界面初始化
+        document.getElementById('h1-title').innerText = `《苍穹杯》S${sort}届3v3正赛 小组赛抽签`;
+        initForm();
+
+        function initForm() {
+            $("#leftBox").empty();
+            arr.forEach(team => {
+                const div = document.createElement("div");
+                div.className = "nameBox";
+                div.textContent = team;
+                $("#leftBox").append(div);
+            });
+        }
+
+        // 智能分组逻辑
+        function smartGrouping() {
+            const teams = [...arr]; // 克隆原始数组
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            if(teams.length < 2) {
+                alert("至少需要2支队伍才能进行分组！");
+                return;
+            }
+
+            const totalGroups = Math.ceil(teams.length / 2);
+            let hasBye = teams.length % 2 !== 0;
+
+            for(let i=0; i<totalGroups; i++) {
+                const groupElement = document.createElement('p');
+                groupElement.style.fontSize = '25px';
+
+                // 抽签逻辑
+                const indexA = Math.floor(Math.random() * teams.length);
+                const teamA = teams.splice(indexA, 1)[0];
+
+                let teamB = '轮空';
+                if(teams.length > 0 && (!hasBye || i < totalGroups-1)) {
+                    const indexB = Math.floor(Math.random() * teams.length);
+                    teamB = teams.splice(indexB, 1)[0];
+                }
+
+                // 构建显示内容
+                const matchNumber = i + 1;
+                const groupInfo = teamB === '轮空' ? 
+                    `${matchNumber}. ${teamA} 【轮空】` : 
+                    `${matchNumber}. ${teamA} vs ${teamB}`;
+
+                groupElement.textContent = groupInfo;
+                resultsContainer.appendChild(groupElement);
+            }
+
+            // 显示剩余队伍
+            if(teams.length > 0) {
+                const remainElement = document.createElement('p');
+                remainElement.textContent = `未分配队伍：${teams.join(', ')}`;
+                remainElement.style.color = '#ff0000';
+                resultsContainer.appendChild(remainElement);
+            }
+        }
+
+        // 事件绑定
+        document.getElementById('btn').addEventListener('click', smartGrouping);
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            arr = JSON.parse(localStorage.getItem('myArray'));
+            window.location.reload();
+        });
+            </script>
