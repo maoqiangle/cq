@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏀 智能篮球数据提取 · 苍穹俱乐部</title>
+<style>
+/* ============================================================
+  苍穹俱乐部 品牌设计系统
+  配色：深空黑 #0a0c14 · 苍穹金 #FFD700 · 公牛红 #C8102E · 曼巴紫 #8B5CF6
+  ============================================================ */
+:root{
+  --bg-deep:#0a0c14;
+  --bg-card:rgba(255,255,255,0.04);
+  --bg-card-hover:rgba(255,255,255,0.07);
+  --gold:#FFD700;
+  --gold-dim:rgba(255,215,0,0.15);
+  --red:#C8102E;
+  --purple:#8B5CF6;
+  --purple-dim:rgba(139,92,246,0.12);
+  --text:#E2E2E2;
+  --text-dim:#8B8B9E;
+  --border:rgba(255,255,255,0.08);
+  --border-active:rgba(255,215,0,0.3);
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-pill:50px;
+  --shadow-gold:0 0 30px rgba(255,215,0,0.1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;
+  background:var(--bg-deep);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+/* 背景星云效果 */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(139,92,246,.06),transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%,rgba(255,215,0,.04),transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(200,16,46,.03),transparent 60%);
+}
+
+.container{max-width:1480px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
+
+/* ---- 页头 ---- */
+.header{
+  text-align:center;padding:32px 20px;margin-bottom:28px;
+  background:linear-gradient(180deg,rgba(139,92,246,.06) 0%,rgba(200,16,46,.04) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  position:relative;overflow:hidden;
+}
+.header::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent);
+}
+.header-icon{font-size:2.4rem;margin-bottom:8px;display:block;filter:drop-shadow(0 0 8px rgba(255,215,0,.3))}
+.header h1{font-size:1.7rem;color:var(--gold);font-weight:700;letter-spacing:1px}
+.header p{color:var(--text-dim);font-size:.9rem;margin-top:6px}
+
+/* ---- 分区卡片 ---- */
+.section{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:20px;
+  backdrop-filter:blur(6px);
+  transition:border-color .3s;
+}
+.section:hover{border-color:rgba(255,255,255,.12)}
+.section-title{
+  color:var(--gold);font-size:1.05rem;font-weight:600;
+  margin-bottom:16px;display:flex;align-items:center;gap:8px
+}
+.section-title::before{content:'◆';font-size:.6rem;color:var(--red)}
+
+/* ---- 按钮系统 ---- */
+.btn{
+  padding:9px 20px;border:none;border-radius:var(--radius-pill);
+  font-weight:600;cursor:pointer;transition:all .25s;font-size:.84rem;
+  letter-spacing:.5px;position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;filter:none}
+
+.btn-primary{   /* 金红渐变：主操作 */
+  background:linear-gradient(135deg,var(--red),#e0524a);
+  color:#fff;box-shadow:0 4px 15px rgba(200,16,46,.25);
+}
+.btn-primary:hover{box-shadow:0 6px 22px rgba(200,16,46,.35)}
+
+.btn-gold{       /* 示例 / 次要 */
+  background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,215,0,.08));
+  color:var(--gold);border:1px solid rgba(255,215,0,.25);
+}
+.btn-gold:hover{background:linear-gradient(135deg,rgba(255,215,0,.22),rgba(255,215,0,.12))}
+
+.btn-purple{
+  background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.06));
+  color:#A78BFA;border:1px solid rgba(139,92,246,.25);
+}
+.btn-purple:hover{background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(139,92,246,.1))}
+
+.btn-outline{
+  background:transparent;border:1.5px solid rgba(255,215,0,.3);color:var(--gold);
+}
+.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold)}
+
+.btn-sm{padding:6px 14px;font-size:.78rem}
+.btn-icon{padding:8px 14px}
+
+/* ---- API 输入 ---- */
+.api-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.api-input{
+  flex:1;min-width:200px;padding:10px 14px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,215,0,.25);
+  border-radius:var(--radius-sm);color:#fff;font-size:.85rem;
+  transition:border-color .3s;
+}
+.api-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.08)}
+.api-input::placeholder{color:var(--text-dim)}
+.badge-status{font-size:.78rem;padding:4px 10px;border-radius:var(--radius-pill)}
+
+/* ---- 上传区 ---- */
+.upload-zone{
+  border:2px dashed rgba(255,255,255,.12);border-radius:var(--radius);
+  padding:28px 20px;text-align:center;background:rgba(0,0,0,.2);
+  transition:all .35s;cursor:pointer;margin-bottom:14px;
+}
+.upload-zone:hover{border-color:var(--gold);background:rgba(255,215,0,.03)}
+.upload-zone.has-files{border-style:solid;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.03)}
+.upload-zone .zone-hint{color:var(--text);font-size:.95rem;font-weight:500}
+.upload-zone .zone-sub{color:var(--text-dim);font-size:.8rem;margin-top:4px}
+.upload-zone .zone-icon{font-size:2rem;display:block;margin-bottom:6px;opacity:.6}
+
+.file-hidden{display:none}
+
+/* ---- 上传卡片 ---- */
+.upload-cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.upload-card{
+  flex:0 0 230px;border-radius:var(--radius-sm);padding:12px;
+  background:rgba(0,0,0,.35);border:1px solid var(--border);
+  position:relative;transition:all .3s;
+}
+.upload-card:hover{border-color:rgba(255,255,255,.15)}
+.upload-card img{width:100%;height:148px;object-fit:contain;border-radius:6px;background:#000}
+.upload-card .card-tag{
+  position:absolute;top:10px;left:10px;padding:3px 12px;
+  border-radius:var(--radius-pill);font-size:.72rem;font-weight:700;z-index:2;
+}
+.tag-master{background:var(--red);color:#fff}
+.tag-detail{background:var(--purple);color:#fff}
+.tag-unknown{background:rgba(255,255,255,.15);color:var(--text-dim)}
+.upload-card .card-name{font-size:.72rem;color:var(--text-dim);margin-top:8px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-card .card-remove{
+  position:absolute;top:8px;right:8px;width:22px;height:22px;
+  border-radius:50%;background:rgba(231,76,60,.7);color:#fff;
+  border:none;cursor:pointer;font-size:13px;line-height:22px;text-align:center;
+  z-index:3;transition:background .2s;
+}
+.upload-card .card-remove:hover{background:#e74c3c}
+
+/* ---- 工具栏 ---- */
+.toolbar{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:10px;margin-top:4px;
+}
+
+/* ---- 进度 ---- */
+.progress-bar{
+  width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:3px;
+  margin:14px 0;overflow:hidden;display:none;
+}
+.progress-bar .fill{
+  height:100%;background:linear-gradient(90deg,var(--purple),var(--red),var(--gold));
+  width:0;transition:width .4s ease;border-radius:3px;
+}
+.step-label{font-size:.78rem;color:var(--text-dim);text-align:center;margin-top:4px;display:none}
+
+/* ---- 状态条 ---- */
+.status-msg{
+  padding:10px 16px;border-radius:var(--radius-sm);margin:12px 0;
+  font-weight:500;font-size:.8rem;display:none;border-left:3px solid;
+}
+.status-ok{background:rgba(46,204,113,.1);color:#2ecc71;border-left-color:#2ecc71}
+.status-warn{background:rgba(241,196,15,.1);color:#f1c40f;border-left-color:#f1c40f}
+.status-err{background:rgba(231,76,60,.1);color:#e74c3c;border-left-color:#e74c3c}
+
+/* ---- 结果布局 ---- */
+.result-area{display:grid;grid-template-columns:1fr 1.5fr;gap:20px;align-items:start}
+@media(max-width:1050px){.result-area{grid-template-columns:1fr}}
+
+/* 图片查看器 */
+.img-viewer{
+  background:rgba(0,0,0,.4);border-radius:var(--radius);
+  border:1px solid var(--border);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.img-viewer-head{
+  padding:10px 16px;background:linear-gradient(180deg,rgba(139,92,246,.06),transparent);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.img-viewer-head .label{font-weight:700;color:var(--gold);font-size:.9rem}
+.img-viewer-head .switches{display:flex;gap:4px}
+.img-viewer-head .sw{
+  padding:5px 14px;border-radius:var(--radius-pill);border:1px solid rgba(255,255,255,.15);
+  background:transparent;color:var(--text-dim);cursor:pointer;font-size:.73rem;
+  transition:all .25s;
+}
+.img-viewer-head .sw.active{background:var(--gold);color:var(--bg-deep);border-color:var(--gold);font-weight:700}
+.img-viewer img{width:100%;display:block;background:#000;object-fit:contain;max-height:52vh}
+.img-viewer .empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-dim);font-size:.85rem}
+.img-viewer-foot{padding:7px 16px;font-size:.7rem;color:#555;border-top:1px solid var(--border)}
+
+/* 表格面板 */
+.table-panel{display:flex;flex-direction:column;gap:10px}
+.table-head{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;
+}
+.mode-tag{padding:4px 14px;border-radius:var(--radius-pill);font-size:.75rem;font-weight:700}
+.mode-view{background:rgba(139,92,246,.12);color:#A78BFA}
+.mode-edit{background:rgba(231,76,60,.12);color:#e74c3c}
+.table-scroll{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+
+/* 数据表 */
+.bball-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.bball-table th,.bball-table td{border:1px solid rgba(255,255,255,.06);padding:8px 6px;text-align:center;white-space:nowrap}
+.bball-table thead th{background:rgba(255,215,0,.1);color:var(--gold);font-size:.74rem;font-weight:600}
+.bball-table tbody td{background:rgba(255,255,255,.03);color:var(--text)}
+/* 单元格 */
+.bball-table .ct{display:block;min-width:38px;min-height:22px;line-height:22px}
+.bball-table .ct.wide{min-width:95px}
+.bball-table .ct.nil{color:#444}
+.bball-table .ci{display:none;width:100%;padding:4px 6px;background:rgba(0,0,0,.4);border:1px solid var(--purple);color:#fff;border-radius:4px;text-align:center;font-size:.78rem}
+.bball-table .ci:focus{outline:none;border-color:var(--gold)}
+/* 编辑模式 */
+body.is-edit .bball-table .ct{display:none}
+body.is-edit .bball-table .ci{display:block}
+body.is-edit .bball-table tbody td{background:rgba(255,255,255,.05)}
+
+/* 匹配状态行 */
+.bball-table tr.ok td{background:rgba(46,204,113,.04)}
+.bball-table tr.ng td{background:rgba(231,76,60,.04)}
+
+/* 异常面板 */
+.panel-issues{display:none;background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.2);border-radius:var(--radius-sm);padding:12px 14px;font-size:.78rem}
+.panel-issues.on{display:block}
+.panel-issues h4{color:#e74c3c;margin-bottom:6px;font-size:.8rem}
+.panel-issues .it{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-dim)}
+.badge-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:24px;padding:0 8px;
+  border-radius:var(--radius-pill);font-size:.7rem;font-weight:700;
+  background:rgba(255,215,0,.15);color:var(--gold);
+  margin-left:auto;
+}
+.spacer{flex:1}
+
+/* ---- 响应式微调 ---- */
+@media(max-width:700px){
+  .container{padding:12px 10px}
+  .section{padding:16px}
+  .upload-card{flex:1 1 140px;min-width:0}
+  .upload-card img{height:100px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ========== HEADER ========== -->
+<header class="header">
+  <span class="header-icon">🏀</span>
+  <h1>苍穹俱乐部·智能篮球数据提取</h1>
+  <p>上传2张截图 · AI自动识别主表&明细表 · 智能合并 · 一键复制</p>
+</header>
+
+<!-- ========== API KEY ========== -->
+<section class="section">
+  <div class="section-title">API 配置</div>
+  <div class="api-row">
+    <span style="color:var(--gold);font-weight:600;white-space:nowrap">🔑 豆包 Key</span>
+    <input type="password" id="apiKeyInput" class="api-input" placeholder="sk-...">
+    <button class="btn btn-primary btn-sm" onclick="saveApiKey()">保存密钥</button>
+    <span id="apiStatus" class="badge-status" style="color:#e74c3c">未配置</span>
+  </div>
+</section>
+
+<!-- ========== UPLOAD ========== -->
+<section class="section">
+  <div class="section-title">
+    上传比赛截图
+    <span class="spacer"></span>
+    <span class="badge-count" id="imgCount">0 / 2</span>
+  </div>
+
+  <div class="upload-zone" id="uploadZone" onclick="$('fileInput').click()">
+    <span class="zone-icon">📤</span>
+    <div class="zone-hint">点击或拖拽上传 <b>2 张</b> 截图</div>
+    <div class="zone-sub">系统自动识别主表与明细统计表</div>
+  </div>
+  <input type="file" id="fileInput" class="file-hidden" accept="image/*" multiple>
+
+  <div class="upload-cards" id="uploadCards"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-gold btn-sm" id="btnSwap" onclick="swapLabels()" style="display:none">🔄 交换主表/明细</button>
+  </div>
+
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-primary" id="processBtn" onclick="startMerge()" disabled>🚀 识别并合并</button>
+    <button class="btn btn-gold" onclick="showExample()">📋 加载示例</button>
+    <button class="btn btn-outline btn-sm" onclick="clearAll()">🗑 清空</button>
+  </div>
+
+  <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+  <div class="step-label" id="stepLabel"></div>
+  <div class="status-msg" id="statusMsg"></div>
+</section>
+
+<!-- ========== RESULTS ========== -->
+<section class="section" id="resultsSection" style="display:none">
+  <div class="section-title">对比校验</div>
+
+  <div class="result-area">
+    <!-- LEFT: image viewer -->
+    <div class="img-viewer">
+      <div class="img-viewer-head">
+        <span class="label" id="imgLabel">📋 主表</span>
+        <div class="switches">
+          <button class="sw active" id="swMaster" onclick="switchImage('master')">主表</button>
+          <button class="sw" id="swDetail" onclick="switchImage('detail')">明细</button>
+        </div>
+      </div>
+      <img id="viewerImg" src="" alt="" style="display:none">
+      <div class="empty" id="viewerEmpty">请上传截图</div>
+      <div class="img-viewer-foot" id="viewerFoot"></div>
+    </div>
+
+    <!-- RIGHT: table -->
+    <div class="table-panel">
+      <div class="table-head">
+        <span class="mode-tag mode-view" id="modeTag">👁 预览模式</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" id="btnCopy" onclick="copyData()">📋 复制数据</button>
+          <button class="btn btn-primary btn-sm" id="btnEdit" onclick="toggleEdit()">✏️ 编辑</button>
+          <button class="btn btn-purple btn-sm" onclick="exportExcel()">📥 导出 Excel</button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="bball-table">
+          <thead>
+            <tr>
+              <th>玩家昵称</th><th>球员卡</th><th>位置</th>
+              <th>队伍</th><th>投篮</th><th>三分</th><th>篮板</th>
+              <th>助攻</th><th>抢断</th><th>盖帽</th><th>失误</th>
+              <th>得分</th><th>影响力</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel-issues" id="issuesPanel">
+        <h4>⚠️ 匹配异常</h4>
+        <div id="issuesContent"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- .container -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ============================================================
+const FIELDS = ['玩家昵称','球员卡','位置','队伍','投篮','三分','篮板','助攻','抢断','盖帽','失误','得分','影响力'];
+const MAX_IMG = 2;
+const $ = id => document.getElementById(id);
+
+// ---- State ----
+let apiKey = '';
+let images = [];        // {file, dataURL}
+let masterIdx = -1, detailIdx = -1;
+let masterData = [], detailData = [], mergedData = [], issues = [];
+let isEditing = false, curView = 'master', isSubmitting = false;
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('doubaoApiKey');
+  if (saved) {
+    apiKey = saved;
+    $('apiKeyInput').value = saved;
+    $('apiStatus').textContent = '已加载';
+    $('apiStatus').style.color = '#2ecc71';
+  }
+
+  $('fileInput').addEventListener('change', function () { addFiles(this.files); });
+  setupDrag($('uploadZone'));
+  setTimeout(() => { if (!mergedData.length) showExample(); }, 700);
+});
+
+function setupDrag(el) {
+  el.addEventListener('dragover', e => { e.preventDefault(); el.style.borderColor = 'var(--gold)'; });
+  el.addEventListener('dragleave', () => el.style.borderColor = '');
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.style.borderColor = '';
+    addFiles(e.dataTransfer.files);
+  });
+}
+
+// ---- File management ----
+function addFiles(fileList) {
+  const valid = [...fileList].filter(f => f.type.startsWith('image/'));
+  if (!valid.length) return;
+  if (images.length >= MAX_IMG) { images = []; masterIdx = -1; detailIdx = -1; }
+  for (const f of valid) {
+    if (images.length >= MAX_IMG) break;
+    const idx = images.length;
+    images.push({ file: f, dataURL: '' });
+    const reader = new FileReader();
+    reader.onload = function (e) { images[idx].dataURL = e.target.result; renderCards(); };
+    reader.readAsDataURL(f);
+  }
+}
+
+function removeImage(idx) {
+  images.splice(idx, 1);
+  if (masterIdx === idx) masterIdx = -1; else if (masterIdx > idx) masterIdx--;
+  if (detailIdx === idx) detailIdx = -1; else if (detailIdx > idx) detailIdx--;
+  renderCards();
+}
+
+function swapLabels() {
+  if (masterIdx === -1 || detailIdx === -1) return;
+  [masterIdx, detailIdx] = [detailIdx, masterIdx];
+  renderCards();
+}
+
+function renderCards() {
+  const ctr = $('uploadCards');
+  $('imgCount').textContent = images.length + ' / 2';
+  $('btnSwap').style.display = images.length === 2 ? '' : 'none';
+
+  if (!images.length) {
+    ctr.innerHTML = '';
+    $('uploadZone').classList.remove('has-files');
+    $('processBtn').disabled = true;
+    return;
+  }
+  $('uploadZone').classList.add('has-files');
+
+  // Auto-assign: first -> master, second -> detail
+  if (images.length >= 1 && masterIdx === -1) masterIdx = 0;
+  if (images.length >= 2 && detailIdx === -1) detailIdx = 1;
+  if (masterIdx === detailIdx) detailIdx = masterIdx === 0 ? 1 : 0;
+
+  ctr.innerHTML = images.map((img, i) => {
+    const tag = i === masterIdx ? '📋 主表' : i === detailIdx ? '📊 明细' : '待识别';
+    const cls = i === masterIdx ? 'tag-master' : i === detailIdx ? 'tag-detail' : 'tag-unknown';
+    return `<div class="upload-card">
+      <span class="card-tag ${cls}">${tag}</span>
+      <button class="card-remove" onclick="removeImage(${i})">×</button>
+      ${img.dataURL ? `<img src="${img.dataURL}">` : ''}
+      <div class="card-name">${img.file.name}</div>
+    </div>`;
+  }).join('');
+
+  checkReady();
+}
+
+// ---- Ready check ----
+function saveApiKey() {
+  const k = $('apiKeyInput').value.trim();
+  if (!k) return;
+  apiKey = k;
+  localStorage.setItem('doubaoApiKey', k);
+  $('apiStatus').textContent = '已保存';
+  $('apiStatus').style.color = '#2ecc71';
+  checkReady();
+}
+function checkReady() {
+  $('processBtn').disabled = !(apiKey && images.length === 2);
+}
+
+// ---- Main flow ----
+async function startMerge() {
+  if (!apiKey || images.length !== 2) { showStatus('err', '需要 API Key + 恰好 2 张截图'); return; }
+  if (isSubmitting) return;
+  isSubmitting = true;
+  issues = [];
+  showStatus('', '');
+  $('stepLabel').style.display = 'block';
+  $('stepLabel').textContent = '🤖 AI 分析中，识别主表与明细表...';
+  $('progressBar').style.display = 'block';
+  $('progressFill').style.width = '5%';
+  $('processBtn').disabled = true;
+
+  try {
+    // Ensure dataURLs ready
+    for (let i = 0; i < images.length; i++) {
+      if (!images[i].dataURL) images[i].dataURL = await fileToDataURL(images[i].file);
+    }
+
+    const { master, detail } = await callCombinedAPI(images[masterIdx].file, images[detailIdx].file);
+    masterData = master;
+    detailData = detail;
+
+    $('progressFill').style.width = '60%';
+    $('stepLabel').textContent = `📋 主表 ${master.length} 条 · 明细 ${detail.length} 条 → 匹配合并...`;
+
+    performMerge();
+    $('progressFill').style.width = '100%';
+    $('stepLabel').textContent = `✅ 合并完成，共 ${mergedData.length} 条`;
+
+    // Reset edit state
+    isEditing = false;
+    curView = 'master';
+    document.body.classList.remove('is-edit');
+    $('modeTag').textContent = '👁 预览模式';
+    $('modeTag').className = 'mode-tag mode-view';
+    $('btnEdit').textContent = '✏️ 编辑';
+    $('swMaster').classList.add('active');
+    $('swDetail').classList.remove('active');
+
+    renderAll();
+  } catch (e) {
+    showStatus('err', '❌ 识别失败，请重试 — ' + e.message);
+    console.error(e);
+  } finally {
+    $('processBtn').disabled = false;
+    isSubmitting = false;
+    setTimeout(() => { $('progressBar').style.display = 'none'; $('stepLabel').style.display = 'none'; }, 2000);
+  }
+}
+
+function fileToDataURL(f) {
+  return new Promise(ok => { const r = new FileReader(); r.onload = e => ok(e.target.result); r.readAsDataURL(f); });
+}
+
+// ---- Combined API call ----
+async function callCombinedAPI(f1, f2) {
+  const [b1, b2] = await Promise.all([fileToB64(f1), fileToB64(f2)]);
+  const m1 = f1.type || 'image/jpeg';
+  const m2 = f2.type || 'image/jpeg';
+
+  const prompt = `你是篮球数据分析师。现在给你 2 张图片：
+
+【图片1】（可能是主表，也可能是明细统计表）
+【图片2】（另一张表）
+
+请根据字段内容自动判断哪张是主表、哪张是明细统计表，然后分别提取所有数据。
+
+主表特征：包含"玩家昵称"（如 AIR_xxx）、影响力、标签等
+明细表特征：包含详细的篮球统计字段：三分、抢断、盖帽、失误等
+
+输出标准 JSON（不要 markdown 包裹），格式：
+{"master":[{"玩家昵称":"","球员卡":"","位置":"","队伍":"","投篮":"","三分":"","篮板":"","助攻":"","抢断":"","盖帽":"","失误":"","得分":"","影响力":""}],"detail":[{"球员卡":"","位置":"","队伍":"","投篮":"","三分":"","篮板":"","助攻":"","抢断":"","盖帽":"","失误":"","得分":""}]}
+
+要点：
+- 投篮格式如 "2-6"
+- 位置如 "SG/SF" 或 "SG|SF"
+- 无数据的字段留空 ""
+- 逐行提取，不遗漏`;
+
+  const resp = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: 'doubao-seed-1-8-251228',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: `data:${m1};base64,${b1}` } },
+          { type: 'text', text: '【以上是图片1】' },
+          { type: 'image_url', image_url: { url: `data:${m2};base64,${b2}` } },
+          { type: 'text', text: '【以上是图片2，请输出JSON】' }
+        ]
+      }]
+    })
+  });
+
+  if (!resp.ok) throw new Error(`API ${resp.status}`);
+  const data = await resp.json();
+  return parseCombined(data.choices[0].message.content);
+}
+
+function fileToB64(f) {
+  return new Promise((ok, err) => {
+    const r = new FileReader();
+    r.onload = e => ok(e.target.result.split(',')[1]);
+    r.onerror = err;
+    r.readAsDataURL(f);
+  });
+}
+
+function parseCombined(raw) {
+  if (!raw || typeof raw !== 'string') return { master: [], detail: [] };
+  let t = raw.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '').trim();
+  const m = t.match(/\{[\s\S]*\}/);
+  if (!m) return { master: [], detail: [] };
+  try {
+    const obj = JSON.parse(m[0]);
+    return {
+      master: (obj.master || obj.主表 || []).map(normalize),
+      detail: (obj.detail || obj.明细 || []).map(normalize)
+    };
+  } catch {
+    try {
+      const obj = JSON.parse(m[0]);
+      return { master: (obj.players || []).map(normalize), detail: [] };
+    } catch { return { master: [], detail: [] }; }
+  }
+}
+
+function normalize(p) { const r = {}; FIELDS.forEach(f => r[f] = p[f] || ''); return r; }
+
+// ---- Merge ----
+function performMerge() {
+  mergedData = [];
+  issues = [];
+  const makeKey = r =>
+    `${(r['球员卡'] || '').trim()}||${(r['队伍'] || '').trim()}||${(r['投篮'] || '').trim()}||${(r['得分'] || '').trim()}`;
+
+  const dMap = {};
+  detailData.forEach((d, i) => {
+    const k = makeKey(d);
+    if (!dMap[k]) dMap[k] = [];
+    dMap[k].push({ ...d, _i: i });
+  });
+
+  const used = new Set();
+  masterData.forEach(m => {
+    const k = makeKey(m);
+    const candidates = dMap[k] || [];
+    let best = null;
+    for (const c of candidates) { if (!used.has(c._i)) { best = c; break; } }
+    if (!best && candidates.length) best = candidates[0];
+
+    if (best) {
+      used.add(best._i);
+      const row = {};
+      FIELDS.forEach(f => {
+        if (f === '玩家昵称' || f === '影响力') row[f] = m[f] || '';
+        else row[f] = best[f] || m[f] || '';
+      });
+      mergedData.push(row);
+    } else {
+      mergedData.push({ ...m });
+      issues.push({ type: 'master_only', name: m['玩家昵称'] || '(无昵称)', card: m['球员卡'] || '', team: m['队伍'] || '' });
+    }
+  });
+
+  detailData.forEach((d, i) => {
+    if (!used.has(i)) {
+      mergedData.push({ ...d });
+      issues.push({ type: 'detail_only', card: d['球员卡'] || '', team: d['队伍'] || '' });
+    }
+  });
+}
+
+// ---- Render ----
+function renderAll() {
+  showViewer(curView);
+
+  const tb = $('tableBody');
+  tb.innerHTML = '';
+  mergedData.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    if (row['玩家昵称'] && row['球员卡'] && row['投篮']) tr.className = 'ok';
+    let html = '';
+    FIELDS.forEach(f => {
+      const v = row[f] || '';
+      const cls = (f === '玩家昵称' || f === '球员卡') ? 'wide' : '';
+      const nil = v ? '' : 'nil';
+      html += `<td><span class="ct ${cls} ${nil}">${v || '-'}</span><input class="ci ${cls}" value="${esc(v)}" data-f="${f}" data-i="${i}" onchange="syncCell(this)"></td>`;
+    });
+    tr.innerHTML = html;
+    tb.appendChild(tr);
+  });
+
+  if (issues.length) {
+    $('issuesPanel').classList.add('on');
+    $('issuesContent').innerHTML = issues.map((x, i) =>
+      x.type === 'master_only'
+        ? `<div class="it">${i + 1}. ⚠️ 主表「${x.name}」(${x.card}, ${x.team}) 未匹配 → 统计字段为空</div>`
+        : `<div class="it">${i + 1}. 📊 明细「${x.card}」(${x.team}) 未匹配 → 昵称/影响力为空</div>`
+    ).join('');
+    showStatus('warn', `⚠️ ${issues.length} 条未完全匹配，请对照图片校验`);
+  } else {
+    $('issuesPanel').classList.remove('on');
+    showStatus('ok', `✅ 全部 ${mergedData.length} 条匹配成功`);
+  }
+
+  $('resultsSection').style.display = 'block';
+  $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ---- Image viewer ----
+function switchImage(type) {
+  curView = type;
+  $('swMaster').classList.toggle('active', type === 'master');
+  $('swDetail').classList.toggle('active', type === 'detail');
+  $('imgLabel').textContent = type === 'master' ? '📋 主表' : '📊 明细';
+  showViewer(type);
+}
+
+function showViewer(type) {
+  const idx = type === 'master' ? masterIdx : detailIdx;
+  const img = $('viewerImg'), empty = $('viewerEmpty'), foot = $('viewerFoot');
+  if (idx >= 0 && images[idx] && images[idx].dataURL) {
+    img.src = images[idx].dataURL;
+    img.style.display = 'block';
+    empty.style.display = 'none';
+    foot.textContent = images[idx].file.name;
+  } else {
+    img.style.display = 'none';
+    empty.style.display = 'flex';
+    empty.textContent = (type === 'master' ? '主表' : '明细') + '截图未加载';
+    foot.textContent = '';
+  }
+}
+
+// ---- Edit toggle ----
+function toggleEdit() {
+  isEditing = !isEditing;
+  if (isEditing) {
+    document.body.classList.add('is-edit');
+    $('modeTag').textContent = '✏️ 编辑模式';
+    $('modeTag').className = 'mode-tag mode-edit';
+    $('btnEdit').textContent = '👁 预览';
+  } else {
+    // Sync all inputs back to mergedData + text
+    document.querySelectorAll('.ci').forEach(inp => {
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      if (mergedData[i]) mergedData[i][f] = inp.value;
+      const ct = inp.parentElement.querySelector('.ct');
+      if (ct) { ct.textContent = inp.value || '-'; ct.classList.toggle('nil', !inp.value); }
+    });
+    document.body.classList.remove('is-edit');
+    $('modeTag').textContent = '👁 预览模式';
+    $('modeTag').className = 'mode-tag mode-view';
+    $('btnEdit').textContent = '✏️ 编辑';
+  }
+}
+
+function syncCell(inp) {
+  const i = +inp.dataset.i, f = inp.dataset.f;
+  if (mergedData[i]) mergedData[i][f] = inp.value;
+}
+
+// ---- Copy ----
+function copyData() {
+  const hdr = FIELDS.join('\t');
+  const rows = mergedData.map(r => FIELDS.map(f => r[f] || '').join('\t'));
+  const text = [hdr, ...rows].join('\n');
+  navigator.clipboard.writeText(text).then(() => flashBtn($('btnCopy'), '✅ 已复制!'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashBtn($('btnCopy'), '✅ 已复制!');
+    });
+}
+
+function flashBtn(el, msg) { const o = el.textContent; el.textContent = msg; setTimeout(() => el.textContent = o, 1500); }
+
+// ---- Example ----
+function showExample() {
+  masterData = [
+    { '玩家昵称': 'AIR丶小宁', '球员卡': '克莱.汤普森(经典版)', '位置': 'SG/SF', '队伍': '红队', '投篮': '2-6', '三分': '', '篮板': '0', '助攻': '2', '抢断': '', '盖帽': '', '失误': '', '得分': '4', '影响力': '13' },
+    { '玩家昵称': 'AIR丶小明', '球员卡': '勒布朗.詹姆斯(经典版)', '位置': 'PF/C', '队伍': '红队', '投篮': '8-15', '三分': '', '篮板': '5', '助攻': '3', '抢断': '', '盖帽': '', '失误': '', '得分': '18', '影响力': '16' },
+    { '玩家昵称': 'AIR丶小华', '球员卡': '史蒂芬.库里(经典版)', '位置': 'PG/SG', '队伍': '蓝队', '投篮': '10-18', '三分': '', '篮板': '3', '助攻': '6', '抢断': '', '盖帽': '', '失误': '', '得分': '28', '影响力': '19' },
+    { '玩家昵称': 'AIR丶小李', '球员卡': '凯文.杜兰特(经典版)', '位置': 'SF/PF', '队伍': '蓝队', '投篮': '9-16', '三分': '', '篮板': '4', '助攻': '4', '抢断': '', '盖帽': '', '失误': '', '得分': '21', '影响力': '15' },
+    { '玩家昵称': 'AIR丶小王', '球员卡': '安东尼.戴维斯(经典版)', '位置': 'C', '队伍': '红队', '投篮': '6-12', '三分': '', '篮板': '8', '助攻': '2', '抢断': '', '盖帽': '', '失误': '', '得分': '12', '影响力': '11' },
+    { '玩家昵称': 'AIR丶小张', '球员卡': '詹姆斯.哈登(经典版)', '位置': 'PG', '队伍': '蓝队', '投篮': '7-14', '三分': '', '篮板': '4', '助攻': '9', '抢断': '', '盖帽': '', '失误': '', '得分': '20', '影响力': '14' }
+  ];
+  detailData = [
+    { '球员卡': '克莱.汤普森(经典版)', '位置': 'SG|SF', '队伍': '红队', '投篮': '2-6', '三分': '0', '篮板': '0', '助攻': '2', '抢断': '0', '盖帽': '0', '失误': '0', '得分': '4' },
+    { '球员卡': '勒布朗.詹姆斯(经典版)', '位置': 'PF|C', '队伍': '红队', '投篮': '8-15', '三分': '2', '篮板': '10', '助攻': '8', '抢断': '2', '盖帽': '1', '失误': '3', '得分': '18' },
+    { '球员卡': '史蒂芬.库里(经典版)', '位置': 'PG|SG', '队伍': '蓝队', '投篮': '10-18', '三分': '6', '篮板': '4', '助攻': '7', '抢断': '1', '盖帽': '0', '失误': '2', '得分': '28' },
+    { '球员卡': '凯文.杜兰特(经典版)', '位置': 'SF|PF', '队伍': '蓝队', '投篮': '9-16', '三分': '3', '篮板': '7', '助攻': '4', '抢断': '1', '盖帽': '2', '失误': '2', '得分': '21' },
+    { '球员卡': '安东尼.戴维斯(经典版)', '位置': 'C', '队伍': '红队', '投篮': '6-12', '三分': '0', '篮板': '12', '助攻': '3', '抢断': '2', '盖帽': '3', '失误': '1', '得分': '12' },
+    { '球员卡': '詹姆斯.哈登(经典版)', '位置': 'PG', '队伍': '蓝队', '投篮': '7-14', '三分': '4', '篮板': '5', '助攻': '10', '抢断': '1', '盖帽': '0', '失误': '3', '得分': '20' }
+  ];
+
+  isEditing = false;
+  curView = 'master';
+  document.body.classList.remove('is-edit');
+  $('modeTag').textContent = '👁 预览模式';
+  $('modeTag').className = 'mode-tag mode-view';
+  $('btnEdit').textContent = '✏️ 编辑';
+  $('swMaster').classList.add('active');
+  $('swDetail').classList.remove('active');
+
+  performMerge();
+  $('viewerImg').style.display = 'none';
+  $('viewerEmpty').style.display = 'flex';
+  $('viewerEmpty').textContent = '示例模式 · 请上传真实截图';
+  $('viewerFoot').textContent = '';
+  renderAll();
+}
+
+// ---- Export ----
+function exportExcel() {
+  if (!mergedData.length) return;
+  const ws = XLSX.utils.json_to_sheet(mergedData.map(r => { const o = {}; FIELDS.forEach(f => o[f] = r[f] || ''); return o; }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '篮球数据');
+  ws['!cols'] = FIELDS.map(f => ({ wch: f === '球员卡' ? 22 : f === '玩家昵称' ? 14 : 8 }));
+  XLSX.writeFile(wb, '苍穹篮球数据_合并结果.xlsx');
+}
+
+// ---- Clear ----
+function clearAll() {
+  images = [];
+  masterIdx = -1;
+  detailIdx = -1;
+  masterData = [];
+  detailData = [];
+  mergedData = [];
+  issues = [];
+  isEditing = false;
+  document.body.classList.remove('is-edit');
+  $('modeTag').textContent = '👁 预览模式';
+  $('modeTag').className = 'mode-tag mode-view';
+  $('btnEdit').textContent = '✏️ 编辑';
+  $('uploadCards').innerHTML = '';
+  $('uploadZone').classList.remove('has-files');
+  $('imgCount').textContent = '0 / 2';
+  $('btnSwap').style.display = 'none';
+  $('viewerImg').src = '';
+  $('viewerImg').style.display = 'none';
+  $('viewerEmpty').style.display = 'flex';
+  $('viewerEmpty').textContent = '请上传截图';
+  $('viewerFoot').textContent = '';
+  $('tableBody').innerHTML = '';
+  $('resultsSection').style.display = 'none';
+  $('issuesPanel').classList.remove('on');
+  $('statusMsg').style.display = 'none';
+  $('processBtn').disabled = true;
+  $('fileInput').value = '';
+}
+
+// ---- Status ----
+function showStatus(type, msg) {
+  const s = $('statusMsg');
+  s.className = 'status-msg';
+  s.style.display = msg ? 'block' : 'none';
+  if (type === 'ok') s.classList.add('status-ok');
+  else if (type === 'warn') s.classList.add('status-warn');
+  else if (type === 'err') s.classList.add('status-err');
+  s.textContent = msg;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+</script>
+</body>
+</html>
