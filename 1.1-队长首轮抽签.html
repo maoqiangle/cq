@@ -1,361 +1,450 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
     <title>首轮抽签</title>
     <script src="https://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
-<!--     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <style>
-        /* 图片区域： */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         body {
             background-image: url('basketball2.jpg');
             background-repeat: no-repeat;
             background-size: 120%;
             background-attachment: fixed;
-        }
-        
-        html {
-            font-size: 25;
-        }
-        
-        body {
             background-color: aliceblue;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            height: 100vh;
+            overflow: hidden;
         }
         
-        .wrapDiv {
-            width: 100%;
-            height: 100vh;
+        .top-bar {
             display: flex;
-            padding: 0 20px;
-            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px 0 20px;
+            position: relative;
+        }
+        
+        #excel-file {
+            position: absolute;
+            left: 20px;
+            font-size: 13px;
+            /* background: rgba(255, 255, 240, 0.9); */
+            /* border-radius: 20px; */
+            padding: 4px 12px;
+            /* border: 1px solid #ccc; */
+        }
+        
+        h1 {
+            color: rgb(164, 92, 231);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin: 0;
+        }
+        
+        .main-container {
+            display: flex;
+            gap: 20px;
+            padding: 12px 20px 20px 20px;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+        }
+        
+        .candidate-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 24px;
+            backdrop-filter: blur(2px);
+        }
+        
+        .candidate-area h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: rgb(194, 150, 236);
+            margin: 0 0 10px 0;
+            padding-left: 8px;
         }
         
         .leftBox {
             display: flex;
             flex-wrap: wrap;
-            clear: both;
-        }
-        
-        #span {
-            float: right;
-            top: 30px;
-            right: 185px;
-        }
-        
-        #btn {
-            width: 90px;
-            height: 40px;
-            position: absolute;
-            left: 43%;
-            bottom: 5%;
-            transform: translate(-50%, 0);
-            background-color: dodgerblue;
-            color: white;
-            width: 100px;
-            height: 45px;
-            border: 0;
-            font-size: 16px;
-            box-sizing: content-box;
-            border-radius: 5px;
+            align-content: flex-start;
+            gap: 8px;
+            overflow-y: auto;
+            padding: 4px;
+            max-height: 100%;
         }
         
         .nameBox {
-            width: 120px;  /* 宽度： */
-            height: 30px; /* 高度： */
-            float: right;
-            background-color: antiquewhite;
-            margin-right: 10px;
-            margin-top: 10px;
+            width: 180px;
+            height: 34px;
+            background: #fff2e6;
+            border-radius: 40px;
             text-align: center;
-            line-height: 30px;
-            font-weight: bold;
+            line-height: 34px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.1s;
+        }
+        /* 滚动时高亮红色 */
+        
+        .nameBox.highlight {
+            background-color: #ff4d4d !important;
+            color: white;
+        }
+        /* 已选中队长变灰 */
+        
+        .nameBox.selected {
+            background-color: #c6c6cb !important;
+            color: #666;
+        }
+        
+        .result-area {
+            width: 420px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .result-header {
+            background: #552583;
+            color: #ffffff;
+            padding: 14px 0;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
         }
         
         .ulBox {
-            height: 260px;
-            font-weight: bold;
+            list-style: none;
+            padding: 12px 16px 80px 16px;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+            counter-reset: order;
         }
         
         .liBox {
-            width: 270px;
-            float: left;
-            background-color: antiquewhite;
-            font-weight: bold;
+            counter-increment: order;
+            background: #f5f5f5;
+            margin: 6px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            color: #1a1a2e;
+            border-left: 4px solid #FDB927;
         }
         
-        .selectedName {
-            float: left;
-            width: 340px;
-            background: #dbd8d8;
-            ;
-            margin-top: 200px auto;
-            margin-left: 30px;
-            background: #dbd8d8;
-            overflow: hidden;
-            text-align: center;
-            /* font-weight: bold; */
+        .liBox::before {
+            content: counter(order) ".";
+            font-weight: 700;
+            margin-right: 12px;
+            color: #552583;
         }
-        h1 {
-            color: rgb(164, 92, 231);
-            font: 0.875em/1.5em"黑体", "PTSans", "Arial", sans-serif;
-            font-size: 40px;
-            font-weight: bolder;
-            text-align: center;
+        
+        .button-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 10;
         }
-        h2 {color: rgb(164, 92, 231)} 
-        h3 {
-            font-weight: bolder;
-            text-align: center;
-            float: left;
-            color: rgb(194, 150, 236);
-            font: 0.875em/1.5em"黑体", "PTSans", "Arial", sans-serif;
-            font-size: 30px;
-        }
-        #clearBtn{width: 120px;
-            height: 40px;
-            position: absolute;
-            left: 55%;
-            bottom: 5%;
-            transform: translate(-50%, 0);
-            background-color: rgb(232, 94, 76);
-            color: white;
-            width: 100px;
-            height: 45px;
-            border: 0;
+        
+        #btn,
+        #clearBtn {
+            width: 130px;
+            height: 44px;
+            border: none;
+            border-radius: 40px;
             font-size: 16px;
-            box-sizing: content-box;
-            border-radius: 5px;
-                }
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        #btn {
+            background: #1e88e5;
+            color: white;
+        }
+        
+        #btn:hover {
+            background: #0b5e8a;
+            transform: scale(1.02);
+        }
+        
+        #clearBtn {
+            background: #e67e22;
+            color: white;
+        }
+        
+        #clearBtn:hover {
+            background: #b45f1b;
+            transform: scale(1.02);
+        }
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #ddd;
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #552583;
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body>
-    <input type="file" id="excel-file" style="left: 50%; color: blanchedalmond;">
-    <!-- <textarea id="area"></textarea> -->
-    <h1 id="h1-title" linear-gradient>`《苍穹杯》S${sort}届3v3正赛队长首轮签`</h1>
-    <br>
-    <span id="span"></span>
-    <div class="wrapDiv">
-        <div style="flex:1">
-            <h3 style="margin: 1;"> 队长候选区:</h3>
+    <div class="top-bar">
+        <input type="file" id="excel-file">
+        <h1 id="h1-title">《苍穹杯》S1届3v3正赛队长首轮签</h1>
+    </div>
+    <div class="main-container">
+        <div class="candidate-area">
+            <h3>🏆 队长候选区</h3>
             <div id="leftBox" class="leftBox"></div>
         </div>
-        <div id="selectedName" class="selectedName" style="height: 650px;">
-            <h2>队长首轮签位顺序</h2>
+        <div class="result-area">
+            <div class="result-header">📋 队长首轮签位顺序</div>
             <ol id="ulBox" class="ulBox"></ol>
-            </div>
         </div>
-        <input type="button" id="btn" value="开始" class="button">
-        <input type="button" id="clearBtn" value="重新抽签" class="button">
+    </div>
+    <div class="button-bar">
+        <input type="button" id="btn" value="开始">
+        <input type="button" id="clearBtn" value="重新抽签">
     </div>
 
     <script>
+        var allNames = []; // 所有队长（原始顺序，用于存储完整名单）
+        var sort = 1;
+        var selectedNames = []; // 已抽中的队长（按顺序）
+        var currentHighlightName = ""; // 当前高亮的人名
+        var timeId = null;
+        var nameToDivMap = new Map(); // 人名 -> DOM 元素映射，方便操作
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            var shuffled = [...array];
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // 重置抽签状态（清空右侧、取消所有灰色、重置选中数组）
+        function resetDrawState() {
+            if (timeId) {
+                clearInterval(timeId);
+                timeId = null;
+            }
+            $('#btn').val("开始");
+            selectedNames = [];
+            currentHighlightName = "";
+            $("#ulBox").empty();
+            // 清除所有灰色和高亮样式
+            $(".nameBox").removeClass("selected highlight");
+        }
+
+        // 动态生成左侧候选区（随机打乱顺序）
+        function dynamicCreateBox() {
+            $("#leftBox").empty();
+            nameToDivMap.clear();
+            if (!allNames.length) return;
+            var displayList = shuffleArray(allNames);
+            for (var i = 0; i < displayList.length; i++) {
+                var div = document.createElement("div");
+                div.innerText = displayList[i];
+                div.className = "nameBox";
+                $("#leftBox").append(div);
+                nameToDivMap.set(displayList[i], div);
+            }
+            $('#h1-title').text(`《苍穹杯》S${sort}届3v3正赛队长首轮签`);
+        }
+
+        // 清除所有红色高亮
+        function clearHighlight() {
+            $(".nameBox").removeClass("highlight");
+        }
+
+        // 设置红色高亮（根据当前随机选中的人名）
+        function setHighlightByName(name) {
+            clearHighlight();
+            if (!name) return;
+            var div = nameToDivMap.get(name);
+            if (div && !div.classList.contains("selected")) {
+                $(div).addClass("highlight");
+            }
+        }
+
+        // 获取当前未选中的队长列表
+        function getUnselectedNames() {
+            return allNames.filter(name => !selectedNames.includes(name));
+        }
+
+        // 停止抽签，记录当前高亮的人名
+        function stopAndSelect() {
+            if (!currentHighlightName) return false;
+            // 如果这个人已经被抽中过（防御），则重新随机一次
+            if (selectedNames.includes(currentHighlightName)) {
+                // 理论上不会发生，但若发生则强制重新从剩余中选一个
+                var unselected = getUnselectedNames();
+                if (unselected.length === 0) return false;
+                var randomIndex = Math.floor(Math.random() * unselected.length);
+                currentHighlightName = unselected[randomIndex];
+            }
+            // 添加到右侧列表
+            var li = document.createElement("li");
+            li.innerText = currentHighlightName;
+            li.className = "liBox";
+            $("#ulBox").append(li);
+            selectedNames.push(currentHighlightName);
+            // 将左侧对应的方块标记为灰色
+            var targetDiv = nameToDivMap.get(currentHighlightName);
+            if (targetDiv) {
+                $(targetDiv).addClass("selected");
+            }
+            // 清除当前高亮
+            clearHighlight();
+            currentHighlightName = "";
+            // 滚动到底部
+            var container = $("#ulBox")[0];
+            if (container) container.scrollTop = container.scrollHeight;
+            return true;
+        }
+
+        // 撤销最后一次抽签
+        function undoLast() {
+            if (selectedNames.length === 0) {
+                alert("无可撤销记录");
+                return false;
+            }
+            var lastSelected = selectedNames.pop();
+            // 移除右侧最后一项
+            $("#ulBox li").last().remove();
+            // 将左侧对应方块的灰色样式移除
+            var div = nameToDivMap.get(lastSelected);
+            if (div) {
+                $(div).removeClass("selected");
+            }
+            // 如果当前有正在进行的抽签动画，停止并重置按钮状态
+            if (timeId) {
+                clearInterval(timeId);
+                timeId = null;
+                $('#btn').val("开始");
+            }
+            return true;
+        }
+
+        // Excel 导入
         $('#excel-file').change(function(e) {
             var files = e.target.files;
-            if (files.length === 0) {
-                console.log('未选择文件');
-                return;
-            }
-
-            // 检查文件类型
+            if (!files.length) return;
             var fileName = files[0].name.toLowerCase();
             if (!fileName.endsWith('.xls') && !fileName.endsWith('.xlsx')) {
-                console.log('文件格式不正确，请上传 .xls 或 .xlsx 文件');
+                alert('请上传 .xls 或 .xlsx 文件');
                 return;
             }
-
             var fileReader = new FileReader();
             fileReader.onload = function(ev) {
                 try {
-                    var data = new Uint8Array(ev.target.result); // 转换为 Uint8Array
-                    var workbook = XLSX.read(data, { type: 'array' }); // 使用 type: 'array'
-
+                    var data = new Uint8Array(ev.target.result);
+                    var workbook = XLSX.read(data, {
+                        type: 'array'
+                    });
                     var persons = [];
-                    var fromTo = '';
-
-                    // 遍历每张表读取
                     for (var sheet in workbook.Sheets) {
                         if (workbook.Sheets.hasOwnProperty(sheet)) {
-                            fromTo = workbook.Sheets[sheet]['!ref'];
-                            console.log("工作表范围：", fromTo);
-                            var sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
-                            console.log("当前工作表数据：", sheetData);
-                            persons = persons.concat(sheetData);
+                            persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
                         }
                     }
-
-                    console.log("解析后的数据：", persons);
-
-                    if (persons.length === 0) {
-                        console.log("未读取到数据，请检查 Excel 文件内容是否为空或格式是否正确");
+                    if (!persons.length) {
+                        alert("无数据");
                         return;
                     }
-
-                // 获取参赛队长的名称
-                var arr1 = persons.map(item => item.队长抽签);
-                    console.log("提取的队长抽签数据：", arr1);
-                // 获取队长的名称
-                duizhangarr = persons.map(item => {
-                    return item.首轮抽签
-                });
-                // 过滤空值
-                arr2 = duizhangarr.filter(x => !!x == true || x == 0);
-                console.log(arr2)
-                // 设置全局变量
-                // localStorage.setItem('myArray', JSON.stringify(arr2));
-                // 获取届数
-               // 获取届数
-               sort = persons[0]?.sort;
-                    console.log("届数：", sort);
-          // 动态创建内容
-          dynamicCreateBox();
-                } catch (e) {
-                    console.error('解析文件时出错：', e.message);
-                    console.log('文件类型不正确或文件损坏');
+                    var rawArr = persons.map(item => item.首轮抽签).filter(x => x && String(x).trim() !== "");
+                    if (!rawArr.length) {
+                        alert("未找到「首轮抽签」列数据");
+                        return;
+                    }
+                    allNames = rawArr.map(String);
+                    sort = persons[0] ? persons[0].sort : 1;
+                    resetDrawState();
+                    dynamicCreateBox();
+                } catch (err) {
+                    alert("解析失败");
+                    console.error(err);
                 }
             };
-
-            fileReader.readAsArrayBuffer(files[0]); // 使用 readAsArrayBuffer 方法
+            fileReader.readAsArrayBuffer(files[0]);
         });
 
-        // 模拟后台数据
-        var arr2 = [];
-        var sort = 1;
-        var selectArr = []
-        var orgArrCount = arr2.length;
-        var currentSelectNum = 0;
-        initForm();
-
-
-        // 初始化表单
-        function initForm() {
-            // 动态设置选择人的高度
-            var selectedNameHeight = orgArrCount * 40 + 120;
-            // $("#selectedName").css("height", selectedNameHeight + "px");
-            // 动态创建图层
-            dynamicCreateBox();
-        }
-
-        // 动态创建层
-        function dynamicCreateBox() {
-            for (var i = 0; i < arr2.length; i++) {
-                var div = document.createElement("div");
-                div.innerText = arr2[i];
-                div.className = "nameBox";
-                $("#leftBox").append(div);
-            };
-
-            var h1Dom = document.getElementById('h1-title')
-            console.log('sort', sort)
-            h1Dom.innerText = `《苍穹杯》S${sort}届3v3正赛队长首轮签`
-        }
-
-        // 清空小方格颜色
-        function clearBoxColor() {
-            $("#leftBox").children("div").each(function() {
-                $(this).css("background-color", "");
-            });
-        }
-
-        // 设置选中小方格颜色
-        function setBoxColor() {
-            $("#leftBox").children("div").each(function() {
-                var thisText = ($(this).text());
-                var selectedName = arr2[currentSelectNum];
-                for (var i = 0; i < selectArr.length; i++) {
-                    if (thisText == selectArr[i]) {
-                        $(this).css("background-color", "#c6c6cb");
-                    }
-                }
-                if (thisText == selectedName) {
-                    $(this).css("background-color", "red");
-                }
-            });
-
-        }
-
-        function appendSelectedName() {
-            var div = document.createElement("li");
-            div.innerText = arr2[currentSelectNum];
-            selectArr.push(arr2[currentSelectNum])
-            div.className = "nameBox liBox";
-            $("#ulBox").append(div);
-        }
-        //  一键清除
-        function clearList() {
-            {
-            var childrens = $("#ulBox").children();
-            curentCount = arr2.length;
-            // 遍历childrens数组，从最后一个元素开始逆序遍历。
-            // 每次循环中，通过.detach()方法移除liBox元素，也就是清空ulBox的内容。
-            for (var i = childrens.length - 1; i >= 0; i--) {
-                $('#ulBox').find('.liBox').detach();
-            }
-            }
-        }
-        $('#clearBtn').click(function(){$("#ulBox").children().last().remove();});
-
+        // 抽签按钮逻辑
         $('#btn').click(function() {
-            var curentCount = arr2.length;
-            console.log('curentCount', curentCount)
-            if (curentCount < 1) {
-                setBoxColor()
-                alert("暂无可选人");
-                // 清空所有层的颜色
-                // clearBoxColor();
+            if (allNames.length === 0) {
+                alert("请先上传Excel文件");
                 return;
             }
-            // 监视按钮的状态
+            var unselected = getUnselectedNames();
+            if (unselected.length === 0) {
+                alert("所有队长均已抽签完毕！");
+                return;
+            }
             if (this.value === "开始") {
-                // 定时针
+                if (timeId) clearInterval(timeId);
                 timeId = setInterval(function() {
-                    // 清空所有层的颜色
-                    clearBoxColor();
-
-                    //随机生成一个数
-                    var num = Math.floor(Math.random() * curentCount);
-                    currentSelectNum = num;
-
-                    // 设置选中小方格颜色
-                    setBoxColor(ReadableByteStreamController);
-                }, 10);
+                    var un = getUnselectedNames();
+                    if (un.length === 0) {
+                        // 无人可选时停止动画
+                        clearInterval(timeId);
+                        timeId = null;
+                        $('#btn').val("开始");
+                        return;
+                    }
+                    var randomName = un[Math.floor(Math.random() * un.length)];
+                    currentHighlightName = randomName;
+                    setHighlightByName(currentHighlightName);
+                }, 20);
                 this.value = "停止";
             } else {
-                // 清除计时器
-                clearInterval(timeId);
-
-                // 添加选中人
-                appendSelectedName();
-
-                // 移除
-                arr2.splice(currentSelectNum, 1);
+                if (timeId) {
+                    clearInterval(timeId);
+                    timeId = null;
+                }
+                stopAndSelect();
                 this.value = "开始";
             }
         });
 
-        // 获取时间的函数
-        getTime();
-        setInterval(getTime, 10)
-
-        function getTime() {
-            var day = new Date();
-            var year = day.getFullYear(); //年
-            var month = day.getMonth() + 1; //月
-            var dat = day.getDate(); //日
-            var hour = day.getHours(); //小时
-            var minitue = day.getMinutes(); //分钟
-            var second = day.getSeconds(); //秒
-            month = month < 10 ? "0" + month : month;
-            dat = dat < 10 ? "0" + dat : dat;
-            hour = hour < 10 ? "0" + hour : hour;
-            minitue = minitue < 10 ? "0" + minitue : minitue;
-            second = second < 10 ? "0" + second : second;
-            $("#span").innerText = year + "-" + month + "-" + dat + " " + hour + ":" + minitue + ":" + second
-        }
+        // 重新抽签（撤销）
+        $('#clearBtn').click(function() {
+            undoLast();
+        });
     </script>
-
 </body>
 
 </html>
