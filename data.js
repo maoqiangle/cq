@@ -198,7 +198,7 @@ const CLUB_DATA = {
                 { date: "2023.12.30", season: "S8", champions: "魔卡，机智，妃子", captain: "妃子", mvp: "机智", ring: "2006 马刺" },
                 { date: "2023.12.02", season: "S7", champions: "杜，修，雨果", captain: "修", mvp: "修", ring: "2003 马刺" },
                 { date: "2023.11.11", season: "S6", champions: "雷，大虫，宫城", captain: "雷", mvp: "雷", ring: "1999 马刺" },
-                { date: "2023.10.14", season: "S5", champions: "杜，修", captain: "杜", mvp: "-", ring: "2006 热火" },
+                { date: "2023.10.14", season: "S5", champions: "杜，修，-", captain: "杜", mvp: "-", ring: "2006 热火" },
                 { date: "2023.08.24", season: "S4", champions: "雨，机智，妃子", captain: "雨", mvp: "机智", ring: "2000 凯尔特人" },
                 { date: "2023.07.30", season: "S3", champions: "雨，机智，妃子", captain: "雨", mvp: "妃子", ring: "1998 公牛" },
                 { date: "2023.07.01", season: "S2", champions: "雷，十三香，李小龙", captain: "雷", mvp: "雷", ring: "1992 公牛" },
