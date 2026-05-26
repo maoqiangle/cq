@@ -40,7 +40,6 @@ const CLUB_DATA = {
     },
 
     // ==================== 视频目录 ====================
-    // 数据来源：抖音苍穹 CQ86670 高赞作品（按点赞从高到低排序）
     videos: {
         stars: {
             title: "⭐ 球星传",
@@ -163,22 +162,21 @@ const CLUB_DATA = {
     honors: {
         cup: {
             title: "🥇 苍穹杯历届冠军榜",
-            // subtitle: "S1-S35 完整记录",
             columns: ["比赛时间", "届数", "夺冠队员", "队长", "最佳球员", "冠军戒指"],
             data: [
                 // 2026 年
                 { date: "2026.04.18", season: "S35", champions: "雷，妃子，雨", captain: "雷", mvp: "雷", ring: "1955 76人" },
                 { date: "2026.03.14", season: "S34", champions: "皮鞋，老铁，李小龙", captain: "皮鞋", mvp: "皮鞋", ring: "1956 勇士" },
-                { date: "2026.03.07", season: "S33", champions: "雷，牧师，小熊", captain: "雷", mvp: "牧师", ring: "1958 老鹰" },
+                { date: "2026.03.07", season: "S33", champions: "雷，牧师，-", captain: "雷", mvp: "牧师", ring: "1958 老鹰" },
                 // 2025 年
-                { date: "2026.01.31", season: "S32", champions: "大特，阿拉瓦，蓝莓", captain: "大特", mvp: "阿拉瓦", ring: "1948 子弹队" },
-                { date: "2025.12.20", season: "S31", champions: "包子，vote，黑猫", captain: "vote", mvp: "包子", ring: "1951 国王" },
-                { date: "2025.11.15", season: "S30", champions: "妃子，小宁，大特", captain: "妃子", mvp: "大特", ring: "2019 猛龙" },
+                { date: "2026.01.31", season: "S32", champions: "-，阿拉瓦，蓝莓", captain: "-", mvp: "阿拉瓦", ring: "1948 子弹队" },
+                { date: "2025.12.20", season: "S31", champions: "包子，-，黑猫", captain: "-", mvp: "包子", ring: "1951 国王" },
+                { date: "2025.11.15", season: "S30", champions: "妃子，小宁，-", captain: "妃子", mvp: "-", ring: "2019 猛龙" },
                 { date: "2025.10.25", season: "S29", champions: "皮鞋，雷，大秦", captain: "皮鞋", mvp: "雷", ring: "2021 雄鹿" },
-                { date: "2025.09.20", season: "S28", champions: "包子，小熊，黑猫", captain: "包子", mvp: "包子", ring: "1962 凯尔特人" },
+                { date: "2025.09.20", season: "S28", champions: "包子，-，黑猫", captain: "包子", mvp: "包子", ring: "1962 凯尔特人" },
                 { date: "2025.08.23", season: "S27", champions: "包子，撸，黑猫", captain: "包子", mvp: "包子", ring: "1996 公牛" },
                 { date: "2025.07.19", season: "S26", champions: "包子，大虫，李小龙", captain: "包子", mvp: "包子", ring: "2017 勇士" },
-                { date: "2025.06.14", season: "S25", champions: "包子，撸，小熊", captain: "包子", mvp: "包子", ring: "1970 尼克斯" },
+                { date: "2025.06.14", season: "S25", champions: "包子，撸，-", captain: "包子", mvp: "包子", ring: "1970 尼克斯" },
                 { date: "2025.05.10", season: "S24", champions: "闪电侠，皮鞋，夜店登", captain: "闪电侠", mvp: "闪电侠", ring: "2009 湖人" },
                 { date: "2025.04.19", season: "S23", champions: "阿诺比，十三香，老铁", captain: "阿诺比", mvp: "阿诺比", ring: "2004 活塞" },
                 { date: "2025.03.15", season: "S22", champions: "李小龙，村长，雨", captain: "李小龙", mvp: "村长", ring: "1947 勇士" },
@@ -209,15 +207,14 @@ const CLUB_DATA = {
         },
         allstar: {
             title: "🌟 全明星赛",
-            // subtitle: "Q1-Q10 完整记录",
             columns: ["比赛时间", "届数", "获胜战队", "队员阵容", "荣誉时刻", "MVP", "三分王", "单挑王"],
             data: [
                 // 2026 年
                 { date: "2026.03.28", season: "Q10", champions: "🏆 雷队", members: "雷，皮鞋，大秦", honor: "🎖️ 拉塞尔名人堂戒指", mvp: "皮鞋", three: "-", one: "-" },
-                { date: "2026.01.17", season: "Q9", champions: "🏆 戴琪轩队", members: "戴琪轩，初心，细白", honor: "🎖️ 科比名人堂戒指", mvp: "细白", three: "-", one: "-" },
+                { date: "2026.01.17", season: "Q9", champions: "🏆 -队", members: "-，-，细白", honor: "🎖️ 科比名人堂戒指", mvp: "细白", three: "-", one: "-" },
                 // 2025 年
                 { date: "2025.10.18", season: "Q8", champions: "🏆 青龙", members: "包子，雷，大虫，李小龙", honor: "🎖️ 乔丹名人堂戒指", mvp: "李小龙", three: "李小龙", one: "阿诺比" },
-                { date: "2025.06.28", season: "Q7", champions: "🏆 玄武", members: "牧师，阿诺比，小熊", honor: "🎖️ 奥尼尔名人堂戒指", mvp: "阿诺比", three: "妃子", one: "阿诺比" },
+                { date: "2025.06.28", season: "Q7", champions: "🏆 玄武", members: "牧师，阿诺比，-", honor: "🎖️ 奥尼尔名人堂戒指", mvp: "阿诺比", three: "妃子", one: "阿诺比" },
                 { date: "2025.03.27", season: "Q6", champions: "🏆 朱雀", members: "小包子，阿诺比，小宁", honor: "🎖️ 艾弗森名人堂戒指", mvp: "小包子", three: "大虫", one: "小包子" },
                 // 2024 年
                 { date: "2024.12.28", season: "Q5", champions: "🏆 老马队", members: "老马，妃子，大虫，雨，机智，小宁，阿诺比", honor: "🎖️ 邓肯名人堂戒指", mvp: "妃子", three: "阿诺比", one: "牧师" },
@@ -230,22 +227,21 @@ const CLUB_DATA = {
         },
         league: {
             title: "🔥 全国联赛",
-            // subtitle: "L1-L4 完整记录",
             columns: ["年份", "赛季", "名次", "战队", "人数", "队员名单"],
             data: [
-                // L4 - 2025 年（第 4 届）
-                { year: "2025", season: "L4", round: "4", rank: "🏆 冠军", team: "江苏队", count: "4 人", players: "大虫，村长△ (FMVP)，老铁，vote" },
-                { year: "2025", season: "L4", round: "4", rank: "🥈 亚军", team: "广东队", count: "9 人", players: "牧师，雷，玫瑰△，阿哲，正经喵，大特，吹杨，碌柚，白清枚" },
+                // L4 - 2025 年
+                { year: "2025", season: "L4", round: "4", rank: "🏆 冠军", team: "江苏队", count: "4 人", players: "大虫，村长△ (FMVP)，老铁，-" },
+                { year: "2025", season: "L4", round: "4", rank: "🥈 亚军", team: "广东队", count: "9 人", players: "牧师，雷，玫瑰△，阿哲，正经喵，-，吹杨，碌柚，白清枚" },
                 { year: "2025", season: "L4", round: "4", rank: "🥉 季军", team: "福建", count: "3 人", players: "阿拉瓦△，蓝莓，宫城" },
-                // L3 - 2025 年（第 3 届）
-                { year: "2025", season: "L3", round: "3", rank: "🏆 冠军", team: "广东队", count: "7 人", players: "牧师，雷 (FMVP)，正经喵，玫瑰△，阿哲，大特，夜店登" },
-                { year: "2025", season: "L3", round: "3", rank: "🥈 亚军", team: "江苏队", count: "6 人", players: "大虫△，包子，老铁，马国成，vote" },
+                // L3 - 2025 年
+                { year: "2025", season: "L3", round: "3", rank: "🏆 冠军", team: "广东队", count: "7 人", players: "牧师，雷 (FMVP)，正经喵，玫瑰△，阿哲，-，-" },
+                { year: "2025", season: "L3", round: "3", rank: "🥈 亚军", team: "江苏队", count: "6 人", players: "大虫△，包子，老铁，马国成，-" },
                 { year: "2025", season: "L3", round: "3", rank: "🥉 季军", team: "赣皖渝联队", count: "4 人", players: "李小龙△，妃子，皮鞋，雨" },
-                // L2 - 2024 年（第 2 届）
+                // L2 - 2024 年
                 { year: "2024", season: "L2", round: "2", rank: "🏆 冠军", team: "湘鄂联队", count: "3 人", players: "小雨干△ (FMVP)，石头，老马" },
                 { year: "2024", season: "L2", round: "2", rank: "🥈 亚军", team: "湘宁浙联队", count: "3 人", players: "杜，修，阿诺比" },
                 { year: "2024", season: "L2", round: "2", rank: "🥉 季军", team: "广东队", count: "5 人", players: "牧师，雷，吹杨，玫瑰△，阿哲" },
-                // L1 - 2024 年（第 1 届）
+                // L1 - 2024 年
                 { year: "2024", season: "L1", round: "1", rank: "🏆 冠军", team: "苏贵联队", count: "3 人", players: "小虫△，包子 (FMVP)，雨果" },
                 { year: "2024", season: "L1", round: "1", rank: "🥈 亚军", team: "湖南队", count: "3 人", players: "杜，修△，老马" },
                 { year: "2024", season: "L1", round: "1", rank: "🥉 季军", team: "广东队", count: "6 人", players: "牧师，雷，吹杨，玫瑰△，阿哲" }
@@ -270,7 +266,7 @@ const CLUB_DATA = {
 
 // 苍穹杯统计数据
 CLUB_DATA.cupStats = {
-    totalSeasons: CLUB_DATA.honors.cup.data.length, // 34 届
+    totalSeasons: CLUB_DATA.honors.cup.data.length,
     // 夺冠次数统计
     championCount: {},
     // MVP 次数统计
