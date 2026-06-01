@@ -165,6 +165,7 @@ const CLUB_DATA = {
             columns: ["比赛时间", "届数", "夺冠队员", "队长", "最佳球员", "冠军戒指"],
             data: [
                 // 2026 年
+                { date: "2026.05.30", season: "S36", champions: "牧师，十三香，可乐", captain: "牧师", mvp: "牧师", ring: "1997 乔丹" },
                 { date: "2026.04.18", season: "S35", champions: "雷，妃子，雨", captain: "雷", mvp: "雷", ring: "1955 76人" },
                 { date: "2026.03.14", season: "S34", champions: "皮鞋，老铁，李小龙", captain: "皮鞋", mvp: "皮鞋", ring: "1956 勇士" },
                 { date: "2026.03.07", season: "S33", champions: "雷，牧师，-", captain: "雷", mvp: "牧师", ring: "1958 老鹰" },
@@ -177,7 +178,7 @@ const CLUB_DATA = {
                 { date: "2025.08.23", season: "S27", champions: "包子，撸，黑猫", captain: "包子", mvp: "包子", ring: "1996 公牛" },
                 { date: "2025.07.19", season: "S26", champions: "包子，大虫，李小龙", captain: "包子", mvp: "包子", ring: "2017 勇士" },
                 { date: "2025.06.14", season: "S25", champions: "包子，撸，-", captain: "包子", mvp: "包子", ring: "1970 尼克斯" },
-                { date: "2025.05.10", season: "S24", champions: "闪电侠，皮鞋，夜店登", captain: "闪电侠", mvp: "闪电侠", ring: "2009 湖人" },
+                { date: "2025.05.10", season: "S24", champions: "闪电侠，皮鞋，-", captain: "闪电侠", mvp: "闪电侠", ring: "2009 湖人" },
                 { date: "2025.04.19", season: "S23", champions: "阿诺比，十三香，老铁", captain: "阿诺比", mvp: "阿诺比", ring: "2004 活塞" },
                 { date: "2025.03.15", season: "S22", champions: "李小龙，村长，雨", captain: "李小龙", mvp: "村长", ring: "1947 勇士" },
                 { date: "2025.02.22", season: "S21", champions: "包子，石头，卡卡", captain: "包子", mvp: "包子", ring: "1995 火箭" },
