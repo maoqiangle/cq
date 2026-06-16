@@ -230,6 +230,10 @@ const CLUB_DATA = {
             title: "🔥 全国联赛",
             columns: ["年份", "赛季", "名次", "战队", "人数", "队员名单"],
             data: [
+                // L5 - 2026 年
+                { year: "2026", season: "L5", round: "5", rank: "🏆 冠军", team: "广东队", count: "7 人", players: "雷(FMVP)，玫瑰△，正经喵，吹杨，碌柚，阿哲，牧师" },
+                { year: "2026", season: "L5", round: "5", rank: "🥈 亚军", team: "江苏队", count: "4 人", players: "大虫△，老铁，小包子，周阳廷" },
+                { year: "2026", season: "L5", round: "5", rank: "🥉 季军", team: "陕川蒙联队", count: "3 人", players: "魔卡△，大秦，撸，少女" },
                 // L4 - 2025 年
                 { year: "2025", season: "L4", round: "4", rank: "🏆 冠军", team: "江苏队", count: "4 人", players: "大虫，村长△ (FMVP)，老铁，-" },
                 { year: "2025", season: "L4", round: "4", rank: "🥈 亚军", team: "广东队", count: "9 人", players: "牧师，雷，玫瑰△，阿哲，正经喵，-，吹杨，碌柚，白清枚" },
