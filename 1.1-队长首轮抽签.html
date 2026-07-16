@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 
 <head>
     <meta charset="utf-8">
-    <title>首轮抽签</title>
-    <script src="https://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <title>首轮抽签 · 苍穹杯</title>
+    <script src="https://libs.baidu.com/jquery/1.10.2/jquery.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js">
+    </script>
     <style>
+        /* ===== 全局重置 ===== */
+        
         * {
             margin: 0;
             padding: 0;
@@ -23,6 +27,7 @@
             height: 100vh;
             overflow: hidden;
         }
+        /* ===== 顶部栏 ===== */
         
         .top-bar {
             display: flex;
@@ -30,25 +35,63 @@
             align-items: center;
             padding: 10px 20px 0 20px;
             position: relative;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         #excel-file {
             position: absolute;
             left: 20px;
             font-size: 13px;
-            /* background: rgba(255, 255, 240, 0.9); */
-            /* border-radius: 20px; */
             padding: 4px 12px;
-            /* border: 1px solid #ccc; */
+            cursor: pointer;
+        }
+        
+        #excel-file::file-selector-button {
+            background: rgba(255, 255, 240, 0.85);
+            border: 1px solid #b8860b;
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-weight: 600;
+            color: #7a5d0a;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        #excel-file::file-selector-button:hover {
+            background: #f5e6c4;
+            transform: scale(1.02);
         }
         
         h1 {
-            color: rgb(164, 92, 231);
+            color: goldenrod;
             font-size: 28px;
             font-weight: 700;
             text-align: center;
             margin: 0;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
         }
+        
+        .status-badge {
+            position: absolute;
+            right: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 4px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            user-select: none;
+        }
+        
+        .status-badge.done {
+            background: rgba(46, 125, 50, 0.8);
+            border-color: #66bb6a;
+        }
+        /* ===== 主容器 ===== */
         
         .main-container {
             display: flex;
@@ -57,6 +100,7 @@
             height: calc(100vh - 70px);
             overflow: hidden;
         }
+        /* ===== 候选区 ===== */
         
         .candidate-area {
             flex: 1;
@@ -66,14 +110,17 @@
             background: rgba(0, 0, 0, 0.03);
             border-radius: 24px;
             backdrop-filter: blur(2px);
+            padding: 8px 12px 12px 12px;
         }
         
         .candidate-area h3 {
             font-size: 22px;
             font-weight: 700;
-            color: rgb(194, 150, 236);
+            color: rgb(222, 182, 82);
             margin: 0 0 10px 0;
             padding-left: 8px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
         
         .leftBox {
@@ -83,368 +130,827 @@
             gap: 8px;
             overflow-y: auto;
             padding: 4px;
-            max-height: 100%;
+            flex: 1;
         }
+        /* ===== 名字卡片 ===== */
         
         .nameBox {
             width: 180px;
-            height: 34px;
+            min-height: 34px;
             background: #fff2e6;
             border-radius: 40px;
             text-align: center;
             line-height: 34px;
             font-weight: 600;
             font-size: 13px;
-            transition: all 0.1s;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            border: 2px solid transparent;
+            padding: 0 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        /* 滚动时高亮红色 */
         
         .nameBox.highlight {
             background-color: #ff4d4d !important;
-            color: white;
+            color: #fff !important;
+            border-color: #b71c1c;
+            transform: scale(1.04);
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);
         }
-        /* 已选中队长变灰 */
         
         .nameBox.selected {
             background-color: #c6c6cb !important;
-            color: #666;
+            color: #777 !important;
+            border-color: #aaa;
+            opacity: 0.7;
+            transform: scale(0.97);
+            box-shadow: none;
+            pointer-events: none;
         }
+        /* ===== 结果区 ===== */
         
         .result-area {
             width: 420px;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.92);
             border-radius: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(224, 224, 224, 0.6);
+            backdrop-filter: blur(4px);
         }
         
         .result-header {
-            background: #552583;
+            background: linear-gradient(135deg, #b8860b, #d4a017);
             color: #ffffff;
             padding: 14px 0;
             text-align: center;
             font-size: 22px;
             font-weight: 700;
+            flex-shrink: 0;
+            letter-spacing: 2px;
+        }
+        
+        .result-header small {
+            font-weight: 400;
+            font-size: 14px;
+            opacity: 0.85;
+            margin-left: 8px;
         }
         
         .ulBox {
             list-style: none;
-            padding: 12px 16px 80px 16px;
+            padding: 12px 16px 16px 16px;
             margin: 0;
             flex: 1;
             overflow-y: auto;
             counter-reset: order;
+            min-height: 120px;
         }
         
         .liBox {
             counter-increment: order;
             background: #f5f5f5;
             margin: 6px 0;
-            padding: 8px 12px;
+            padding: 8px 12px 8px 16px;
             border-radius: 8px;
             font-size: 15px;
             font-weight: 700;
-            text-align: center;
+            text-align: left;
             color: #1a1a2e;
-            border-left: 4px solid #FDB927;
+            border-left: 4px solid #d4af37;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* 移除了入场动画，保持静态 */
         }
         
         .liBox::before {
             content: counter(order) ".";
             font-weight: 700;
-            margin-right: 12px;
-            color: #552583;
+            color: #b8860b;
+            min-width: 28px;
         }
+        
+        .liBox .li-name {
+            flex: 1;
+        }
+        
+        .empty-hint {
+            color: #aaa;
+            text-align: center;
+            font-size: 15px;
+            padding: 40px 0;
+            user-select: none;
+            font-weight: 400;
+        }
+        /* ===== 底部按钮 ===== */
         
         .button-bar {
             position: fixed;
-            bottom: 20px;
+            bottom: 24px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 14px;
             z-index: 10;
+            flex-wrap: wrap;
         }
         
         #btn,
-        #clearBtn {
-            width: 130px;
-            height: 44px;
+        #clearBtn,
+        #resetAllBtn {
+            height: 48px;
             border: none;
             border-radius: 40px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            color: #fff;
             cursor: pointer;
             transition: 0.2s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            padding: 0 22px;
+            letter-spacing: 0.5px;
         }
         
         #btn {
-            background: #1e88e5;
-            color: white;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            min-width: 150px;
         }
         
-        #btn:hover {
-            background: #0b5e8a;
-            transform: scale(1.02);
+        #btn:hover:not(:disabled) {
+            transform: scale(1.04);
+            box-shadow: 0 6px 24px rgba(243, 156, 18, 0.45);
+        }
+        
+        #btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        
+        #btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+        
+        #btn.done {
+            background: #43a047;
+            box-shadow: 0 4px 14px rgba(67, 160, 71, 0.35);
+        }
+        
+        #btn.done:hover:not(:disabled) {
+            background: #2e7d32;
         }
         
         #clearBtn {
-            background: #e67e22;
-            color: white;
+            background: linear-gradient(135deg, #d4a017, #b8860b);
+            min-width: 120px;
         }
         
-        #clearBtn:hover {
-            background: #b45f1b;
-            transform: scale(1.02);
+        #clearBtn:hover:not(:disabled) {
+            transform: scale(1.04);
+            box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4);
         }
+        
+        #clearBtn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
+        }
+        
+        #resetAllBtn {
+            background: linear-gradient(135deg, #d32f2f, #9a0007);
+            min-width: 130px;
+        }
+        
+        #resetAllBtn:hover:not(:disabled) {
+            transform: scale(1.04);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+        }
+        
+        #resetAllBtn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
+        }
+        /* ===== 滚动条 ===== */
         
          ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         
          ::-webkit-scrollbar-track {
-            background: #ddd;
+            background: rgba(221, 221, 221, 0.4);
             border-radius: 10px;
         }
         
          ::-webkit-scrollbar-thumb {
-            background: #552583;
+            background: #b8860b;
             border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #a0740a;
+        }
+        /* ===== 响应式 ===== */
+        
+        @media (max-width: 820px) {
+            .result-area {
+                width: 300px;
+            }
+            .nameBox {
+                width: 140px;
+                font-size: 12px;
+                line-height: 30px;
+                min-height: 30px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            #excel-file {
+                position: relative;
+                left: 0;
+                font-size: 12px;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+            }
+            .status-badge {
+                position: relative;
+                right: 0;
+                font-size: 12px;
+                padding: 2px 12px;
+            }
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+                gap: 12px;
+            }
+            .candidate-area {
+                max-height: 300px;
+            }
+            .result-area {
+                width: 100%;
+                max-height: 400px;
+            }
+            .button-bar {
+                position: relative;
+                bottom: 0;
+                padding: 12px 0 20px 0;
+                gap: 10px;
+            }
+            body {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nameBox {
+                width: 100%;
+                max-width: 200px;
+            }
+            .result-area {
+                width: 100%;
+            }
+            #btn,
+            #clearBtn,
+            #resetAllBtn {
+                min-width: 100px;
+                padding: 0 14px;
+                height: 42px;
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 17px;
+            }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- ===== 顶部栏 ===== -->
     <div class="top-bar">
-        <input type="file" id="excel-file">
-        <h1 id="h1-title">《苍穹杯》S1届3v3正赛队长首轮签</h1>
+        <input type="file" id="excel-file" accept=".xls,.xlsx">
+        <h1 id="h1-title">🏀 《苍穹杯》S1届 3v3 正赛 · 队长首轮签</h1>
+        <span class="status-badge" id="statusBadge">⏳ 待抽签</span>
     </div>
+
+    <!-- ===== 主容器 ===== -->
     <div class="main-container">
         <div class="candidate-area">
             <h3>🏆 队长候选区</h3>
             <div id="leftBox" class="leftBox"></div>
         </div>
         <div class="result-area">
-            <div class="result-header">📋 队长首轮签位顺序</div>
-            <ol id="ulBox" class="ulBox"></ol>
+            <div class="result-header">
+                📋 首轮签位顺序
+                <small id="countDisplay">(0 人)</small>
+            </div>
+            <ol id="ulBox" class="ulBox">
+                <li class="empty-hint">等待抽签…</li>
+            </ol>
         </div>
     </div>
+
     <div class="button-bar">
-        <input type="button" id="btn" value="开始">
-        <input type="button" id="clearBtn" value="重新抽签">
+        <input type="button" id="btn" value="🎯 开始抽签">
+        <input type="button" id="clearBtn" value="↩️ 撤销上一步">
+        <input type="button" id="resetAllBtn" value="🔄 重置全部">
     </div>
 
     <script>
-        var allNames = []; // 所有队长（原始顺序，用于存储完整名单）
-        var sort = 1;
-        var selectedNames = []; // 已抽中的队长（按顺序）
-        var currentHighlightName = ""; // 当前高亮的人名
-        var timeId = null;
-        var nameToDivMap = new Map(); // 人名 -> DOM 元素映射，方便操作
+        // ============================================================
+        //  状态管理
+        // ============================================================
+        var state = {
+            allNames: [],
+            displayOrder: [],
+            selectedNames: [],
+            drawnSet: new Set(),
+            currentHighlight: '',
+            sort: 1,
+            timerId: null,
+            isRunning: false,
+            isCompleted: false,
+        };
 
-        // 随机打乱数组
-        function shuffleArray(array) {
-            var shuffled = [...array];
-            for (var i = shuffled.length - 1; i > 0; i--) {
+        var nameToDivMap = new Map();
+
+        // ============================================================
+        //  工具函数
+        // ============================================================
+        function shuffleArray(arr) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
                 var j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                var tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
             }
-            return shuffled;
+            return a;
         }
 
-        // 重置抽签状态（清空右侧、取消所有灰色、重置选中数组）
-        function resetDrawState() {
-            if (timeId) {
-                clearInterval(timeId);
-                timeId = null;
-            }
-            $('#btn').val("开始");
-            selectedNames = [];
-            currentHighlightName = "";
-            $("#ulBox").empty();
-            // 清除所有灰色和高亮样式
-            $(".nameBox").removeClass("selected highlight");
+        function getUnselected() {
+            return state.displayOrder.filter(function(name) {
+                return !state.drawnSet.has(name);
+            });
         }
 
-        // 动态生成左侧候选区（随机打乱顺序）
-        function dynamicCreateBox() {
-            $("#leftBox").empty();
+        function isAllSelected() {
+            return state.displayOrder.length > 0 && state.drawnSet.size >= state.displayOrder.length;
+        }
+
+        // ============================================================
+        //  UI 渲染（候选区 + 状态）
+        // ============================================================
+        function renderCandidates() {
+            var $container = $('#leftBox');
+            $container.empty();
             nameToDivMap.clear();
-            if (!allNames.length) return;
-            var displayList = shuffleArray(allNames);
-            for (var i = 0; i < displayList.length; i++) {
-                var div = document.createElement("div");
-                div.innerText = displayList[i];
-                div.className = "nameBox";
-                $("#leftBox").append(div);
-                nameToDivMap.set(displayList[i], div);
+
+            if (!state.displayOrder.length) {
+                $container.html('<div style="color:#aaa;padding:20px;font-size:14px;">📂 请上传 Excel 文件</div>');
+                return;
             }
-            $('#h1-title').text(`《苍穹杯》S${sort}届3v3正赛队长首轮签`);
+
+            for (var i = 0; i < state.displayOrder.length; i++) {
+                var name = state.displayOrder[i];
+                var isDrawn = state.drawnSet.has(name);
+                var $div = $('<div>')
+                    .addClass('nameBox')
+                    .text(name)
+                    .data('name', name);
+
+                if (isDrawn) {
+                    $div.addClass('selected');
+                }
+                $container.append($div);
+                nameToDivMap.set(name, $div[0]);
+            }
+
+            if (state.currentHighlight) {
+                setHighlight(state.currentHighlight);
+            }
         }
 
-        // 清除所有红色高亮
-        function clearHighlight() {
-            $(".nameBox").removeClass("highlight");
-        }
-
-        // 设置红色高亮（根据当前随机选中的人名）
-        function setHighlightByName(name) {
+        function setHighlight(name) {
             clearHighlight();
             if (!name) return;
-            var div = nameToDivMap.get(name);
-            if (div && !div.classList.contains("selected")) {
-                $(div).addClass("highlight");
+            var el = nameToDivMap.get(name);
+            if (el && !$(el).hasClass('selected')) {
+                $(el).addClass('highlight');
             }
         }
 
-        // 获取当前未选中的队长列表
-        function getUnselectedNames() {
-            return allNames.filter(name => !selectedNames.includes(name));
+        function clearHighlight() {
+            $('.nameBox.highlight').removeClass('highlight');
         }
 
-        // 停止抽签，记录当前高亮的人名
-        function stopAndSelect() {
-            if (!currentHighlightName) return false;
-            // 如果这个人已经被抽中过（防御），则重新随机一次
-            if (selectedNames.includes(currentHighlightName)) {
-                // 理论上不会发生，但若发生则强制重新从剩余中选一个
-                var unselected = getUnselectedNames();
-                if (unselected.length === 0) return false;
-                var randomIndex = Math.floor(Math.random() * unselected.length);
-                currentHighlightName = unselected[randomIndex];
+        // ===== 结果区操作（增量更新，避免闪烁） =====
+        function updateCountDisplay() {
+            $('#countDisplay').text('(' + state.selectedNames.length + ' / ' + state.displayOrder.length + ' 人)');
+        }
+
+        // 追加一条结果项
+        function appendResultItem(name) {
+            var $ul = $('#ulBox');
+            // 如果当前只有占位提示，先移除
+            $ul.find('.empty-hint').remove();
+
+            var $li = $('<li>')
+                .addClass('liBox')
+                .html('<span class="li-name">' + name + '</span>');
+            $ul.append($li);
+            // 自动滚动到底部
+            $ul[0].scrollTop = $ul[0].scrollHeight;
+            updateCountDisplay();
+        }
+
+        // 移除最后一条结果项（撤销时使用）
+        function removeLastResultItem() {
+            var $ul = $('#ulBox');
+            $ul.find('li:last').remove();
+            // 如果列表为空，重新显示占位
+            if ($ul.children().length === 0) {
+                $ul.html('<li class="empty-hint">等待抽签…</li>');
             }
-            // 添加到右侧列表
-            var li = document.createElement("li");
-            li.innerText = currentHighlightName;
-            li.className = "liBox";
-            $("#ulBox").append(li);
-            selectedNames.push(currentHighlightName);
-            // 将左侧对应的方块标记为灰色
-            var targetDiv = nameToDivMap.get(currentHighlightName);
-            if (targetDiv) {
-                $(targetDiv).addClass("selected");
+            updateCountDisplay();
+        }
+
+        // 清空所有结果（重置时）
+        function clearResultList() {
+            var $ul = $('#ulBox');
+            $ul.empty();
+            $ul.html('<li class="empty-hint">等待抽签…</li>');
+            updateCountDisplay();
+        }
+
+        // ============================================================
+        //  状态徽章 & 按钮
+        // ============================================================
+        function updateBadge() {
+            var $badge = $('#statusBadge');
+            if (state.isCompleted) {
+                $badge.text('✅ 已抽签完成').addClass('done');
+            } else if (state.isRunning) {
+                $badge.text('🎯 抽签中…').removeClass('done');
+            } else if (state.drawnSet.size > 0) {
+                $badge.text('⏸ 已暂停').removeClass('done');
+            } else {
+                $badge.text('⏳ 待抽签').removeClass('done');
             }
-            // 清除当前高亮
+        }
+
+        function updateButtons() {
+            var $btn = $('#btn');
+            var $clear = $('#clearBtn');
+            var $reset = $('#resetAllBtn');
+
+            if (state.isCompleted) {
+                $btn.val('🎉 已完成').addClass('done').prop('disabled', true);
+            } else if (state.isRunning) {
+                $btn.val('✋ 停止').removeClass('done').prop('disabled', false);
+            } else {
+                $btn.val('🎯 开始抽签').removeClass('done').prop('disabled', false);
+            }
+            if (!state.displayOrder.length || state.isCompleted) {
+                $btn.prop('disabled', true);
+            } else {
+                $btn.prop('disabled', false);
+            }
+
+            if (state.selectedNames.length === 0 || state.isRunning) {
+                $clear.prop('disabled', true);
+            } else {
+                $clear.prop('disabled', false);
+            }
+
+            if (state.displayOrder.length === 0 || state.isRunning) {
+                $reset.prop('disabled', true);
+            } else {
+                $reset.prop('disabled', false);
+            }
+        }
+
+        function updateTitle() {
+            $('#h1-title').text('🏀 《苍穹杯》S' + state.sort + '届 3v3 正赛 · 队长首轮签');
+        }
+
+        function refreshUI() {
+            renderCandidates();
+            // 结果区只更新计数，列表内容由增量操作维护
+            updateCountDisplay();
+            updateBadge();
+            updateButtons();
+            updateTitle();
+        }
+
+        // ============================================================
+        //  核心抽签逻辑
+        // ============================================================
+        function stopRollingAndSelect() {
+            if (!state.currentHighlight) {
+                var un = getUnselected();
+                if (!un.length) return false;
+                var rand = un[Math.floor(Math.random() * un.length)];
+                state.currentHighlight = rand;
+                setHighlight(rand);
+            }
+
+            var name = state.currentHighlight;
+            if (state.drawnSet.has(name)) {
+                var un2 = getUnselected();
+                if (!un2.length) return false;
+                name = un2[Math.floor(Math.random() * un2.length)];
+                state.currentHighlight = name;
+                setHighlight(name);
+            }
+
+            // 永久标记
+            state.drawnSet.add(name);
+            state.selectedNames.push(name);
+
+            // 更新左侧卡片样式
+            var el = nameToDivMap.get(name);
+            if (el) $(el).addClass('selected').removeClass('highlight');
+
+            // 右侧追加一项（增量操作）
+            appendResultItem(name);
+
+            state.currentHighlight = '';
             clearHighlight();
-            currentHighlightName = "";
-            // 滚动到底部
-            var container = $("#ulBox")[0];
-            if (container) container.scrollTop = container.scrollHeight;
+
+            updateBadge();
+            updateButtons();
+
+            if (isAllSelected()) {
+                state.isCompleted = true;
+                state.isRunning = false;
+                if (state.timerId) {
+                    clearInterval(state.timerId);
+                    state.timerId = null;
+                }
+                refreshUI(); // 更新完成状态
+                setTimeout(function() {
+                    alert('🎉 所有队长已抽签完毕！');
+                }, 100);
+                return true;
+            }
             return true;
         }
 
-        // 撤销最后一次抽签
+        function startRolling() {
+            if (state.isCompleted) return;
+            var un = getUnselected();
+            if (!un.length) {
+                state.isCompleted = true;
+                refreshUI();
+                return;
+            }
+
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+
+            state.isRunning = true;
+            updateBadge();
+            updateButtons();
+
+            var first = un[Math.floor(Math.random() * un.length)];
+            state.currentHighlight = first;
+            setHighlight(first);
+
+            state.timerId = setInterval(function() {
+                var unNow = getUnselected();
+                if (!unNow.length) {
+                    clearInterval(state.timerId);
+                    state.timerId = null;
+                    state.isRunning = false;
+                    state.isCompleted = true;
+                    refreshUI();
+                    alert('🎉 所有队长已抽签完毕！');
+                    return;
+                }
+                var randName = unNow[Math.floor(Math.random() * unNow.length)];
+                state.currentHighlight = randName;
+                setHighlight(randName);
+            }, 40);
+        }
+
+        function stopRolling() {
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+            state.isRunning = false;
+            updateBadge();
+            updateButtons();
+            stopRollingAndSelect();
+        }
+
+        // ============================================================
+        //  撤销 & 重置
+        // ============================================================
         function undoLast() {
-            if (selectedNames.length === 0) {
-                alert("无可撤销记录");
+            if (state.selectedNames.length === 0) {
+                alert('⚠️ 没有可撤销的记录');
                 return false;
             }
-            var lastSelected = selectedNames.pop();
-            // 移除右侧最后一项
-            $("#ulBox li").last().remove();
-            // 将左侧对应方块的灰色样式移除
-            var div = nameToDivMap.get(lastSelected);
-            if (div) {
-                $(div).removeClass("selected");
+            if (state.isRunning) {
+                alert('⏳ 请先停止抽签再撤销');
+                return false;
             }
-            // 如果当前有正在进行的抽签动画，停止并重置按钮状态
-            if (timeId) {
-                clearInterval(timeId);
-                timeId = null;
-                $('#btn').val("开始");
-            }
+
+            var last = state.selectedNames.pop();
+            // 右侧移除最后一项
+            removeLastResultItem();
+            // 左侧保持灰色（drawnSet 不变）
+
+            state.isCompleted = false;
+            updateBadge();
+            updateButtons();
             return true;
         }
 
-        // Excel 导入
-        $('#excel-file').change(function(e) {
+        function resetAll() {
+            if (state.isRunning) {
+                alert('⏳ 请先停止抽签再重置');
+                return;
+            }
+            if (state.displayOrder.length === 0) return;
+
+            if (!confirm('⚠️ 确定要清除所有抽签记录吗？此操作不可撤销！')) return;
+
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+            state.selectedNames = [];
+            state.drawnSet.clear();
+            state.currentHighlight = '';
+            state.isRunning = false;
+            state.isCompleted = false;
+            clearHighlight();
+            clearResultList(); // 清空结果列表并显示占位
+            renderCandidates(); // 重新渲染候选区（全部取消灰色）
+            updateBadge();
+            updateButtons();
+            alert('🔄 已重置所有抽签记录');
+        }
+
+        // ============================================================
+        //  文件导入
+        // ============================================================
+        $('#excel-file').on('change', function(e) {
             var files = e.target.files;
             if (!files.length) return;
             var fileName = files[0].name.toLowerCase();
             if (!fileName.endsWith('.xls') && !fileName.endsWith('.xlsx')) {
-                alert('请上传 .xls 或 .xlsx 文件');
+                alert('⚠️ 请上传 .xls 或 .xlsx 格式文件');
                 return;
             }
-            var fileReader = new FileReader();
-            fileReader.onload = function(ev) {
+
+            var fr = new FileReader();
+            fr.onload = function(ev) {
                 try {
                     var data = new Uint8Array(ev.target.result);
-                    var workbook = XLSX.read(data, {
+                    var wb = XLSX.read(data, {
                         type: 'array'
                     });
                     var persons = [];
-                    for (var sheet in workbook.Sheets) {
-                        if (workbook.Sheets.hasOwnProperty(sheet)) {
-                            persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
-                        }
+                    for (var sheet in wb.Sheets) {
+                        persons = persons.concat(XLSX.utils.sheet_to_json(wb.Sheets[sheet]));
                     }
                     if (!persons.length) {
-                        alert("无数据");
+                        alert('⚠️ 未读取到数据');
                         return;
                     }
-                    var rawArr = persons.map(item => item.首轮抽签).filter(x => x && String(x).trim() !== "");
-                    if (!rawArr.length) {
-                        alert("未找到「首轮抽签」列数据");
+
+                    var raw = persons
+                        .map(function(item) {
+                            return item.首轮抽签;
+                        })
+                        .filter(function(v) {
+                            return v && String(v).trim() !== '';
+                        })
+                        .map(String);
+
+                    if (!raw.length) {
+                        alert('⚠️ 未找到「首轮抽签」列，请确保列名正确');
                         return;
                     }
-                    allNames = rawArr.map(String);
-                    sort = persons[0] ? persons[0].sort : 1;
-                    resetDrawState();
-                    dynamicCreateBox();
+
+                    if (state.timerId) {
+                        clearInterval(state.timerId);
+                        state.timerId = null;
+                    }
+                    state.allNames = raw;
+                    state.displayOrder = shuffleArray(raw);
+                    state.selectedNames = [];
+                    state.drawnSet.clear();
+                    state.currentHighlight = '';
+                    state.isRunning = false;
+                    state.isCompleted = false;
+                    state.sort = persons[0] && persons[0].sort ? Number(persons[0].sort) : 1;
+
+                    clearHighlight();
+                    clearResultList(); // 清空结果区
+                    renderCandidates();
+                    updateBadge();
+                    updateButtons();
+                    updateTitle();
+                    $('#ulBox').scrollTop(0);
                 } catch (err) {
-                    alert("解析失败");
+                    alert('⚠️ 解析失败: ' + err.message);
                     console.error(err);
                 }
             };
-            fileReader.readAsArrayBuffer(files[0]);
+            fr.readAsArrayBuffer(files[0]);
+            $(this).val('');
         });
 
-        // 抽签按钮逻辑
-        $('#btn').click(function() {
-            if (allNames.length === 0) {
-                alert("请先上传Excel文件");
+        // ============================================================
+        //  事件绑定
+        // ============================================================
+        $('#btn').on('click', function() {
+            if (state.isCompleted) {
+                alert('🎉 所有队长已抽签完毕！如需重新开始，请点击「重置全部」或重新上传文件。');
                 return;
             }
-            var unselected = getUnselectedNames();
-            if (unselected.length === 0) {
-                alert("所有队长均已抽签完毕！");
+            if (!state.displayOrder.length) {
+                alert('📂 请先上传包含「首轮抽签」列的 Excel 文件');
                 return;
             }
-            if (this.value === "开始") {
-                if (timeId) clearInterval(timeId);
-                timeId = setInterval(function() {
-                    var un = getUnselectedNames();
-                    if (un.length === 0) {
-                        // 无人可选时停止动画
-                        clearInterval(timeId);
-                        timeId = null;
-                        $('#btn').val("开始");
-                        return;
-                    }
-                    var randomName = un[Math.floor(Math.random() * un.length)];
-                    currentHighlightName = randomName;
-                    setHighlightByName(currentHighlightName);
-                }, 20);
-                this.value = "停止";
+
+            var un = getUnselected();
+            if (!un.length) {
+                state.isCompleted = true;
+                refreshUI();
+                alert('🎉 所有队长已抽签完毕！');
+                return;
+            }
+
+            if (state.isRunning) {
+                stopRolling();
             } else {
-                if (timeId) {
-                    clearInterval(timeId);
-                    timeId = null;
-                }
-                stopAndSelect();
-                this.value = "开始";
+                startRolling();
             }
         });
 
-        // 重新抽签（撤销）
-        $('#clearBtn').click(function() {
+        $('#clearBtn').on('click', function() {
             undoLast();
         });
+
+        $('#resetAllBtn').on('click', function() {
+            resetAll();
+        });
+
+        $(document).on('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
+                if ($('#btn').is(':enabled')) {
+                    $('#btn').click();
+                }
+            }
+        });
+
+        // ============================================================
+        //  初始化（刷新重置）
+        // ============================================================
+        (function init() {
+            // 清除可能的缓存数据
+            try {
+                localStorage.removeItem('firstRoundAllNames');
+                localStorage.removeItem('firstRoundDisplayOrder');
+                localStorage.removeItem('firstRoundSelected');
+                localStorage.removeItem('firstRoundSort');
+                localStorage.removeItem('firstRoundCompleted');
+            } catch (e) {}
+
+            $('#leftBox').html('<div style="color:#aaa;padding:20px;font-size:14px;">📂 请上传 Excel 文件</div>');
+            clearResultList();
+            updateBadge();
+            updateButtons();
+            updateTitle();
+        })();
+
+        console.log('✅ 苍穹杯首轮抽签已加载（刷新重置，结果区保持静止），按 空格键 快速抽签');
     </script>
+
 </body>
 
 </html>
