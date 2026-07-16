@@ -205,7 +205,7 @@
 </head>
 
 <body>
-	<button id="refreshBtn">刷新</button>
+    <button id="refreshBtn">刷新</button>
     <h1 id="h1-title" linear-gradient class="header">`《苍穹杯》S${sort1}届3v3正赛 小组赛抽签`</h1>
     <!-- <h1>抽签功能</h1> -->
     <span id="span"></span>
@@ -224,74 +224,74 @@
 
             <script>
                 // 初始化数据
-            let arr = JSON.parse(localStorage.getItem('myArray')) || [];
-            const sort = JSON.parse(localStorage.getItem('sort')) || 1;
+                let arr = JSON.parse(localStorage.getItem('myArray')) || [];
+                const sort = JSON.parse(localStorage.getItem('sort')) || 1;
 
-        // 界面初始化
-        document.getElementById('h1-title').innerText = `《苍穹杯》S${sort}届3v3正赛 小组赛抽签`;
-        initForm();
+                // 界面初始化
+                document.getElementById('h1-title').innerText = `《苍穹杯》S${sort}届3v3正赛 小组赛抽签`;
+                initForm();
 
-        function initForm() {
-            $("#leftBox").empty();
-            arr.forEach(team => {
-                const div = document.createElement("div");
-                div.className = "nameBox";
-                div.textContent = team;
-                $("#leftBox").append(div);
-            });
-        }
-
-        // 智能分组逻辑
-        function smartGrouping() {
-            const teams = [...arr]; // 克隆原始数组
-            const resultsContainer = document.getElementById('results');
-            resultsContainer.innerHTML = '';
-
-            if(teams.length < 2) {
-                alert("至少需要2支队伍才能进行分组！");
-                return;
-            }
-
-            const totalGroups = Math.ceil(teams.length / 2);
-            let hasBye = teams.length % 2 !== 0;
-
-            for(let i=0; i<totalGroups; i++) {
-                const groupElement = document.createElement('p');
-                groupElement.style.fontSize = '25px';
-
-                // 抽签逻辑
-                const indexA = Math.floor(Math.random() * teams.length);
-                const teamA = teams.splice(indexA, 1)[0];
-
-                let teamB = '轮空';
-                if(teams.length > 0 && (!hasBye || i < totalGroups-1)) {
-                    const indexB = Math.floor(Math.random() * teams.length);
-                    teamB = teams.splice(indexB, 1)[0];
+                function initForm() {
+                    $("#leftBox").empty();
+                    arr.forEach(team => {
+                        const div = document.createElement("div");
+                        div.className = "nameBox";
+                        div.textContent = team;
+                        $("#leftBox").append(div);
+                    });
                 }
 
-                // 构建显示内容
-                const matchNumber = i + 1;
-                const groupInfo = teamB === '轮空' ? 
-                    `${matchNumber}. ${teamA} 【轮空】` : 
-                    `${matchNumber}. ${teamA} vs ${teamB}`;
+                // 智能分组逻辑
+                function smartGrouping() {
+                    const teams = [...arr]; // 克隆原始数组
+                    const resultsContainer = document.getElementById('results');
+                    resultsContainer.innerHTML = '';
 
-                groupElement.textContent = groupInfo;
-                resultsContainer.appendChild(groupElement);
-            }
+                    if (teams.length < 2) {
+                        alert("至少需要2支队伍才能进行分组！");
+                        return;
+                    }
 
-            // 显示剩余队伍
-            if(teams.length > 0) {
-                const remainElement = document.createElement('p');
-                remainElement.textContent = `未分配队伍：${teams.join(', ')}`;
-                remainElement.style.color = '#ff0000';
-                resultsContainer.appendChild(remainElement);
-            }
-        }
+                    const totalGroups = Math.ceil(teams.length / 2);
+                    let hasBye = teams.length % 2 !== 0;
 
-        // 事件绑定
-        document.getElementById('btn').addEventListener('click', smartGrouping);
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            arr = JSON.parse(localStorage.getItem('myArray'));
-            window.location.reload();
-        });
+                    for (let i = 0; i < totalGroups; i++) {
+                        const groupElement = document.createElement('p');
+                        groupElement.style.fontSize = '25px';
+
+                        // 抽签逻辑
+                        const indexA = Math.floor(Math.random() * teams.length);
+                        const teamA = teams.splice(indexA, 1)[0];
+
+                        let teamB = '轮空';
+                        if (teams.length > 0 && (!hasBye || i < totalGroups - 1)) {
+                            const indexB = Math.floor(Math.random() * teams.length);
+                            teamB = teams.splice(indexB, 1)[0];
+                        }
+
+                        // 构建显示内容
+                        const matchNumber = i + 1;
+                        const groupInfo = teamB === '轮空' ?
+                            `${matchNumber}. ${teamA} 【轮空】` :
+                            `${matchNumber}. ${teamA} vs ${teamB}`;
+
+                        groupElement.textContent = groupInfo;
+                        resultsContainer.appendChild(groupElement);
+                    }
+
+                    // 显示剩余队伍
+                    if (teams.length > 0) {
+                        const remainElement = document.createElement('p');
+                        remainElement.textContent = `未分配队伍：${teams.join(', ')}`;
+                        remainElement.style.color = '#ff0000';
+                        resultsContainer.appendChild(remainElement);
+                    }
+                }
+
+                // 事件绑定
+                document.getElementById('btn').addEventListener('click', smartGrouping);
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    arr = JSON.parse(localStorage.getItem('myArray'));
+                    window.location.reload();
+                });
             </script>
