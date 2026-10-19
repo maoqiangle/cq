@@ -215,10 +215,10 @@ const CLUB_DATA = {
             columns: ["比赛时间", "届数", "获胜战队", "队员阵容", "荣誉时刻", "MVP", "三分王", "单挑王"],
             data: [
                 // 2026 年
-                { date: "2026.10.17", season: "Q12", champions: "🏆 阿拉瓦队", members: "阿拉瓦，老铁，蓝莓", honor: "🎖️ 贾巴尔名人堂戒指", mvp: "阿拉瓦，老铁，蓝莓", three: "格里芬", one: "格里芬" },
-                { date: "2026.07.11", season: "Q11", champions: "🏆 雷队", members: "雷，雨，李小龙，蓝莓", honor: "🎖️ 张伯伦名人堂戒指", mvp: "雨", three: "魔卡", one: "雨" },
+                { date: "2026.10.17", season: "Q12", champions: "🏆 玄武", members: "阿拉瓦，老铁，蓝莓", honor: "🎖️ 贾巴尔名人堂戒指", mvp: "阿拉瓦，老铁，蓝莓", three: "格里芬", one: "格里芬" },
+                { date: "2026.07.11", season: "Q11", champions: "🏆 玄武", members: "雷，雨，李小龙，蓝莓", honor: "🎖️ 张伯伦名人堂戒指", mvp: "雨", three: "魔卡", one: "雨" },
                 { date: "2026.03.28", season: "Q10", champions: "🏆 雷队", members: "雷，皮鞋，大秦", honor: "🎖️ 拉塞尔名人堂戒指", mvp: "皮鞋", three: "-", one: "-" },
-                { date: "2026.01.17", season: "Q9", champions: "🏆 -队", members: "-，-，细白", honor: "🎖️ 科比名人堂戒指", mvp: "细白", three: "-", one: "-" },
+                { date: "2026.01.17", season: "Q9", champions: "🏆 -队", members: "-，-，-", honor: "🎖️ 科比名人堂戒指", mvp: "-", three: "-", one: "-" },
                 // 2025 年
                 { date: "2025.10.18", season: "Q8", champions: "🏆 青龙", members: "包子，雷，大虫，李小龙", honor: "🎖️ 乔丹名人堂戒指", mvp: "李小龙", three: "李小龙", one: "阿诺比" },
                 { date: "2025.06.28", season: "Q7", champions: "🏆 玄武", members: "牧师，阿诺比，-", honor: "🎖️ 奥尼尔名人堂戒指", mvp: "阿诺比", three: "妃子", one: "阿诺比" },
