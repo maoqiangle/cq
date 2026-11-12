@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苍穹俱乐部 · 赛事数据中心</title>
+    <link rel="icon" href="logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="match-data.css">
+</head>
+
+<body>
+    <!-- 苍穹氛围层:星空 + 滚动进度条(纯装饰,pointer-events:none,不影响交互) -->
+    <div class="cq-starry-sky" aria-hidden="true"></div>
+    <div class="cq-scroll-progress" id="cqScrollProgress" aria-hidden="true"></div>
+
+    <!-- 顶部导航 -->
+    <nav class="data-nav">
+        <div class="nav-left-cq">
+            <a href="index.html" class="nav-logo-cq" title="返回苍穹俱乐部官网">
+                <img src="logo.jpg" alt="苍穹俱乐部 Logo">
+                <span class="nav-logo-text">苍穹俱乐部</span>
+            </a>
+            <a href="index.html" class="nav-back">← 返回官网</a>
+        </div>
+        <h1 class="nav-title"><span class="nav-title-ico" aria-hidden="true">📊</span><span class="nav-title-txt">苍穹赛事数据中心</span></h1>
+        <div class="nav-actions nav-quick-cq">
+            <button class="nav-import" onclick="showImportModal()" title="导入 Excel/CSV 数据">📤 导入</button>
+        </div>
+    </nav>
+
+    <!-- 英雄区 + KPI -->
+    <section class="hero-panel">
+        <div class="hero-inner">
+            <!-- 流星:英雄区内局部装饰,受 hero-inner overflow:hidden 约束 -->
+            <span class="cq-meteor" style="top:22px; right:120px" aria-hidden="true"></span>
+            <span class="cq-meteor" style="top:70px; right:340px" aria-hidden="true"></span>
+            <span class="cq-meteor" style="top:8px; right:520px" aria-hidden="true"></span>
+            <div class="hero-left">
+                <div class="hero-crest-row">
+                    <img src="logo.jpg" alt="苍穹俱乐部" class="hero-crest">
+                    <div class="hero-badge">SEASON DATA</div>
+                </div>
+                <h2 class="hero-heading">赛事运营数据看板</h2>
+                <p class="hero-sub">以「届次」为统计维度，量化全年赛事运营规模：举办届数、单届参赛人数与累计比赛场次等数据</p>
+                <div class="hero-slogan">
+                    <span>🏆</span><span>冠军旗帜永挂苍穹</span><span class="cq-snake">🐍</span>
+                </div>
+            </div>
+            <!-- 管理者视角 KPI:去掉球员个人技术统计(场均得分/命中率/三分/盖帽),
+                 换成运营规模指标 —— 届数、人次、球员池、总场次、单届均量、粘性、全勤 -->
+            <div class="kpi-grid" id="kpiGrid">
+                <div class="kpi-card kpi-purple">
+                    <div class="kpi-label">举办届数</div>
+                    <div class="kpi-value" id="kpiSeasons">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">🏆</span> 全年比赛届次</div>
+                </div>
+                <div class="kpi-card kpi-gold">
+                    <div class="kpi-label">参赛记录</div>
+                    <div class="kpi-value" id="kpiRows">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">📋</span> 全年数据条数(人次)</div>
+                </div>
+                <div class="kpi-card kpi-blue">
+                    <div class="kpi-label">登场球员</div>
+                    <div class="kpi-value" id="kpiPlayers">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">👤</span> 去重后球员池</div>
+                </div>
+                <div class="kpi-card kpi-red">
+                    <div class="kpi-label">累计场次</div>
+                    <div class="kpi-value" id="kpiApps">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">🏀</span> 完成比赛总场次</div>
+                </div>
+                <div class="kpi-card kpi-cyan">
+                    <div class="kpi-label">单届参赛</div>
+                    <div class="kpi-value" id="kpiAvgPlayers">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">👥</span> 平均每届上场人数</div>
+                </div>
+                <div class="kpi-card kpi-orange">
+                    <div class="kpi-label">单届场次</div>
+                    <div class="kpi-value" id="kpiAvgApps">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">📊</span> 平均每届比赛场次</div>
+                </div>
+                <div class="kpi-card kpi-teal">
+                    <div class="kpi-label">人均届数</div>
+                    <div class="kpi-value" id="kpiAvgSeasons">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">🔁</span> 球员粘性(届 / 人)</div>
+                </div>
+                <div class="kpi-card kpi-green">
+                    <div class="kpi-label">全勤球员</div>
+                    <div class="kpi-value" id="kpiFullAttend">0</div>
+                    <div class="kpi-trend"><span class="kpi-icon">⭐</span> <span id="kpiFullAttendHint">打满全部届次</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tab -->
+    <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" data-view="overview">📊 数据总览</button>
+        <button class="tab-btn" data-view="detail">📋 数据明细</button>
+        <button class="tab-btn" data-view="players">👤 球员卡片</button>
+        <button class="tab-btn" data-view="records">🏅 纪录殿堂</button>
+    </div>
+
+    <!-- 筛选控制区 -->
+    <section class="filter-bar" id="filterBar">
+        <!-- 快捷筛选:按钮由 PRESETS 配置表动态渲染(阈值/口径改了不会和文案脱节) -->
+        <div class="filter-shortcut">
+            <span class="shortcut-label">快捷:</span>
+            <span class="shortcut-chips" id="shortcutChips"></span>
+        </div>
+
+        <!-- 口径说明:随赛季/快捷选择动态更新(见 syncFilterHint) -->
+        <div class="filter-hint" id="filterHint">
+            范围：<b>全部届次</b> · 出场数 / 场均 / 命中率与全年口径快捷筛选均按<b>球员全年累计</b>判定
+        </div>
+        <!-- 筛选自检警告:区间倒置 / 空结果提示 -->
+        <div class="filter-warn" id="filterWarn" style="display:none"></div>
+
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">届次</label>
+                <select id="filterSeason" class="filter-select">
+                    <option value="">全部届次</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">出场数</label>
+                <input id="filterAppMin" class="filter-input filter-input-xs" type="number" min="0" placeholder="最小">
+                <span class="filter-dash">-</span>
+                <input id="filterAppMax" class="filter-input filter-input-xs" type="number" min="0" placeholder="最大">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">场均得分</label>
+                <input id="filterAvgMin" class="filter-input filter-input-xs" type="number" min="0" step="0.1" placeholder="最小">
+                <span class="filter-dash">-</span>
+                <input id="filterAvgMax" class="filter-input filter-input-xs" type="number" min="0" step="0.1" placeholder="最大">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">总命中率</label>
+                <input id="filterFgpctMin" class="filter-input filter-input-xs" type="number" min="0" max="100" step="0.1" placeholder="≥">
+                <span class="filter-dash">%</span>
+            </div>
+            <div class="filter-group filter-search">
+                <label class="filter-label">搜索</label>
+                <input id="filterKeyword" class="filter-input" type="text" placeholder="球员名 / 届次 / 赛事…" autocomplete="off">
+                <button id="btnClearFilter" class="btn-clear" title="清空所有筛选">✕</button>
+            </div>
+        </div>
+
+        <!-- 球员多选(折叠面板) -->
+        <div class="filter-players" id="filterPlayers">
+            <div class="fp-head">
+                <label class="filter-label">球员</label>
+                <div class="fp-selected" id="fpSelected">
+                    <span class="fp-hint" id="fpHint">未选择,默认展示全部</span>
+                </div>
+                <button class="fp-toggle" id="fpToggle" type="button">
+                    <span id="fpToggleIcon">▸</span>
+                    <span id="fpToggleText">展开选择</span>
+                </button>
+            </div>
+            <div class="fp-panel" id="fpPanel" style="display:none">
+                <div class="fp-toolbar">
+                    <input id="fpSearch" class="filter-input fp-search" type="text" placeholder="输入球员名过滤…" autocomplete="off">
+                    <button class="fp-bulk" data-action="all" type="button">全选可见</button>
+                    <button class="fp-bulk" data-action="invert" type="button">反选</button>
+                    <button class="fp-bulk fp-bulk-clear" data-action="clear" type="button">清空</button>
+                </div>
+                <div class="player-chip-list" id="playerChipList"></div>
+                <div class="fp-empty" id="fpEmpty" style="display:none">🔍 没有匹配的球员</div>
+            </div>
+        </div>
+
+        <!-- 已选筛选 chip -->
+        <div class="active-filters" id="activeFilters" style="display:none">
+            <span class="af-label">已选:</span>
+            <div class="af-list" id="afList"></div>
+            <button class="af-reset" onclick="Q.clearFilters()">全部清除</button>
+        </div>
+    </section>
+
+    <!-- 结果条 -->
+    <div class="result-bar" id="resultBar">
+        <span id="resultCount">共 0 名球员</span>
+        <div class="result-actions">
+            <button id="btnExport" class="btn-export" title="导出 CSV">📥 导出 CSV</button>
+            <button id="btnExportJS" class="btn-export" onclick="Q.exportAsJS()" title="导出 JS">💾 导出 JS</button>
+            <button id="btnClearData" class="btn-export btn-danger" onclick="clearLocalData()" title="清空导入的数据">🗑 清空导入</button>
+        </div>
+    </div>
+
+    <!-- ========== 视图 1:数据总览 ========== -->
+    <section class="view-overview view-panel" id="viewOverview">
+        <!-- 运营看板:整体维度分析,不聚焦单个球员 -->
+        <div class="board-section-title">
+            <h3 class="section-title"><span>📈</span> 赛事运营看板</h3>
+            <p class="section-hint" id="opsHint">全年整体维度的规模与参与度分析</p>
+        </div>
+
+        <!-- A. 逐届规模趋势(核心:每届多少人参赛、打了多少场) -->
+        <div class="ops-card ops-trend-card">
+            <div class="ops-card-head">
+                <h4 class="ops-card-title"><span>🗓</span> 逐届规模趋势</h4>
+                <div class="ops-legend">
+                    <span class="ops-legend-item"><i class="ops-swatch ops-swatch-players"></i>参赛人数</span>
+                    <span class="ops-legend-item"><i class="ops-swatch ops-swatch-apps"></i>比赛场次</span>
+                    <span class="ops-legend-note">点击柱条可下钻到该届</span>
+                </div>
+            </div>
+            <div class="ops-trend" id="opsTrend"></div>
+        </div>
+
+        <!-- B + C: 赛事系列结构 / 球员参与深度 -->
+        <div class="ops-grid-2">
+            <div class="ops-card">
+                <div class="ops-card-head">
+                    <h4 class="ops-card-title"><span>🏆</span> 赛事系列结构</h4>
+                </div>
+                <div class="ops-series" id="opsSeries"></div>
+            </div>
+            <div class="ops-card">
+                <div class="ops-card-head">
+                    <h4 class="ops-card-title"><span>🔁</span> 球员参与深度</h4>
+                    <span class="ops-legend-note" id="opsDepthHint">粘性 / 留存视角</span>
+                </div>
+                <div class="dist-bars" id="opsDepth"></div>
+            </div>
+        </div>
+
+        <!-- D. 运营健康度速览(派生指标,直接给结论) -->
+        <div class="ops-card">
+            <div class="ops-card-head">
+                <h4 class="ops-card-title"><span>🩺</span> 运营健康度</h4>
+                <span class="ops-legend-note">当前筛选范围内自动推导</span>
+            </div>
+            <div class="ops-health" id="opsHealth"></div>
+        </div>
+
+        <div class="board-section-title" style="margin-top:22px">
+            <h3 class="section-title"><span>🏅</span> 累计维度榜单</h3>
+            <p class="section-hint">当前筛选范围内的累计数据 TOP 10</p>
+        </div>
+        <div class="overview-grid">
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-gold">🏀</span>
+                    <h3 class="board-title">得分王</h3><span class="board-hint">累计得分</span></div>
+                <div class="board-list" id="boardScore"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-purple">🛡️</span>
+                    <h3 class="board-title">篮板王</h3><span class="board-hint">累计篮板</span></div>
+                <div class="board-list" id="boardReb"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-green">🎯</span>
+                    <h3 class="board-title">助攻王</h3><span class="board-hint">累计助攻</span></div>
+                <div class="board-list" id="boardAst"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-cyan">💨</span>
+                    <h3 class="board-title">三分王</h3><span class="board-hint">累计三分命中</span></div>
+                <div class="board-list" id="board3PT"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-red">👊</span>
+                    <h3 class="board-title">抢断王</h3><span class="board-hint">累计抢断</span></div>
+                <div class="board-list" id="boardStl"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-orange">🚫</span>
+                    <h3 class="board-title">盖帽王</h3><span class="board-hint">累计盖帽</span></div>
+                <div class="board-list" id="boardBlk"></div>
+            </div>
+        </div>
+
+        <div class="board-section-title threshold-row" style="margin-top:22px">
+            <div>
+                <h3 class="section-title"><span>📈</span> 场均维度榜单</h3>
+                <p class="section-hint">按球员参赛 ≥ <span id="hintMinSeasons">6</span> 届聚合,取总累计 ÷ 总出场,避免小样本刷榜</p>
+            </div>
+            <div class="threshold-ctl" title="调整最小届数">
+                <span class="tc-label">🎚 最小届数</span>
+                <button class="tc-btn" data-delta="-1" type="button">−</button>
+                <input id="minSeasonsInput" class="tc-input" type="number" min="1" max="50" value="6">
+                <button class="tc-btn" data-delta="1" type="button">+</button>
+                <span class="tc-suffix">届</span>
+            </div>
+        </div>
+        <div class="overview-grid">
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-gold">🔥</span>
+                    <h3 class="board-title">场均得分</h3><span class="board-hint">得分 ÷ 出场</span></div>
+                <div class="board-list" id="boardAvgScore"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-purple">🪄</span>
+                    <h3 class="board-title">场均篮板</h3><span class="board-hint">板 ÷ 出场</span></div>
+                <div class="board-list" id="boardAvgReb"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-green">🎯</span>
+                    <h3 class="board-title">场均助攻</h3><span class="board-hint">助 ÷ 出场</span></div>
+                <div class="board-list" id="boardAvgAst"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-cyan">🌟</span>
+                    <h3 class="board-title">场均贡献</h3><span class="board-hint">贡献值 ÷ 出场</span></div>
+                <div class="board-list" id="boardAvgContri"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-orange">💫</span>
+                    <h3 class="board-title">总命中率</h3><span class="board-hint">命中 ÷ 出手</span></div>
+                <div class="board-list" id="boardFgPct"></div>
+            </div>
+            <div class="board-card">
+                <div class="board-header"><span class="board-icon board-icon-red">📊</span>
+                    <h3 class="board-title">三分命中率</h3><span class="board-hint">三分命中 ÷ 三分出手</span></div>
+                <div class="board-list" id="board3PctBoard"></div>
+            </div>
+        </div>
+
+        <!-- 队伍下架:替换为「出场数分布」+「命中率分布」 -->
+        <div class="dist-panel" style="margin-top:22px">
+            <div class="dist-card">
+                <h3 class="section-title"><span>📊</span> 球员出场数分布</h3>
+                <div class="dist-bars" id="appDistribution"></div>
+            </div>
+            <div class="dist-card">
+                <h3 class="section-title"><span>🎯</span> 球员命中率分布</h3>
+                <div class="dist-bars" id="fgpctDistribution"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 视图 2:数据明细 ========== -->
+    <section class="view-detail view-panel" id="viewDetail" style="display:none">
+        <div class="detail-toolbar">
+            <div class="detail-mode">
+                <span class="filter-label">数据口径:</span>
+                <button class="mode-btn active" data-mode="total">累计</button>
+                <button class="mode-btn" data-mode="avg">场均</button>
+            </div>
+            <div class="detail-mode">
+                <span class="filter-label">排列:</span>
+                <button class="mode-btn active" id="btnGroupOn" type="button" title="跨届时按赛事届次分组,每组一个标题行">按届分组</button>
+                <button class="mode-btn" id="btnGroupOff" type="button" title="不分组,纯按当前排序列铺开">不分组</button>
+            </div>
+            <div class="pagination" id="pagination">
+                <button class="page-btn" id="btnPrev" onclick="Q.prevPage()" disabled>上一页</button>
+                <span class="page-info" id="pageInfo">1/1</span>
+                <button class="page-btn" id="btnNext" onclick="Q.nextPage()" disabled>下一页</button>
+                <select class="page-size" id="pageSize" onchange="Q.changePageSize(this.value)">
+                    <option value="20">20/页</option>
+                    <option value="50" selected>50/页</option>
+                    <option value="100">100/页</option>
+                    <option value="all">全部</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table" id="dataTable">
+                <thead id="tableHead"></thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display:none">
+            <div class="empty-icon">🔍</div>
+            <p class="empty-text">没有匹配的球员</p>
+            <p class="empty-sub">尝试调整筛选条件或清空搜索</p>
+            <button id="btnResetAll" class="btn-reset">清空所有筛选</button>
+        </div>
+    </section>
+
+    <!-- ========== 视图 3:球员卡片 ========== -->
+    <section class="view-players view-panel" id="viewPlayers" style="display:none">
+        <div class="players-header">
+            <h3 class="section-title"><span>👤</span> 球员画像</h3>
+            <div class="players-sort">
+                <span class="filter-label">排序:</span>
+                <select id="playerSort" class="filter-select">
+                    <option value="avg">场均得分</option>
+                    <option value="score">累计得分</option>
+                    <option value="reb">累计篮板</option>
+                    <option value="ast">累计助攻</option>
+                    <option value="blk">累计盖帽</option>
+                    <option value="stl">累计抢断</option>
+                    <option value="fg3m">累计三分</option>
+                    <option value="contri">累计贡献</option>
+                    <option value="app">出场数</option>
+                    <option value="fgpct">总命中率</option>
+                </select>
+            </div>
+        </div>
+        <div class="players-grid" id="playersGrid"></div>
+    </section>
+
+    <!-- ========== 视图 4:纪录殿堂 ========== -->
+    <section class="view-records view-panel" id="viewRecords" style="display:none">
+        <div class="board-section-title">
+            <h3 class="section-title"><span>🏆</span> 球员总纪录</h3>
+            <p class="section-hint">当前筛选范围内的极值,鼠标 hover 高亮卡片</p>
+        </div>
+        <div class="record-grid" id="recordGridCumulative"></div>
+
+        <div class="board-section-title" style="margin-top:22px">
+            <h3 class="section-title"><span>⚡</span> 场均纪录</h3>
+            <p class="section-hint">参赛 ≥ <span id="hintMinSeasons2">6</span> 届球员 · 总累计÷总出场</p>
+        </div>
+        <div class="record-grid" id="recordGridAverage"></div>
+
+        <div class="board-section-title" style="margin-top:22px">
+            <h3 class="section-title"><span>🎖️</span> 命中率纪录</h3>
+            <p class="section-hint">出手 ≥ 30 次球员</p>
+        </div>
+        <div class="record-grid" id="recordGridAccuracy"></div>
+    </section>
+
+    <!-- 页脚:移植主页 .footer 的紫金分隔与黑曼巴标语 -->
+    <footer class="cq-footer">
+        <div class="cq-footer-inner">
+            <div class="cq-footer-logo">
+                <img src="logo.jpg" alt="苍穹俱乐部">
+                <span class="cq-footer-year">2013 - 2026</span>
+            </div>
+            <p class="cq-footer-text">花有重开日，人无再少年，热血常埋于心中</p>
+            <p class="cq-footer-mamba">🐍 Mamba Forever</p>
+            <p class="cq-footer-flag">
+                数据来源：苍穹俱乐部历届赛事记录 · <b>冠军旗帜永挂苍穹</b> · <a href="index.html" class="cq-footer-link">返回官网</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- 返回顶部 -->
+    <button class="cq-back-top" id="cqBackTop" type="button" title="返回顶部" aria-label="返回顶部">⬆</button>
+
+    <!-- 导入弹窗 -->
+    <div class="import-overlay" id="importOverlay" style="display:none">
+        <div class="import-modal">
+            <div class="import-header">
+                <h3>📤 导入球员累计数据</h3>
+                <button class="import-close" onclick="closeImportModal()">✕</button>
+            </div>
+            <div class="import-body">
+                <p class="import-tip">上传每届的球员汇总透视表(Excel/CSV),系统自动识别列名。<br>推荐字段:<code>球员</code>、<code>计数项:出场数</code>、<code>求和项:得分</code>、<code>求和项:篮板</code>、<code>求和项:助攻</code>、<code>求和项:抢断</code>、<code>求和项:盖帽</code>、<code>求和项:失误</code>、<code>求和项:贡献值</code>、<code>求和项:总出手</code>、<code>求和项:总命中数</code>、<code>求和项:两分出手数</code>、<code>求和项:两分命中数</code>、<code>求和项:三分出手数</code>、<code>求和项:三分命中数</code>、<code>总命中率</code>、<code>两分命中率</code>、<code>三分命中率</code>。</p>
+                <div class="filter-group" style="margin-bottom:14px">
+                    <label class="filter-label">导入到届次</label>
+                    <input id="importSeason" class="filter-input" type="text" placeholder="如 S23,留空则使用今天日期" value="">
+                </div>
+                <div class="import-upload" id="importUploadZone">
+                    <div class="upload-icon">📊</div>
+                    <p>点击或拖拽上传 Excel / CSV 文件</p>
+                    <p class="upload-sub">支持 .xlsx .xls .csv 格式</p>
+                    <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(this)">
+                </div>
+                <div class="import-mapping" id="importMapping" style="display:none">
+                    <h4>📋 列名自动映射</h4>
+                    <div id="mappingTable" class="mapping-grid"></div>
+                    <p class="mapping-note">* 标记的列为必填,其余列缺失时按 0 或空处理</p>
+                </div>
+                <div class="import-preview" id="importPreview" style="display:none">
+                    <h4>👀 数据预览(前 10 行)</h4>
+                    <div class="preview-count" id="previewCount"></div>
+                    <div class="preview-scroll">
+                        <table class="preview-table" id="previewTable"></table>
+                    </div>
+                </div>
+                <div class="import-actions" id="importActions" style="display:none">
+                    <button class="btn btn-import-confirm" onclick="downloadSeasonJson()" title="生成正式 JSON 文件下载,放到 data/ 目录再提交 Git">📥 下载 JSON 文件</button>
+                    <button class="btn btn-import-secondary" onclick="previewOnly()" title="仅本机预览(存 localStorage,不写入正式数据)">🧪 仅本机预览</button>
+                    <button class="btn btn-import-cancel" onclick="closeImportModal()">取消</button>
+                </div>
+                <div class="import-manifest-tip" id="importManifestTip" style="display:none">
+                    <h4>📌 提交清单</h4>
+                    <ol class="mtip-list">
+                        <li>下载得到 <code id="mtipFile"></code>,放入项目 <code>data/</code> 目录</li>
+                        <li>编辑 <code>data/manifest.js</code>,在 <code>seasons</code> 数组末尾追加一条:
+                            <pre id="mtipEntry" class="mtip-code"></pre>
+                        </li>
+                        <li><code>git add data/ &amp;&amp; git commit -m "add season data" &amp;&amp; git push</code></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 全局加载状态 -->
+    <div class="loading-indicator" id="loadingIndicator" style="display:none">
+        <div class="li-spinner"></div>
+        <span class="li-text" id="loadingText">加载中…</span>
+    </div>
+
+    <!-- 球员详情弹窗 -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none">
+        <div class="modal-card" id="modalCard">
+            <button class="modal-close" id="modalClose">✕</button>
+            <h2 class="modal-title" id="modalTitle">球员详情</h2>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- 数据入口:通过 <script> 标签加载,file:// 双击打开也能工作 -->
+    <script src="data/manifest.js"></script>
+    <script>
+        // ==================== 存储 & 常量 ====================
+        const STORAGE_KEY = 'cq_season_data_v3'; // 本地临时导入缓存
+        const SETTINGS_KEY = 'cq_view_settings_v1'; // 用户界面设置(如场均门槛)
+        const DATA_DIR = 'data';
+        const DEFAULT_RECENT = 3; // 默认预加载最近几届(仅 PRELOAD_ALL=false 时生效)
+        // 全量预加载:赛季文件都很小(全年 18 届合计约 125KB),首屏一次并行拉完。
+        // 必须开启的原因:页面"场均维度榜单"默认最小届数门槛 = 6 届,若只预加载最近 3 届,
+        // 则「全部届次」视图统计不全、场均类榜单会全部为空。
+        // 赛季数涨到几百个时可改回 false 走懒加载。
+        const PRELOAD_ALL = true;
+        const MIN_ATTEMPTS_FOR_PCT = 30; // 命中率纪录最小出手数门槛
+
+        // ==================== 快捷筛选:声明式配置表 ====================
+        // 每个 preset 显式声明作用口径 scope,不再靠代码里散落的 if 分支:
+        //   'career' — 先按球员跨届聚合,判定命中后保留该球员的**全部届次行**
+        //              (语义:"全年达到某水准的老将/射手")
+        //   'season' — 直接作用在单条赛季记录上
+        //              (语义:"某一届打出过该表现",全部届次下会跨届命中多条)
+        //
+        // 阈值全部按真实数据分布(source-data.json:18 届 / 455 行 / 73 人)标定,
+        // 目标是每个 preset 都落在 10%~50% 的有意义子集,既不恒空也不近乎全选。
+        // 校验脚本曾用一次性 _audit9/_audit10(已随仓库清理移除);重跑校准见 tools/build_data.py。
+        //
+        // 术语映射:内部 scope 值 'career' 在 UI 上统一显示为「全年」(非「生涯」),
+        //   因本站数据集仅为俱乐部全年 18 届赛事,不构成球员整个职业生涯;
+        //   角标与提示文案的「全年」即对应 scope:'career',「单届」对应 scope:'season'。
+        //
+        // 历史坑:早期版本 preset 用全年口径阈值(app>=50 / fg3m>=50)却作用在单届行上,
+        // 而单届 app 最大仅 29、fg3m 最大仅 35 → 3 个按钮永远命中 0 行。
+        // 注:label 里不再重复「全年/单届」字样,口径由 chip 左侧角标(renderShortcuts)承担。
+        const PRESETS = [{
+                id: 'all',
+                label: '全部',
+                scope: null,
+                test: null
+            },
+            // ---- 全年口径(career) ----
+            {
+                id: 'core',
+                label: '出场≥70',
+                scope: 'career',
+                test: p => (p.app || 0) >= 70
+            }, {
+                id: 'starter',
+                label: '出场≥120',
+                scope: 'career',
+                test: p => (p.app || 0) >= 120
+            }, {
+                id: 'veteran',
+                label: '参赛≥10届',
+                scope: 'career',
+                test: p => (p.seasonCount || 0) >= 10
+            }, {
+                id: 'hotshot',
+                label: '场均≥7分',
+                scope: 'career',
+                test: p => avgExact(p.score, p.app) >= 7
+            }, {
+                id: 'sharp',
+                label: '命中率≥62%',
+                scope: 'career',
+                test: p => (p.fga || 0) >= MIN_ATTEMPTS_FOR_PCT && computedFgPct(p) >= 62
+            }, {
+                id: 'threept',
+                label: '三分≥50',
+                scope: 'career',
+                test: p => (p.fg3m || 0) >= 50
+            },
+            // ---- 单届级(season) ----
+            {
+                id: 'boom',
+                label: '得分≥100',
+                scope: 'season',
+                test: d => (d.score || 0) >= 100
+            }, {
+                id: 'splash',
+                label: '三分≥10',
+                scope: 'season',
+                test: d => (d.fg3m || 0) >= 10
+            }
+        ];
+        const PRESET_BY_ID = PRESETS.reduce((m, p) => (m[p.id] = p, m), {});
+        // 兼容旧调用点:preset id → 全年口径判定函数(season 级的不在此表)
+        const PRESET_PREDICATES = PRESETS
+            .filter(p => p.scope === 'career')
+            .reduce((m, p) => (m[p.id] = p.test, m), {});
+        const DEFAULT_MIN_SEASONS = 6; // 场均维度榜单默认最小届数门槛
+        let minSeasons = DEFAULT_MIN_SEASONS; // 运行时可调
+
+        // 列名映射:Excel 中文 → 数据字段
+        // 「赛季」是历史叫法,页面 UI 已统一改称「届次」,但两个别名都必须保留:
+        //   '届次' — 本站导出的 CSV 表头(exportCSV),不认会导致自己导出的文件回不进来
+        //   '赛季' — 用户手上存量的旧 Excel / 旧导出文件
+        const FIELDS_MAP = {
+            '届次': 'season',
+            '赛季': 'season',
+            '球员': 'player',
+            '球员名': 'player',
+            '使用球员': 'player',
+            '球员卡': 'player',
+            '出场数': 'app',
+            '计数项:出场数': 'app',
+            '出场': 'app',
+            '场次': 'app',
+            '得分': 'score',
+            '求和项:得分': 'score',
+            '总得分': 'score',
+            '篮板': 'reb',
+            '求和项:篮板': 'reb',
+            '总篮板': 'reb',
+            '助攻': 'ast',
+            '求和项:助攻': 'ast',
+            '总助攻': 'ast',
+            '抢断': 'stl',
+            '求和项:抢断': 'stl',
+            '总抢断': 'stl',
+            '盖帽': 'blk',
+            '求和项:盖帽': 'blk',
+            '总盖帽': 'blk',
+            '失误': 'tov',
+            '求和项:失误': 'tov',
+            '总失误': 'tov',
+            '贡献值': 'contribution',
+            '求和项:贡献值': 'contribution',
+            '影响力': 'contribution',
+            '总出手': 'fga',
+            '求和项:总出手': 'fga',
+            '出手数': 'fga',
+            '总出手数': 'fga',
+            '总命中数': 'fgm',
+            '求和项:总命中数': 'fgm',
+            '命中数': 'fgm',
+            '两分出手数': 'fg2a',
+            '求和项:两分出手数': 'fg2a',
+            '两分出手': 'fg2a',
+            '两分命中数': 'fg2m',
+            '求和项:两分命中数': 'fg2m',
+            '两分命中': 'fg2m',
+            '三分出手数': 'fg3a',
+            '求和项:三分出手数': 'fg3a',
+            '三分出手': 'fg3a',
+            '三分命中数': 'fg3m',
+            '求和项:三分命中数': 'fg3m',
+            '三分命中': 'fg3m',
+            '总命中率': 'fgpct',
+            '命中率': 'fgpct',
+            '两分命中率': 'fg2pct',
+            '两分率': 'fg2pct',
+            '三分命中率': 'fg3pct',
+            '三分率': 'fg3pct'
+        };
+
+        let allData = []; // 当前视图使用的合集
+        let manifest = null; // 全局清单
+        const seasonCache = {}; // 内存缓存:{ L05: [...] }
+        let importedRows = [];
+        let importedSeasonId = ''; // 记录导入时用户填的赛季 id
+        let detailMode = 'total'; // total | avg
+        let detailGroup = true; // 明细表是否按届分组(全部届次下按届数统计)
+
+        // ============ 数据加载(基于 <script> 全局变量) ============
+        // 与 fetch 相比,script 加载在 file:// 双击打开时也能工作,同时线上部署也无差异
+
+        function loadManifest() {
+            // manifest.js 通过 head 里的 <script> 已经同步加载
+            if (window.__MANIFEST__ && window.__MANIFEST__.seasons) {
+                manifest = window.__MANIFEST__;
+                return Promise.resolve(manifest);
+            }
+            return Promise.reject(new Error('manifest.js 未正确加载,请检查 data/manifest.js 是否存在'));
+        }
+
+        // 动态注入 <script> 加载单赛季 JS(file:// 也生效)
+        function loadSeason(seasonId) {
+            if (seasonCache[seasonId]) return Promise.resolve(seasonCache[seasonId]);
+            // 已有全局变量(比如通过其他方式先加载了)
+            if (window.__SEASONS__ && window.__SEASONS__[seasonId]) {
+                seasonCache[seasonId] = window.__SEASONS__[seasonId];
+                return Promise.resolve(seasonCache[seasonId]);
+            }
+            const entry = manifest && manifest.seasons.find(s => s.id === seasonId);
+            if (!entry) return Promise.resolve([]);
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                // 支持 manifest 里同时兼容 .json / .js 文件名
+                const file = entry.file.replace(/\.json$/i, '.js');
+                script.src = `${DATA_DIR}/${file}`;
+                script.async = false;
+                script.onload = () => {
+                    if (window.__SEASONS__ && window.__SEASONS__[seasonId]) {
+                        seasonCache[seasonId] = window.__SEASONS__[seasonId];
+                    } else {
+                        console.warn(`${file} 加载后未找到 window.__SEASONS__.${seasonId}`);
+                    }
+                    resolve(seasonCache[seasonId] || []);
+                };
+                script.onerror = () => {
+                    console.warn(`加载 ${file} 失败`);
+                    resolve(seasonCache[seasonId] || []);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        async function ensureRecentLoaded() {
+            if (!manifest) await loadManifest();
+            const recent = manifest.seasons.slice(-DEFAULT_RECENT).map(s => s.id);
+            await Promise.all(recent.map(id => loadSeason(id)));
+            return recent;
+        }
+
+        // 全量预加载所有赛季(并行,文件都很小)。返回已加载的赛季 id 列表。
+        async function ensureAllLoaded() {
+            if (!manifest) await loadManifest();
+            const ids = manifest.seasons.map(s => s.id);
+            await Promise.all(ids.map(id => loadSeason(id)));
+            return ids;
+        }
+
+        async function loadSpecificSeason(seasonId) {
+            if (!manifest) await loadManifest();
+            return loadSeason(seasonId);
+        }
+
+        // 拼装 allData = 已加载赛季合集 + localStorage 临时导入(按 season|player 主键去重,后者覆盖前者)
+        function rebuildAllData() {
+            const seasonsData = Object.values(seasonCache).flat();
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const merged = new Map();
+            const put = r => {
+                if (r && r.season != null && r.player) merged.set(`${r.season}|${r.player}`, r);
+            };
+            seasonsData.forEach(put);
+            stored.forEach(put); // localStorage 里的覆盖已加载赛季里的同 key 记录
+            allData = [...merged.values()];
+            return allData;
+        }
+
+        function saveImported(rows) {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            stored.push(...rows);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+            rebuildAllData();
+        }
+
+        function clearLocalData() {
+            showConfirm('确定清空所有本地临时导入的数据?(仓库 data/*.json 的正式数据不受影响)', () => {
+                localStorage.removeItem(STORAGE_KEY);
+                rebuildAllData();
+                Q.refreshAll();
+                showToast('🗑 已清空本地临时数据', 'info');
+            });
+        }
+
+        function showToast(msg, type = 'success', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('toast-show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        function showConfirm(msg, onOk) {
+            const overlay = document.getElementById('modalOverlay');
+            document.getElementById('modalTitle').textContent = '确认操作';
+            document.getElementById('modalBody').innerHTML = `
+        <p style="font-size:15px;color:#b8b8c8;text-align:center;margin:20px 0">${msg}</p>
+        <div style="display:flex;gap:12px;justify-content:center">
+          <button class="btn btn-import-confirm" onclick="showConfirm._onOk(); document.getElementById('modalOverlay').style.display='none'">✅ 确定</button>
+          <button class="btn btn-import-cancel" onclick="document.getElementById('modalOverlay').style.display='none'">取消</button>
+        </div>`;
+            showConfirm._onOk = onOk;
+            overlay.style.display = 'flex';
+        }
+
+        // HTML 转义。必须同时覆盖引号:本函数被大量用在属性上下文里
+        // (data-player="…"、data-season="…"、title="…"),而球员名/届次 ID 都来自
+        // 用户导入的 Excel。原先用 div.textContent→innerHTML 只转义 & < >,
+        // 遇到含 " 的值会提前闭合属性、把后续内容变成新标签(实测 data-season 被突破)。
+        // 纯字符串实现也比 DOM 往返快(渲染 455 行时不再反复建节点)。
+        const _ESC_MAP = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => _ESC_MAP[c]);
+        }
+
+        function showLoadingIndicator(msg = '加载中…') {
+            const el = document.getElementById('loadingIndicator');
+            document.getElementById('loadingText').textContent = msg;
+            el.style.display = 'flex';
+        }
+
+        function hideLoadingIndicator() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        // 命中率安全兜底:优先用 fgpct;为 null/#DIV/0! 时,用 fgm/fga 兜底
+        function safePct(pctVal, made, attempted) {
+            const p = parseFloat(pctVal);
+            if (isFinite(p) && p >= 0) return p;
+            if (attempted > 0) return Math.round(made / attempted * 10000) / 100;
+            return 0;
+        }
+
+        function computedFgPct(d) {
+            return safePct(d.fgpct, d.fgm, d.fga);
+        }
+
+        function computedFg2Pct(d) {
+            return safePct(d.fg2pct, d.fg2m, d.fg2a);
+        }
+
+        function computedFg3Pct(d) {
+            return safePct(d.fg3pct, d.fg3m, d.fg3a);
+        }
+
+        // 场均计算
+        function avg(v, app) {
+            return app > 0 ? Math.round(v / app * 10) / 10 : 0;
+        }
+        // 精确场均:筛选/排序判定必须用它。
+        // avg() 只保留 1 位小数,做阈值判定会把未达标的人误纳
+        // (实测:皮鞋真实场均 7.9667 → avg() 得 8.0 → 在「场均≥8」处被错误纳入)。
+        // avg() 保留用于展示(1 位小数即可),判定一律走 avgExact()。
+        function avgExact(v, app) {
+            return app > 0 ? v / app : 0;
+        }
+
+        // ==================== CSV 转义 ====================
+        // RFC4180:字段含 逗号 / 双引号 / 换行 时用双引号包裹,内部双引号翻倍。
+        // 原来直接 join(',') 完全不转义:Excel 导入的数据只要球员名里有逗号,整列就错位。
+        function csvEscape(v) {
+            const s = (v === null || v === undefined) ? '' : String(v);
+            return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        }
+
+        function csvRow(values) {
+            return values.map(csvEscape).join(',');
+        }
+
+        // 赛季时间序:以 manifest.seasons 的数组顺序为准,而非字符串大小。
+        // 原因:赛季 id 混用了 S29~S40 / L4 / L05 / Q9~Q12 三套编号,字符串序会把
+        // "S40" 判成最新(实际时间序是 …S40 < L4 < L05 < Q9 < Q10 < Q11 < Q12),
+        // 实测 73 名球员中 44 人(60%)的「最近赛季」因此判错,导致球员卡/纪录卡的
+        // 赛季徽章显示成早几届的比赛。
+        function seasonRank(sid) {
+            const seasons = (manifest && manifest.seasons) ? manifest.seasons : null;
+            if (!seasons) return 0;
+            const i = seasons.findIndex(s => s.id === sid);
+            return i >= 0 ? i : -1; // 清单外的(如本地临时导入)排最前,不误伤正式数据
+        }
+        // 取一组赛季 id 中时间上最晚的那个
+        function latestSeasonOf(sids) {
+            let best = null,
+                bestRank = -Infinity;
+            sids.forEach(sid => {
+                const r = seasonRank(sid);
+                if (r > bestRank) {
+                    bestRank = r;
+                    best = sid;
+                }
+            });
+            return best;
+        }
+
+        // ==================== 赛事系列(series) ====================
+        // 数据天然分 3 个系列,由赛季 id 首字母区分:S=苍穹杯 / L=联赛3V3 / Q=全明星赛。
+        // 加系列级筛选后才能回答「苍穹杯历史得分王」这类问题(原来只能选全部或单届)。
+        const SERIES = [{
+            key: 'S',
+            name: '苍穹杯'
+        }, {
+            key: 'L',
+            name: '联赛3V3'
+        }, {
+            key: 'Q',
+            name: '全明星赛'
+        }];
+        const SERIES_BY_KEY = SERIES.reduce((m, s) => (m[s.key] = s, m), {});
+
+        function seasonById(sid) {
+            if (!manifest || !manifest.seasons) return null;
+            return manifest.seasons.find(s => s.id === sid) || null;
+        }
+        // 赛季 id → 系列 key(取开头连续字母);清单外的临时导入赛季返回 ''
+        function seriesKeyOf(sid) {
+            const m = /^([A-Za-z]+)/.exec(sid || '');
+            return m ? m[1].toUpperCase() : '';
+        }
+        // 届次徽章的系列配色 class(S=金 / Q=紫 / L=红,与主页赛事卡三色一致)。
+        // 返回的是我们自己拼的白名单短字符串(S/Q/L),不含用户数据,直接进 class 安全。
+        function badgeSeriesClass(sid) {
+            const k = seriesKeyOf(sid);
+            return (k === 'S' || k === 'Q' || k === 'L') ? ' sb-' + k : '';
+        }
+
+        function seriesNameOf(sid) {
+            const s = SERIES_BY_KEY[seriesKeyOf(sid)];
+            return s ? s.name : '';
+        }
+        // 赛季显示名的「主体」= 去掉尾部编号后的部分。
+        // 「苍穹杯 S29」→「苍穹杯」、「联赛3V3 L4」→「联赛3V3」。
+        // 用于分组标题行:左侧已有 id 徽章,再带一遍编号会变成「S29 苍穹杯 S29」。
+        // 正则从左往右找最短能贴住结尾的「字母*数字+」,故「联赛3V3 L4」只剥掉 L4,
+        // 中间的 3V3 会保留。
+        function seasonNameBody(sid, name) {
+            const raw = name || (seasonById(sid) || {}).name || '';
+            if (!raw) return '';
+            return raw.replace(/[A-Za-z]*\d+\s*$/, '').trim();
+        }
+        // 系列显示名:优先用 manifest 里赛季名去掉尾部编号,兜底用 SERIES 表
+        function seriesDisplayName(key, seasonsOfKey) {
+            const s = SERIES_BY_KEY[key];
+            if (s) return s.name;
+            const first = seasonsOfKey[0];
+            return (first && first.name ? first.name.replace(/[A-Za-z]*\d+\s*$/, '').trim() : key) || key;
+        }
+
+        // 按球员聚合(合并多届数据),用于场均榜单/场均纪录
+        // 返回每个球员一条聚合数据 + 参赛届数 seasonCount
+        function aggregatePlayers(data) {
+            const map = {};
+            data.forEach(d => {
+                if (!map[d.player]) {
+                    map[d.player] = {
+                        player: d.player,
+                        seasons: new Set(),
+                        score: 0,
+                        reb: 0,
+                        ast: 0,
+                        stl: 0,
+                        blk: 0,
+                        tov: 0,
+                        contribution: 0,
+                        fga: 0,
+                        fgm: 0,
+                        fg2a: 0,
+                        fg2m: 0,
+                        fg3a: 0,
+                        fg3m: 0,
+                        app: 0
+                    };
+                }
+                const p = map[d.player];
+                p.seasons.add(d.season);
+                ['score', 'reb', 'ast', 'stl', 'blk', 'tov', 'contribution', 'fga', 'fgm', 'fg2a', 'fg2m', 'fg3a', 'fg3m', 'app']
+                .forEach(k => p[k] += (d[k] || 0));
+            });
+            return Object.values(map).map(p => ({
+                ...p,
+                seasonCount: p.seasons.size,
+                latestSeason: latestSeasonOf(p.seasons)
+            }));
+        }
+        // 达到届数门槛的球员池
+        function playerPoolByMinSeasons(data, minS) {
+            return aggregatePlayers(data).filter(p => p.seasonCount >= minS);
+        }
+
+        // 设置持久化
+        function loadSettings() {
+            try {
+                const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+                if (s.minSeasons && Number.isFinite(+s.minSeasons)) minSeasons = +s.minSeasons;
+            } catch {}
+        }
+
+        function saveSettings() {
+            try {
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+                    minSeasons
+                }));
+            } catch {}
+        }
+
+        // ==================== 主查询引擎 ====================
+        // 球员卡片分批渲染的批大小(与明细表分页解耦,卡片较重,取更小批)
+        const PLAYER_BATCH = 24;
+        const Q = {
+                view: 'overview',
+                filters: {
+                    season: '',
+                    appMin: '',
+                    appMax: '',
+                    avgMin: '',
+                    avgMax: '',
+                    fgpctMin: '',
+                    keyword: '',
+                    players: new Set(),
+                    preset: 'all'
+                },
+                sort: {
+                    col: 'score',
+                    asc: false
+                },
+                filtered: [],
+                page: 1,
+                pageSize: 50,
+                _playersShown: PLAYER_BATCH,
+
+                async init() {
+                    loadSettings();
+                    this.syncThresholdUI();
+                    showLoadingIndicator('加载届次清单...');
+                    try {
+                        await loadManifest();
+                        if (PRELOAD_ALL) {
+                            const total = manifest.seasons.length;
+                            showLoadingIndicator(`加载全部 ${total} 届数据...`);
+                            await ensureAllLoaded();
+                        } else {
+                            showLoadingIndicator(`加载最近 ${DEFAULT_RECENT} 届数据...`);
+                            await ensureRecentLoaded();
+                        }
+                    } catch (e) {
+                        showToast('❌ 数据加载失败:' + e.message, 'error', 5000);
+                    }
+                    hideLoadingIndicator();
+                    rebuildAllData();
+                    this.renderShortcuts();
+                    this.populateSeasons();
+                    this.populatePlayers();
+                    this.applyFilters();
+                    this.bindEvents();
+                    this.switchView('overview');
+                },
+
+                syncThresholdUI() {
+                    const input = document.getElementById('minSeasonsInput');
+                    if (input) input.value = minSeasons;
+                    const h1 = document.getElementById('hintMinSeasons');
+                    if (h1) h1.textContent = minSeasons;
+                    const h2 = document.getElementById('hintMinSeasons2');
+                    if (h2) h2.textContent = minSeasons;
+                },
+                setThreshold(next) {
+                    const v = Math.max(1, Math.min(50, parseInt(next) || DEFAULT_MIN_SEASONS));
+                    if (v === minSeasons) return;
+                    minSeasons = v;
+                    saveSettings();
+                    this.syncThresholdUI();
+                    // 触发相关视图重绘(无需重新筛选)
+                    if (this.view === 'overview') this.renderOverview();
+                    if (this.view === 'records') this.renderRecords();
+                },
+
+                refreshAll() {
+                    this.populateSeasons();
+                    this.populatePlayers();
+                    this.applyFilters();
+                },
+
+                populateSeasons() {
+                    const sel = document.getElementById('filterSeason');
+                    const prev = this.filters.season; // 重绘后恢复选中项
+                    const seasons = (manifest && manifest.seasons) ? manifest.seasons : [];
+                    const opts = ['<option value="">全部届次</option>'];
+
+                    // ① 赛事系列分组(S/L/Q),value 形如 series:S —— 用于跨届看某一系列
+                    const byKey = {};
+                    seasons.forEach(s => {
+                        const k = seriesKeyOf(s.id);
+                        if (k)(byKey[k] = byKey[k] || []).push(s);
+                    });
+                    const keys = Object.keys(byKey);
+                    if (keys.length > 1) { // 只有一个系列时分组无意义,不显示
+                        opts.push('<optgroup label="按赛事系列">');
+                        keys.forEach(k => {
+                            const list = byKey[k];
+                            opts.push(`<option value="series:${esc(k)}">🎪 ${esc(seriesDisplayName(k, list))}（${list.length} 届）</option>`);
+                        });
+                        opts.push('</optgroup>');
+                    }
+
+                    // ② 单届,按系列归类到 optgroup(未加载的标注出来)
+                    keys.forEach(k => {
+                        const list = byKey[k];
+                        opts.push(`<optgroup label="${esc(seriesDisplayName(k, list))}">`);
+                        list.forEach(s => {
+                            const loaded = !!seasonCache[s.id];
+                            const tag = loaded ? '' : ' (未加载)';
+                            opts.push(`<option value="${esc(s.id)}">🏆 ${esc(s.id)} · ${esc(s.name || '')}${tag}</option>`);
+                        });
+                        opts.push('</optgroup>');
+                    });
+                    // 清单外/无法归类的赛季(理论上没有,兜底)
+                    const orphan = seasons.filter(s => !seriesKeyOf(s.id));
+                    if (orphan.length) {
+                        opts.push('<optgroup label="其他">');
+                        orphan.forEach(s => opts.push(`<option value="${esc(s.id)}">🏆 ${esc(s.id)} · ${esc(s.name || '')}</option>`));
+                        opts.push('</optgroup>');
+                    }
+
+                    sel.innerHTML = opts.join('');
+                    if (prev) sel.value = prev;
+                },
+
+                populatePlayers() {
+                    const box = document.getElementById('playerChipList');
+                    // 按"参赛届数"聚合球员(去重),chip 显示球员名 + 届数徽章
+                    const agg = {};
+                    allData.forEach(d => {
+                        if (!agg[d.player]) agg[d.player] = {
+                            player: d.player,
+                            seasons: new Set()
+                        };
+                        agg[d.player].seasons.add(d.season);
+                    });
+                    const players = Object.values(agg).map(p => ({
+                        player: p.player,
+                        seasonCount: p.seasons.size
+                    }));
+                    // 按参赛届数降序 + 名字升序
+                    players.sort((a, b) => b.seasonCount - a.seasonCount || a.player.localeCompare(b.player, 'zh'));
+
+                    const kw = (document.getElementById('fpSearch') && document.getElementById('fpSearch').value.trim().toLowerCase()) || '';
+                    const visible = kw ? players.filter(p => p.player.toLowerCase().includes(kw)) : players;
+                    const empty = document.getElementById('fpEmpty');
+                    if (empty) empty.style.display = visible.length === 0 ? 'block' : 'none';
+
+                    box.innerHTML = visible.map(p => {
+                        const on = this.filters.players.has(p.player);
+                        return `<button class="player-chip ${on ? 'active' : ''}" data-player="${esc(p.player)}" type="button">
+                    ${on ? '<span class="pc-check">✓</span>' : ''}
+                    <span class="pc-name">${esc(p.player)}</span>
+                    <span class="pc-badge" title="参赛届数">${p.seasonCount}</span>
+                </button>`;
+                    }).join('');
+
+                    this.renderSelectedChips();
+                },
+
+                renderSelectedChips() {
+                    const box = document.getElementById('fpSelected');
+                    const hint = document.getElementById('fpHint');
+                    if (!box) return;
+                    const list = [...this.filters.players];
+                    if (list.length === 0) {
+                        if (hint) hint.style.display = 'inline';
+                        box.innerHTML = '<span class="fp-hint" id="fpHint">未选择,默认展示全部</span>';
+                        return;
+                    }
+                    if (hint) hint.style.display = 'none';
+                    box.innerHTML = list.map(p => `<span class="fp-selected-chip" data-player="${esc(p)}"><span>${esc(p)}</span><span class="fp-x" title="移除">✕</span></span>`).join('');
+                },
+
+                togglePlayerPanel(forceOpen) {
+                    const panel = document.getElementById('fpPanel');
+                    const icon = document.getElementById('fpToggleIcon');
+                    const text = document.getElementById('fpToggleText');
+                    const isOpen = panel.style.display !== 'none';
+                    const next = forceOpen === true ? true : forceOpen === false ? false : !isOpen;
+                    panel.style.display = next ? 'block' : 'none';
+                    if (icon) icon.textContent = next ? '▾' : '▸';
+                    if (text) text.textContent = next ? '收起' : '展开选择';
+                    if (next) {
+                        const s = document.getElementById('fpSearch');
+                        if (s) setTimeout(() => s.focus(), 60);
+                    }
+                },
+
+                // ===== 快捷筛选按钮:从 PRESETS 配置表渲染 =====
+                // 全年口径 preset 带「全年」角标,单届口径带「单届」角标,一眼看出判定口径。
+                renderShortcuts() {
+                    const box = document.getElementById('shortcutChips');
+                    if (!box) return;
+                    const cur = this.filters.preset;
+                    box.innerHTML = PRESETS.map(p => {
+                        const badge = p.scope === 'career' ? '<i class="chip-scope" title="按球员全年累计判定">全年</i>' :
+                            p.scope === 'season' ? '<i class="chip-scope chip-scope-s" title="按单届记录判定">单届</i>' :
+                            '';
+                        return `<button class="chip-shortcut ${p.id === cur ? 'active' : ''}" data-preset="${esc(p.id)}" type="button">${badge}${esc(p.label)}</button>`;
+                    }).join('');
+                },
+
+                applyFilters() {
+                    const f = this.filters;
+                    let data = [...allData];
+
+                    // 先按赛季收敛范围(单赛季模式下聚合值 == 单届值,语义自然退化一致)
+                    // series:S / series:L / series:Q 是「赛事系列」分组筛选,匹配赛季 id 前缀
+                    if (f.season) {
+                        if (f.season.startsWith('series:')) {
+                            const prefix = f.season.slice(7);
+                            data = data.filter(d => (d.season || '').startsWith(prefix));
+                        } else {
+                            data = data.filter(d => d.season === f.season);
+                        }
+                    }
+
+                    const preset = PRESET_BY_ID[f.preset] || null;
+
+                    // 单届级 preset:直接作用在记录行上(语义="某一届打出过该表现")
+                    if (preset && preset.scope === 'season') data = data.filter(d => preset.test(d));
+
+                    // 球员级条件(全年口径快捷预设 / 出场数 / 场均 / 命中率)统一基于「跨届聚合值」判定,
+                    // 再反选出这些球员名下的记录。避免用单届值去比累计阈值导致恒为空。
+                    const needAgg = (preset && preset.scope === 'career') ||
+                        f.appMin !== '' || f.appMax !== '' ||
+                        f.avgMin !== '' || f.avgMax !== '' || f.fgpctMin !== '';
+                    if (needAgg) {
+                        const qualified = aggregatePlayers(data).filter(p => {
+                            if (preset && preset.scope === 'career' && !preset.test(p)) return false;
+                            if (f.appMin !== '' && (p.app || 0) < +f.appMin) return false;
+                            if (f.appMax !== '' && (p.app || 0) > +f.appMax) return false;
+                            if (f.avgMin !== '' && avgExact(p.score, p.app) < +f.avgMin) return false;
+                            if (f.avgMax !== '' && avgExact(p.score, p.app) > +f.avgMax) return false;
+                            if (f.fgpctMin !== '' && computedFgPct(p) < +f.fgpctMin) return false;
+                            return true;
+                        });
+                        const names = new Set(qualified.map(p => p.player));
+                        data = data.filter(d => names.has(d.player));
+                    }
+
+                    if (f.players.size > 0) data = data.filter(d => f.players.has(d.player));
+                    if (f.keyword) {
+                        const kw = f.keyword.toLowerCase();
+                        // 搜索范围:球员名 + 赛季 id + 赛季显示名 + 赛事系列名
+                        // (原来只匹配 id,搜「苍穹杯」「全明星赛」这类赛事名恒为空)
+                        const seasonText = sid => {
+                            const s = seasonById(sid);
+                            return (s && s.name ? s.name + ' ' : '') + seriesNameOf(sid);
+                        };
+                        data = data.filter(d =>
+                            (d.player || '').toLowerCase().includes(kw) ||
+                            (d.season || '').toLowerCase().includes(kw) ||
+                            seasonText(d.season).toLowerCase().includes(kw));
+                    }
+                    if (this.sort.col) {
+                        const col = this.sort.col,
+                            asc = this.sort.asc;
+                        data.sort((a, b) => {
+                            let va = a[col],
+                                vb = b[col];
+                            // 特殊列
+                            if (col === 'avgScore') {
+                                va = avgExact(a.score, a.app);
+                                vb = avgExact(b.score, b.app);
+                            }
+                            if (col === 'avgReb') {
+                                va = avgExact(a.reb, a.app);
+                                vb = avgExact(b.reb, b.app);
+                            }
+                            if (col === 'avgAst') {
+                                va = avgExact(a.ast, a.app);
+                                vb = avgExact(b.ast, b.app);
+                            }
+                            if (col === 'fgpct') {
+                                va = computedFgPct(a);
+                                vb = computedFgPct(b);
+                            }
+                            if (col === 'fg2pct') {
+                                va = computedFg2Pct(a);
+                                vb = computedFg2Pct(b);
+                            }
+                            if (col === 'fg3pct') {
+                                va = computedFg3Pct(a);
+                                vb = computedFg3Pct(b);
+                            }
+                            if (col === 'season') {
+                                va = seasonRank(a.season);
+                                vb = seasonRank(b.season);
+                                if (typeof va === 'number' && typeof vb === 'number') return asc ? va - vb : vb - va;
+                            }
+                            if (typeof va === 'number' && typeof vb === 'number') return asc ? va - vb : vb - va;
+                            return asc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+                        });
+                    }
+                    this.filtered = data;
+                    this.page = 1;
+                    this.renderKpi();
+                    this.syncFilterHint();
+                    this.renderFilterWarnings();
+                    this.renderActiveFilters();
+                    this.updateResultBar();
+                    this.renderCurrentView();
+                },
+
+                renderCurrentView() {
+                    switch (this.view) {
+                        case 'overview':
+                            this.renderOverview();
+                            break;
+                        case 'detail':
+                            this.renderTable();
+                            break;
+                        case 'players':
+                            this.renderPlayers();
+                            break;
+                        case 'records':
+                            this.renderRecords();
+                            break;
+                    }
+                },
+
+                // ===== KPI(管理者运营视角) =====
+                // 口径:每届一条参赛记录(一人一届一行),故「参赛记录条数」== 「参赛人次」,
+                // 与去重后的「球员池」是两个不同的量,不能混用。
+                // 单届参赛/单届场次都以「届」为分母 —— 管理者关心的是每届办得多大规模,
+                // 而不是把全年数字摊到每人次上(那个数没有运营含义)。
+                renderKpi() {
+                    const data = this.filtered;
+                    const seasonSet = new Set(data.map(d => d.season));
+                    const seasonCount = seasonSet.size;
+                    const playerSet = new Set(data.map(d => d.player));
+                    const playerCount = playerSet.size;
+
+                    const rows = data.length; // 数据条数 = 参赛人次
+                    const totalApp = data.reduce((s, d) => s + (d.app || 0), 0); // 累计场次
+
+                    // 全勤:在当前筛选范围内,打满了该范围全部届次的球员数
+                    const perPlayer = {};
+                    data.forEach(d => {
+                        (perPlayer[d.player] = perPlayer[d.player] || new Set()).add(d.season);
+                    });
+                    const fullAttend = Object.keys(perPlayer)
+                        .filter(p => perPlayer[p].size === seasonCount && seasonCount > 0).length;
+
+                    const set = (id, v) => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = v;
+                    };
+                    set('kpiSeasons', seasonCount.toLocaleString());
+                    set('kpiRows', rows.toLocaleString());
+                    set('kpiPlayers', playerCount.toLocaleString());
+                    set('kpiApps', totalApp.toLocaleString());
+                    set('kpiAvgPlayers', seasonCount ? (rows / seasonCount).toFixed(1) : '0.0');
+                    set('kpiAvgApps', seasonCount ? Math.round(totalApp / seasonCount).toLocaleString() : '0');
+                    set('kpiAvgSeasons', playerCount ? (rows / playerCount).toFixed(1) : '0.0');
+                    set('kpiFullAttend', fullAttend.toLocaleString());
+                    // 全勤的定义随范围变化:单届时人人都是「全勤」,必须写清分母,否则数字看着像 bug
+                    const hint = document.getElementById('kpiFullAttendHint');
+                    if (hint) {
+                        hint.textContent = seasonCount === 1 ?
+                            '仅 1 届(人人全勤)' :
+                            `打满 ${seasonCount} 届 · 占 ${(playerCount ? (fullAttend/playerCount*100) : 0).toFixed(0)}%`;
+                    }
+                },
+
+                // ===== 阈值口径提示 =====
+                // 说明当前筛选下阈值作用在什么粒度上,避免用户拿「全年累计阈值」去读「单届数字」。
+                // 注意:单届级 preset(单届得分≥100 / 单届三分≥10)即使选了单赛季也仍是单届口径,
+                // 而全年口径 preset 选中单届时会退化成该届值 —— 两者要分别讲清。
+                syncFilterHint() {
+                    const el = document.getElementById('filterHint');
+                    if (!el) return;
+                    const f = this.filters;
+                    const preset = PRESET_BY_ID[f.preset];
+                    const parts = [];
+
+                    if (f.season.startsWith('series:')) {
+                        const key = f.season.slice(7);
+                        const n = ((manifest && manifest.seasons) || []).filter(s => seriesKeyOf(s.id) === key).length;
+                        parts.push(`范围：<b>${esc(seriesDisplayName(key, []))}</b> 系列全部 ${n} 届`);
+                    } else if (f.season) {
+                        const s = seasonById(f.season);
+                        parts.push(`范围：<b>${esc(s && s.name ? s.name : f.season)}</b> 单届`);
+                    } else {
+                        parts.push('范围：<b>全部届次</b>');
+                    }
+
+                    if (preset && preset.scope === 'season') {
+                        parts.push(`快捷「${esc(preset.label)}」按<b>单届记录</b>判定，同一球员可能命中多届`);
+                    } else {
+                        parts.push(f.season ?
+                            '出场数 / 场均 / 命中率与全年口径快捷筛选均按<b>当前范围内的球员汇总</b>判定' :
+                            '出场数 / 场均 / 命中率与全年口径快捷筛选均按<b>球员全年累计</b>判定');
+                    }
+                    el.innerHTML = parts.join(' · ');
+                },
+
+                // ===== 筛选条件自检:区间倒置等必然空结果的组合 =====
+                // 原来出场最小填 100、最大填 10 → 结果恒空,用户以为"没数据"。
+                renderFilterWarnings() {
+                    const el = document.getElementById('filterWarn');
+                    if (!el) return;
+                    const f = this.filters;
+                    const warns = [];
+                    if (f.appMin !== '' && f.appMax !== '' && +f.appMin > +f.appMax)
+                        warns.push(`出场数区间倒置（最小 ${f.appMin} &gt; 最大 ${f.appMax}）`);
+                    if (f.avgMin !== '' && f.avgMax !== '' && +f.avgMin > +f.avgMax)
+                        warns.push(`场均得分区间倒置（最小 ${f.avgMin} &gt; 最大 ${f.avgMax}）`);
+                    if (!warns.length && this.filtered.length === 0 && allData.length > 0)
+                        warns.push('当前筛选组合无匹配结果，可点「全部清除」重置');
+
+                    if (!warns.length) {
+                        el.style.display = 'none';
+                        el.innerHTML = '';
+                        return;
+                    }
+                    el.style.display = 'inline-flex';
+                    el.innerHTML = warns.map(w => `<span class="fw-item">⚠️ ${w}</span>`).join('');
+                },
+
+                // ===== 已选筛选 chip =====
+                renderActiveFilters() {
+                    const f = this.filters;
+                    const chips = [];
+                    if (f.season) {
+                        const label = f.season.startsWith('series:') ?
+                            '系列: ' + seriesDisplayName(f.season.slice(7), []) :
+                            (() => {
+                                const s = seasonById(f.season);
+                                return '届次: ' + (s && s.name ? s.name : f.season);
+                            })();
+                        chips.push({
+                            k: 'season',
+                            v: label
+                        });
+                    }
+                    const preset = PRESET_BY_ID[f.preset];
+                    if (preset && f.preset !== 'all') chips.push({
+                        k: 'preset',
+                        v: '快捷: ' + preset.label
+                    });
+                    if (f.appMin !== '') chips.push({
+                        k: 'appMin',
+                        v: '出场≥' + f.appMin
+                    });
+                    if (f.appMax !== '') chips.push({
+                        k: 'appMax',
+                        v: '出场≤' + f.appMax
+                    });
+                    if (f.avgMin !== '') chips.push({
+                        k: 'avgMin',
+                        v: '场均≥' + f.avgMin
+                    });
+                    if (f.avgMax !== '') chips.push({
+                        k: 'avgMax',
+                        v: '场均≤' + f.avgMax
+                    });
+                    if (f.fgpctMin !== '') chips.push({
+                        k: 'fgpctMin',
+                        v: '命中率≥' + f.fgpctMin + '%'
+                    });
+                    if (f.keyword) chips.push({
+                        k: 'keyword',
+                        v: '关键词: ' + f.keyword
+                    });
+                    f.players.forEach(p => chips.push({
+                        k: 'player:' + p,
+                        v: '球员: ' + p
+                    }));
+
+                    const box = document.getElementById('activeFilters');
+                    const list = document.getElementById('afList');
+                    if (chips.length === 0) {
+                        box.style.display = 'none';
+                        return;
+                    }
+                    box.style.display = 'flex';
+                    list.innerHTML = chips.map(c => `<button class="af-chip" data-key="${esc(c.k)}">${esc(c.v)} <span class="af-x">✕</span></button>`).join('');
+                },
+
+                removeFilter(key) {
+                    const f = this.filters;
+                    if (key.startsWith('player:')) {
+                        f.players.delete(key.slice(7));
+                        this.populatePlayers();
+                    } else if (key === 'appMin') {
+                        f.appMin = '';
+                        document.getElementById('filterAppMin').value = '';
+                    } else if (key === 'appMax') {
+                        f.appMax = '';
+                        document.getElementById('filterAppMax').value = '';
+                    } else if (key === 'avgMin') {
+                        f.avgMin = '';
+                        document.getElementById('filterAvgMin').value = '';
+                    } else if (key === 'avgMax') {
+                        f.avgMax = '';
+                        document.getElementById('filterAvgMax').value = '';
+                    } else if (key === 'fgpctMin') {
+                        f.fgpctMin = '';
+                        document.getElementById('filterFgpctMin').value = '';
+                    } else if (key === 'keyword') {
+                        f.keyword = '';
+                        document.getElementById('filterKeyword').value = '';
+                    } else if (key === 'season') {
+                        f.season = '';
+                        document.getElementById('filterSeason').value = '';
+                    } else if (key === 'preset') {
+                        this.applyPreset('all');
+                        return;
+                    } // 内部已 applyFilters
+                    this.applyFilters();
+                },
+
+                // ===== 视图切换 =====
+                switchView(view) {
+                    this.view = view;
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+                    ['viewOverview', 'viewDetail', 'viewPlayers', 'viewRecords'].forEach(id => {
+                        document.getElementById(id).style.display = 'none';
+                    });
+                    const map = {
+                        overview: 'viewOverview',
+                        detail: 'viewDetail',
+                        players: 'viewPlayers',
+                        records: 'viewRecords'
+                    };
+                    document.getElementById(map[view]).style.display = 'block';
+                    this.renderCurrentView();
+                },
+
+                // ===== 视图 1-A:赛事运营看板 =====
+                // 统计单位是「届」而不是「球员」,回答管理者的三个问题:
+                //   ① 办了多少届、每届多大规模(趋势图)
+                //   ② 各赛事系列承载了多少(结构表)
+                //   ③ 球员粘性如何、是不是一次性参与(深度分布 + 健康度)
+                // 全部基于 this.filtered,所以快捷筛选/关键字搜索后看板会同步收窄 —— 这是有意的:
+                // 管理者筛「参赛≥10届」后应该看到这批老将撑起了哪几届。
+                renderOps() {
+                    const data = this.filtered;
+                    const ids = ['opsTrend', 'opsSeries', 'opsDepth', 'opsHealth'];
+                    if (data.length === 0) {
+                        ids.forEach(id => document.getElementById(id).innerHTML = '<div class="empty-line">暂无数据</div>');
+                        return;
+                    }
+
+                    // --- 逐届聚合(按 manifest 时间序,而非字符串序) ---
+                    const bySeason = {};
+                    data.forEach(d => {
+                        const s = bySeason[d.season] = bySeason[d.season] || {
+                            id: d.season,
+                            name: seasonNameBody(d.season, d.name),
+                            series: seriesNameOf(d.season),
+                            apps: 0,
+                            players: new Set(),
+                            rows: 0,
+                            score: 0
+                        };
+                        s.apps += (d.app || 0);
+                        s.players.add(d.player);
+                        s.rows++;
+                        s.score += (d.score || 0);
+                    });
+                    const seasons = Object.values(bySeason).sort((a, b) => seasonRank(a.id) - seasonRank(b.id));
+                    seasons.forEach(s => {
+                        s.playerCount = s.players.size;
+                    });
+
+                    const totalRows = data.length;
+                    const totalApps = seasons.reduce((t, s) => t + s.apps, 0);
+                    const totalPlayers = new Set(data.map(d => d.player)).size;
+                    const n = seasons.length;
+                    // 用 reduce 求极值而非 Math.max(...arr):spread 在赛季数涨到上万时会超出调用栈实参上限。
+                    // 当前 18 届无碍,但 PRELOAD_ALL 注释已预留「赛季数涨到几百个」的演进方向。
+                    const minBy = (arr, f) => arr.reduce((a, b) => f(b) < f(a) ? b : a, arr[0]);
+                    const maxBy = (arr, f) => arr.reduce((a, b) => f(b) > f(a) ? b : a, arr[0]);
+                    const minPlayers = minBy(seasons, s => s.playerCount).playerCount;
+                    const maxPlayers = maxBy(seasons, s => s.playerCount).playerCount;
+
+                    // --- ① 逐届规模趋势 ---
+                    const el = document.getElementById('opsTrend');
+                    // 单届退化:下钻到某一届(或筛选后只剩一届)后,「逐届趋势」无从比较。
+                    // 不隐藏整块 —— 管理者仍想看这一届办得多大,故换成单届概况卡。
+                    if (n === 1) {
+                        const s = seasons[0];
+                        el.innerHTML = `<div class="ops-single">
+                    <div class="ops-single-title">${esc(s.name || s.series || '')} ${esc(s.id)} 单届概况</div>
+                    <div class="ops-single-grid">
+                        <div class="ops-single-item"><b>${s.playerCount}</b><span>参赛人数</span></div>
+                        <div class="ops-single-item"><b>${s.apps.toLocaleString()}</b><span>比赛场次</span></div>
+                        <div class="ops-single-item"><b>${s.rows}</b><span>数据条数</span></div>
+                        <div class="ops-single-item"><b>${(s.apps/s.playerCount).toFixed(1)}</b><span>人均场次</span></div>
+                    </div>
+                    <div class="ops-single-note">趋势图与参与深度需 ≥ 2 届才有比较意义 —— 清空「届数」筛选可看全年</div>
+                </div>`;
+                    } else {
+                        // 双柱共用一个刻度会被场次量级(150~528)压扁成一条线,故各自归一化到 100%,
+                        // 并在图例说明两组柱子各按自己的最大值缩放。
+                        const maxP = maxPlayers;
+                        const maxA = Math.max(1, maxBy(seasons, s => s.apps).apps);
+                        el.innerHTML = `<div class="ops-trend-cols">` + seasons.map(s => {
+                            const hp = Math.max(3, s.playerCount / maxP * 100);
+                            const ha = Math.max(3, s.apps / maxA * 100);
+                            const tip = `${s.name||s.series||s.id} ${s.id}\n参赛 ${s.playerCount} 人 · 场次 ${s.apps} · 记录 ${s.rows} 条`;
+                            return `<div class="ops-col" data-season="${esc(s.id)}" tabindex="0" role="button" title="${esc(tip)}">
+                        <div class="ops-col-nums">
+                            <span class="ops-num-players">${s.playerCount}</span>
+                            <span class="ops-num-apps">${s.apps}</span>
+                        </div>
+                        <div class="ops-col-bars">
+                            <div class="ops-bar-wrap"><div class="ops-bar ops-bar-apps" style="height:${ha}%"></div></div>
+                            <div class="ops-bar-wrap"><div class="ops-bar ops-bar-players" style="height:${hp}%"></div></div>
+                        </div>
+                        <div class="ops-col-label">${esc(s.id)}</div>
+                    </div>`;
+                        }).join('') + `</div>
+                <div class="ops-trend-foot">
+                    <span>峰值 <b>${esc(maxBy(seasons,s=>s.playerCount).id)}</b> ${maxPlayers} 人</span>
+                    <span>低谷 <b>${esc(minBy(seasons,s=>s.playerCount).id)}</b> ${minPlayers} 人</span>
+                    <span>单届均 <b>${(totalRows/n).toFixed(1)}</b> 人</span>
+                </div>`;
+                    }
+
+                    // --- ② 赛事系列结构 ---
+                    const seriesKeys = [...new Set(seasons.map(s => seriesKeyOf(s.id)).filter(Boolean))];
+                    const rows = seriesKeys.map(k => {
+                        const sub = seasons.filter(s => seriesKeyOf(s.id) === k);
+                        const ap = sub.reduce((t, s) => t + s.apps, 0);
+                        const rw = sub.reduce((t, s) => t + s.rows, 0);
+                        return {
+                            key: k,
+                            name: seriesDisplayName(k, sub),
+                            editions: sub.length,
+                            apps: ap,
+                            rows: rw,
+                            share: rw / totalRows * 100
+                        };
+                    }).sort((a, b) => b.rows - a.rows);
+                    document.getElementById('opsSeries').innerHTML = rows.map(r => {
+                            // 系列配色 class 走白名单,避免 r.key 直接进 class 属性
+                            const toneCls = (r.key === 'S' || r.key === 'Q' || r.key === 'L') ? ' sf-' + r.key : '';
+                            return `
+                <div class="ops-series-row">
+                    <div class="ops-series-main">
+                        <span class="ops-series-name">${esc(r.name)}</span>
+                        <span class="ops-series-meta">${r.editions} 届 · ${r.rows} 人次 · ${r.apps.toLocaleString()} 场</span>
+                    </div>
+                    <div class="ops-series-bar"><div class="ops-series-fill${toneCls}" style="width:${Math.max(2,r.share)}%"></div></div>
+                    <span class="ops-series-share">${r.share.toFixed(1)}%</span>
+                </div>`;
+                        }).join('') +
+                        `<div class="ops-series-total">合计 ${n} 届 · ${totalRows.toLocaleString()} 条参赛记录 · ${totalApps.toLocaleString()} 场比赛</div>`;
+
+                    // --- ③ 球员参与深度(粘性) ---
+                    const attend = {};
+                    data.forEach(d => {
+                        attend[d.player] = (attend[d.player] || 0) + 1;
+                    });
+                    const counts = Object.values(attend);
+                    const oneTime = counts.filter(v => v === 1).length;
+                    const full = counts.filter(v => v === n).length;
+                    const depthEl = document.getElementById('opsDepth');
+                    if (n === 1) {
+                        // 单届下每人必然只算 1 届,分桶 [[1,1],[2,n]] 的第二档 lo>hi 是非法区间,
+                        // 且「粘性」在单届内根本无从谈起 —— 直接给退化说明,别画一条 100% 的假柱。
+                        depthEl.innerHTML = `<div class="empty-line">当前只看 <b>1</b> 届,参与深度需跨 ≥ 2 届才有意义。<br>清空「届数」筛选可查看全年粘性</div>`;
+                    } else {
+                        // 分桶按「当前范围内总届数」自适应:范围只有 3 届时用 10 届档没意义。
+                        // 桶上界取 min(预设, n),保证任何范围下每个桶都可能非空。
+                        const depthBuckets = n >= 13 ? [
+                                [1, 1],
+                                [2, 3],
+                                [4, 6],
+                                [7, 9],
+                                [10, 12],
+                                [13, n]
+                            ] :
+                            n >= 7 ? [
+                                [1, 1],
+                                [2, 3],
+                                [4, 5],
+                                [6, n]
+                            ] :
+                            n >= 3 ? [
+                                [1, 1],
+                                [2, 2],
+                                [3, n]
+                            ] : [
+                                [1, 1],
+                                [2, n]
+                            ];
+                        const depth = depthBuckets.map(([lo, hi]) => {
+                            const c = counts.filter(v => v >= lo && v <= hi).length;
+                            const lbl = lo === hi ? `${lo} 届` : (hi >= n ? `≥${lo} 届` : `${lo}-${hi} 届`);
+                            return {
+                                label: lbl,
+                                count: c
+                            };
+                        });
+                        const maxD = Math.max(1, ...depth.map(d => d.count));
+                        const median = counts.slice().sort((a, b) => a - b)[Math.floor(counts.length / 2)] || 0;
+                        depthEl.innerHTML = depth.map(d => `
+                    <div class="sb-row">
+                        <span class="sb-name">${esc(d.label)}</span>
+                        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${d.count/maxD*100}%"></div></div>
+                        <span class="sb-value">${d.count} 人 · ${(d.count/counts.length*100).toFixed(0)}%</span>
+                    </div>`).join('') +
+                            `<div class="dist-note">共 ${counts.length} 名球员 · 中位参赛 ${median} 届 · 全勤 ${full} 人</div>`;
+                    }
+
+                    // --- ④ 运营健康度:把数字翻译成结论 ---
+                    const health = [];
+                    const push = (tone, label, text) => health.push({
+                        tone,
+                        label,
+                        text
+                    });
+                    const pct1 = counts.length ? oneTime / counts.length * 100 : 0;
+                    if (n === 1) {
+                        // 单届没有「波动」「环比」可算,退化为这一届的规模画像
+                        const s = seasons[0];
+                        push('info', '本届规模',
+                            `${s.playerCount} 名球员参赛,共 ${s.apps.toLocaleString()} 场比赛(人均 ${(s.apps/s.playerCount).toFixed(1)} 场)`);
+                        push('info', '赛事归属', `${s.series || '未归类'} 系列 · ${s.id}`);
+                        push('warn', '单届视图', '留存、波动、环比等跨届指标已隐藏 —— 清空筛选可看全年');
+                    } else {
+                        // 波动率:参赛人数的变异系数,衡量办赛规模是否稳定
+                        const meanP = totalRows / n;
+                        const sd = Math.sqrt(seasons.reduce((t, s) => t + Math.pow(s.playerCount - meanP, 2), 0) / n);
+                        const cv = meanP ? sd / meanP * 100 : 0;
+                        push(cv < 25 ? 'good' : cv < 40 ? 'warn' : 'bad', '规模稳定性',
+                            `每届参赛 ${meanP.toFixed(1)} 人(区间 ${minPlayers}~${maxPlayers}),波动系数 ${cv.toFixed(0)}%`);
+                        push(pct1 > 40 ? 'bad' : pct1 > 25 ? 'warn' : 'good', '球员留存',
+                            `${oneTime} 人仅参加 1 届(${pct1.toFixed(0)}%),${full} 人全勤(${(counts.length?full/counts.length*100:0).toFixed(0)}%)`);
+                        push('info', '赛事密度',
+                            `${n} 届共 ${totalApps.toLocaleString()} 场,平均每届 ${(totalApps/n).toFixed(0)} 场、人均 ${(totalApps/counts.length).toFixed(0)} 场`);
+                        // 最新一届的环比:管理者最关心「最近办得怎么样」
+                        const cur = seasons[n - 1],
+                            prev = seasons[n - 2];
+                        const d = prev.playerCount ? (cur.playerCount - prev.playerCount) / prev.playerCount * 100 : 0;
+                        push(d >= 0 ? 'good' : d > -20 ? 'warn' : 'bad', '最新一届',
+                            `${cur.name||''} ${cur.id} 参赛 ${cur.playerCount} 人,环比上届 ${d>=0?'+':''}${d.toFixed(0)}%`);
+                    }
+                    document.getElementById('opsHealth').innerHTML = health.map(h => `
+                <div class="ops-health-item ops-health-${h.tone}">
+                    <span class="ops-health-dot"></span>
+                    <span class="ops-health-label">${esc(h.label)}</span>
+                    <span class="ops-health-text">${esc(h.text)}</span>
+                </div>`).join('');
+
+                    document.getElementById('opsHint').textContent =
+                        n === 1 ? `当前范围:${seasons[0].name||''} ${seasons[0].id}(单届视图)` :
+                        `全年 ${n} 届 · ${totalPlayers} 名球员 · ${totalRows.toLocaleString()} 条参赛记录 · ${totalApps.toLocaleString()} 场比赛`;
+                    document.getElementById('opsDepthHint').textContent = `粘性 / 留存视角(最多 ${n} 届)`;
+                },
+
+                // ===== 视图 1:总览 =====
+                renderOverview() {
+                    const data = this.filtered;
+                    const emptyMsg = '<div class="empty-line">暂无数据</div>';
+                    if (data.length === 0) {
+                        ['boardScore', 'boardReb', 'boardAst', 'board3PT', 'boardStl', 'boardBlk',
+                            'boardAvgScore', 'boardAvgReb', 'boardAvgAst', 'boardAvgContri', 'boardFgPct', 'board3PctBoard',
+                            'appDistribution', 'fgpctDistribution'
+                        ].forEach(id => document.getElementById(id).innerHTML = emptyMsg);
+                        this.renderOps(); // 看板自身处理空态,不能整块留白
+                        return;
+                    }
+                    this.renderOps();
+
+                    const topN = (arr, keyFn, n = 10) => arr.slice().sort((a, b) => keyFn(b) - keyFn(a)).slice(0, n);
+                    const renderBoard = (id, arr, keyFn, formatter = v => v, unit = '') => {
+                        if (arr.length === 0) {
+                            document.getElementById(id).innerHTML = emptyMsg;
+                            return;
+                        }
+                        const max = keyFn(arr[0]) || 1;
+                        document.getElementById(id).innerHTML = arr.map((p, i) => {
+                            const val = keyFn(p);
+                            const w = Math.max(4, (val / max) * 100);
+                            const badge = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+                            // 不带 data-season:榜单值已是跨届累计,弹窗需同口径(聚合),否则数字对不上
+                            return `<div class="board-row" data-player="${esc(p.player)}" tabindex="0" role="button">
+                        <span class="br-rank ${i<3?'br-rank-top':''}">${badge}</span>
+                        <span class="br-name">${esc(p.player)}</span>
+                        <div class="br-bar-wrap"><div class="br-bar" style="width:${w}%"></div></div>
+                        <span class="br-value">${formatter(val)}${unit}</span>
+                    </div>`;
+                        }).join('');
+                    };
+
+                    // 一次聚合复用给累计榜单 + 场均榜单 + 命中率榜单 + 分布图,避免同一份 data 反复 aggregatePlayers。
+                    // 累计类指标必须走聚合值:直接对原始行排序拿到的是某球员「单届最高值」而非
+                    // 「跨届全年累计」(全部届次下 455 行 = 73 名球员的多届记录,混排必然错)。
+                    const aggAll = aggregatePlayers(data).map(p => ({...p,
+                        season: p.latestSeason
+                    }));
+
+                    // 累计榜单
+                    renderBoard('boardScore', topN(aggAll, d => d.score || 0), d => d.score || 0);
+                    renderBoard('boardReb', topN(aggAll, d => d.reb || 0), d => d.reb || 0);
+                    renderBoard('boardAst', topN(aggAll, d => d.ast || 0), d => d.ast || 0);
+                    renderBoard('board3PT', topN(aggAll, d => d.fg3m || 0), d => d.fg3m || 0);
+                    renderBoard('boardStl', topN(aggAll, d => d.stl || 0), d => d.stl || 0);
+                    renderBoard('boardBlk', topN(aggAll, d => d.blk || 0), d => d.blk || 0);
+
+                    const avgPool = aggAll.filter(p => p.seasonCount >= minSeasons);
+                    // 空池提示要分清两种情况,否则用户选中单届时看到「没有球员参赛 ≥6 届」会一头雾水:
+                    // 单届视图下每人 seasonCount 必然 == 1,套全年届数门槛毫无意义。
+                    const scopeSeasons = new Set(data.map(d => d.season)).size;
+                    const emptyPoolMsg = scopeSeasons <= 1 ?
+                        `<div class="empty-line">当前只看 <b>${scopeSeasons}</b> 届，场均榜需跨 ≥ ${minSeasons} 届聚合才有意义。<br>请切回「全部届次」或选一个赛事系列</div>` :
+                        `<div class="empty-line">当前范围内没有球员参赛 ≥ ${minSeasons} 届。<br>把上方「最小届数」调小，或放宽届次/筛选条件</div>`;
+                    const renderPoolBoard = (id, keyFn, formatter, unit = '') => {
+                        if (avgPool.length === 0) {
+                            document.getElementById(id).innerHTML = emptyPoolMsg;
+                            return;
+                        }
+                        renderBoard(id, topN(avgPool, keyFn), keyFn, formatter, unit);
+                    };
+                    // keyFn 用 avgExact(完整精度)排序,formatter 负责展示成 1 位小数。
+                    // 用 avg() 排序会让 8.04 / 8.06 视为相等 → TOP10 截断在并列值上是任意的。
+                    const f1 = v => v.toFixed(1);
+                    renderPoolBoard('boardAvgScore', p => avgExact(p.score, p.app), f1);
+                    renderPoolBoard('boardAvgReb', p => avgExact(p.reb, p.app), f1);
+                    renderPoolBoard('boardAvgAst', p => avgExact(p.ast, p.app), f1);
+                    renderPoolBoard('boardAvgContri', p => avgExact(p.contribution, p.app), f1);
+
+                    // 命中率(参赛届数 + 出手数双门槛)
+                    const pctPool = avgPool.filter(p => (p.fga || 0) >= MIN_ATTEMPTS_FOR_PCT);
+                    const pct3Pool = avgPool.filter(p => (p.fg3a || 0) >= 20);
+                    if (pctPool.length === 0) document.getElementById('boardFgPct').innerHTML = emptyPoolMsg;
+                    else renderBoard('boardFgPct', topN(pctPool, p => computedFgPct(p)), p => computedFgPct(p), f1, '%');
+                    if (pct3Pool.length === 0) document.getElementById('board3PctBoard').innerHTML = emptyPoolMsg;
+                    else renderBoard('board3PctBoard', topN(pct3Pool, p => computedFg3Pct(p)), p => computedFg3Pct(p), f1, '%');
+
+                    // 出场分布(0-20 / 20-50 / 50-100 / 100+ / 150+)
+                    const bucketApp = [{
+                        label: '1-19 场',
+                        filter: d => d.app < 20
+                    }, {
+                        label: '20-49 场',
+                        filter: d => d.app >= 20 && d.app < 50
+                    }, {
+                        label: '50-99 场',
+                        filter: d => d.app >= 50 && d.app < 100
+                    }, {
+                        label: '100-149 场',
+                        filter: d => d.app >= 100 && d.app < 150
+                    }, {
+                        label: '≥ 150 场',
+                        filter: d => d.app >= 150
+                    }];
+                    // 出场分布:统计单位是「球员」(聚合后),不是「赛季记录条数」。
+                    // 直接用 data 会把 455 条记录当 455 人,且全部届次下 50 场以上恒为 0(单届 app 最大仅 29)。
+                    const appCounts = bucketApp.map(b => ({
+                        label: b.label,
+                        count: aggAll.filter(b.filter).length
+                    }));
+                    const maxApp = Math.max(1, ...appCounts.map(x => x.count));
+                    document.getElementById('appDistribution').innerHTML = appCounts.map(x => `
+                <div class="sb-row">
+                    <span class="sb-name">${esc(x.label)}</span>
+                    <div class="sb-bar-wrap"><div class="sb-bar" style="width:${(x.count/maxApp)*100}%"></div></div>
+                    <span class="sb-value">${x.count} 人</span>
+                </div>
+            `).join('');
+
+                    // 命中率分布(pctPool 内)
+                    const bucketPct = [{
+                        label: '≥ 70%',
+                        filter: d => computedFgPct(d) >= 70
+                    }, {
+                        label: '60% - 70%',
+                        filter: d => computedFgPct(d) >= 60 && computedFgPct(d) < 70
+                    }, {
+                        label: '50% - 60%',
+                        filter: d => computedFgPct(d) >= 50 && computedFgPct(d) < 60
+                    }, {
+                        label: '40% - 50%',
+                        filter: d => computedFgPct(d) >= 40 && computedFgPct(d) < 50
+                    }, {
+                        label: '< 40%',
+                        filter: d => computedFgPct(d) < 40
+                    }];
+                    // 命中率分布使用无届数限制的球员池(仅按最小出手数过滤),让整体分布不因门槛变空。
+                    // 出手 < MIN_ATTEMPTS_FOR_PCT 的球员不计入,故本图合计可能少于出场分布的球员总数,
+                    // 用脚注明示口径,避免被误读成漏算。
+                    const pctDistPool = aggAll.filter(p => (p.fga || 0) >= MIN_ATTEMPTS_FOR_PCT);
+                    const pctCounts = bucketPct.map(b => ({
+                        label: b.label,
+                        count: pctDistPool.filter(b.filter).length
+                    }));
+                    const maxPct = Math.max(1, ...pctCounts.map(x => x.count));
+                    const excluded = aggAll.length - pctDistPool.length;
+                    const pctRows = pctCounts.map(x => `
+                <div class="sb-row">
+                    <span class="sb-name">${esc(x.label)}</span>
+                    <div class="sb-bar-wrap"><div class="sb-bar" style="width:${(x.count/maxPct)*100}%"></div></div>
+                    <span class="sb-value">${x.count} 人</span>
+                </div>
+            `).join('');
+                    const pctNote = excluded > 0 ?
+                        `<div class="dist-note">仅统计出手 ≥ ${MIN_ATTEMPTS_FOR_PCT} 的 ${pctDistPool.length} 人，另有 ${excluded} 人因出手不足未计入</div>` :
+                        '';
+                    document.getElementById('fgpctDistribution').innerHTML = pctRows + pctNote;
+                },
+
+                // ===== 视图 2:数据表格 =====
+                renderTable() {
+                    const tbody = document.getElementById('dataBody');
+                    const empty = document.getElementById('emptyState');
+                    const pag = document.getElementById('pagination');
+                    const head = document.getElementById('tableHead');
+
+                    // 表头(累计/场均切换)
+                    if (detailMode === 'total') {
+                        head.innerHTML = `<tr>
+                    <th class="sortable" data-col="season">届次 ↕</th>
+                    <th class="sortable" data-col="player">球员 ↕</th>
+                    <th class="sortable" data-col="app">出场 ↕</th>
+                    <th class="sortable" data-col="score">得分 ↕</th>
+                    <th class="sortable" data-col="reb">篮板 ↕</th>
+                    <th class="sortable" data-col="ast">助攻 ↕</th>
+                    <th class="sortable" data-col="stl">抢断 ↕</th>
+                    <th class="sortable" data-col="blk">盖帽 ↕</th>
+                    <th class="sortable" data-col="tov">失误 ↕</th>
+                    <th class="sortable" data-col="fga">总出手 ↕</th>
+                    <th class="sortable" data-col="fgm">总命中 ↕</th>
+                    <th class="sortable" data-col="fgpct">命中率 ↕</th>
+                    <th>两分</th>
+                    <th class="sortable" data-col="fg2pct">两分率 ↕</th>
+                    <th>三分</th>
+                    <th class="sortable" data-col="fg3pct">三分率 ↕</th>
+                    <th class="sortable" data-col="contribution">贡献值 ↕</th>
+                </tr>`;
+                    } else {
+                        head.innerHTML = `<tr>
+                    <th class="sortable" data-col="season">届次 ↕</th>
+                    <th class="sortable" data-col="player">球员 ↕</th>
+                    <th class="sortable" data-col="app">出场 ↕</th>
+                    <th class="sortable" data-col="avgScore">场均得分 ↕</th>
+                    <th class="sortable" data-col="avgReb">场均板 ↕</th>
+                    <th class="sortable" data-col="avgAst">场均助 ↕</th>
+                    <th>场均断</th>
+                    <th>场均帽</th>
+                    <th>场均失</th>
+                    <th>场均出手</th>
+                    <th>场均命中</th>
+                    <th class="sortable" data-col="fgpct">命中率 ↕</th>
+                    <th>场均两分</th>
+                    <th class="sortable" data-col="fg2pct">两分率 ↕</th>
+                    <th>场均三分</th>
+                    <th class="sortable" data-col="fg3pct">三分率 ↕</th>
+                    <th>场均贡献</th>
+                </tr>`;
+                    }
+                    // 排序图标同步
+                    document.querySelectorAll('.sortable').forEach(th => {
+                        const c = th.dataset.col;
+                        th.textContent = th.textContent.replace(/[↕↗↘]/g, '').trim();
+                        th.textContent += c === this.sort.col ? (this.sort.asc ? ' ↗' : ' ↘') : ' ↕';
+                    });
+                    // 排序 header 使用事件委托,已在 bindEvents 里绑一次,这里只需更新箭头即可
+
+                    if (this.filtered.length === 0) {
+                        tbody.innerHTML = '';
+                        empty.style.display = 'flex';
+                        pag.style.display = 'none';
+                        return;
+                    }
+                    empty.style.display = 'none';
+                    pag.style.display = 'flex';
+
+                    // 「全部届次」下 filtered 是 455 条跨 18 届的记录,若只按得分降序铺开,
+                    // 赛季列会在 S29…Q12 之间反复横跳,读起来没有主线。
+                    // 分组模式:先按 manifest 的时间序把同一届聚成一块,每块插一个统计标题行,
+                    // 组内仍保持用户选的排序列 —— 既能按届看统计,又不丢排序能力。
+                    // 自动降级:只命中一届时(用户选了具体赛季,或筛选后只剩一届),分组没有意义,
+                    // 插一行标题反而浪费垂直空间,此时强制走平铺。
+                    const distinctSeasons = new Set(this.filtered.map(d => d.season));
+                    const effectiveGroup = detailGroup && distinctSeasons.size > 1;
+                    const grouped = this.buildGroupedRows(effectiveGroup);
+
+                    const ps = this.pageSize === 'all' ? grouped.length : this.pageSize;
+                    const totalPages = Math.max(1, Math.ceil(grouped.length / ps));
+                    if (this.page > totalPages) this.page = totalPages;
+                    const start = (this.page - 1) * ps;
+                    const pageRows = grouped.slice(start, start + ps);
+
+                    // colspan 用实际表头列数,避免增删列后标题行宽度错位
+                    const colCount = Math.max(1, head.querySelectorAll('th').length);
+                    // 每届的小计(人数/总分/场均/得分王),标题行展示
+                    const groupStat = {};
+                    if (effectiveGroup) {
+                        grouped.forEach(r => {
+                            const g = groupStat[r.d.season] || (groupStat[r.d.season] = {
+                                n: 0,
+                                score: 0,
+                                app: 0,
+                                top: null
+                            });
+                            g.n++;
+                            g.score += (r.d.score || 0);
+                            g.app += (r.d.app || 0);
+                            if (!g.top || (r.d.score || 0) > (g.top.d.score || 0)) g.top = r;
+                        });
+                    }
+
+                    let lastSeason = null;
+                    const html = [];
+                    pageRows.forEach(r => {
+                        if (effectiveGroup && r.d.season !== lastSeason) {
+                            lastSeason = r.d.season;
+                            html.push(this.seasonGroupRow(r.d.season, groupStat[r.d.season], colCount));
+                        }
+                        html.push(this.dataRowHtml(r.d, r.idx));
+                    });
+                    tbody.innerHTML = html.join('');
+                    this.updatePagination(totalPages);
+                },
+
+                // 给 filtered 里的每行挂上「在 filtered 中的绝对下标」。
+                // 行点击走 showRowDetail(idx) → this.filtered[idx],分组重排后位置会变,
+                // 所以必须携带原始下标,不能再用 slice 后的相对位置算。
+                buildGroupedRows(withGroup) {
+                    const rows = this.filtered.map((d, idx) => ({
+                        d,
+                        idx
+                    }));
+                    if (!withGroup) return rows;
+                    // 届次顺序 = manifest.seasons 数组顺序(seasonRank),不是字符串序。
+                    // 字符串序会把 L04 排到 Q9 之后、S40 判成最新,和 latestSeason 口径打架。
+                    const seasons = [...new Set(rows.map(r => r.d.season))]
+                        .sort((a, b) => seasonRank(a) - seasonRank(b));
+                    const out = [];
+                    seasons.forEach(sid => {
+                        // filter 保序 → 组内沿用用户当前排序(stable)
+                        rows.filter(r => r.d.season === sid).forEach(r => out.push(r));
+                    });
+                    return out;
+                },
+
+                // 分组标题行:一届一行,带该届统计
+                seasonGroupRow(sid, stat, colCount) {
+                    const meta = seasonById(sid);
+                    const name = (meta && meta.name) ? meta.name : sid;
+                    const body = seasonNameBody(sid, name);
+                    const series = seriesNameOf(sid);
+                    // manifest 里的赛季名本身含系列和编号(如「苍穹杯 S29」「联赛3V3 L4」),
+                    // 直接和 sg-badge 并排会显示成「S29 苍穹杯 S29」,重复啰嗦。
+                    // seasonNameBody 已剥掉尾部编号,这里只在剥完连系列都没了时补一个系列标签。
+                    const showSeries = series && body && !body.includes(series);
+                    const n = stat ? stat.n : 0;
+                    const totalScore = stat ? stat.score : 0;
+                    const avgScore = (stat && stat.app > 0) ? (stat.score / stat.app).toFixed(1) : '—';
+                    const top = stat && stat.top ? stat.top.d : null;
+                    const topTxt = top ? `🥇 ${esc(top.player)} ${top.score} 分` : '';
+                    return `<tr class="season-group-row">
+                <td colspan="${colCount}">
+                    <span class="sg-badge ${badgeSeriesClass(sid)}">${esc(sid)}</span>
+                    ${body ? `<span class="sg-name">${esc(body)}</span>` : ''}
+                    ${showSeries ? `<span class="sg-series">${esc(series)}</span>` : ''}
+                    <span class="sg-stat">👥 ${n} 人</span>
+                    <span class="sg-stat">🏀 合计 ${totalScore} 分</span>
+                    <span class="sg-stat">📊 场均 ${avgScore} 分</span>
+                    ${topTxt ? `<span class="sg-stat sg-top">${topTxt}</span>` : ''}
+                </td>
+            </tr>`;
+        },
+
+        // 单条数据行 HTML(从原 renderTable 内联 map 抽出来,便于分组时复用)
+        dataRowHtml(d, realIdx) {
+            const fgpct  = computedFgPct(d).toFixed(1);
+            const fg2pct = computedFg2Pct(d).toFixed(1);
+            const fg3pct = computedFg3Pct(d).toFixed(1);
+            if (detailMode === 'total') {
+                return `<tr class="data-row" data-idx="${realIdx}">
+                    <td><span class="season-badge${badgeSeriesClass(d.season)}">${esc(d.season)}</span></td>
+                    <td class="td-player">${esc(d.player)}</td>
+                    <td class="td-app">${d.app}</td>
+                    <td class="td-score">${d.score}</td>
+                    <td class="td-reb">${d.reb}</td>
+                    <td class="td-ast">${d.ast}</td>
+                    <td class="td-stl">${d.stl}</td>
+                    <td class="td-blk">${d.blk}</td>
+                    <td>${d.tov}</td>
+                    <td>${d.fga}</td>
+                    <td>${d.fgm}</td>
+                    <td class="td-pct">${fgpct}%</td>
+                    <td>${d.fg2m}/${d.fg2a}</td>
+                    <td>${fg2pct}%</td>
+                    <td>${d.fg3m}/${d.fg3a}</td>
+                    <td>${fg3pct}%</td>
+                    <td class="td-contri">${d.contribution}</td>
+                </tr>`;
+            }
+            return `<tr class="data-row" data-idx="${realIdx}">
+                <td><span class="season-badge${badgeSeriesClass(d.season)}">${esc(d.season)}</span></td>
+                <td class="td-player">${esc(d.player)}</td>
+                <td class="td-app">${d.app}</td>
+                <td class="td-score">${avg(d.score, d.app).toFixed(1)}</td>
+                <td class="td-reb">${avg(d.reb, d.app).toFixed(1)}</td>
+                <td class="td-ast">${avg(d.ast, d.app).toFixed(1)}</td>
+                <td>${avg(d.stl, d.app).toFixed(1)}</td>
+                <td>${avg(d.blk, d.app).toFixed(1)}</td>
+                <td>${avg(d.tov, d.app).toFixed(1)}</td>
+                <td>${avg(d.fga, d.app).toFixed(1)}</td>
+                <td>${avg(d.fgm, d.app).toFixed(1)}</td>
+                <td class="td-pct">${fgpct}%</td>
+                <td>${avg(d.fg2m, d.app).toFixed(1)}/${avg(d.fg2a, d.app).toFixed(1)}</td>
+                <td>${fg2pct}%</td>
+                <td>${avg(d.fg3m, d.app).toFixed(1)}/${avg(d.fg3a, d.app).toFixed(1)}</td>
+                <td>${fg3pct}%</td>
+                <td class="td-contri">${avg(d.contribution, d.app).toFixed(1)}</td>
+            </tr>`;
+        },
+
+        updatePagination(totalPages) {
+            // 附带总条数,分组模式下用户能一眼看出当前口径下有多少条记录
+            document.getElementById('pageInfo').textContent =
+                `${this.page}/${totalPages} · 共 ${this.filtered.length} 条`;
+            document.getElementById('btnPrev').disabled = this.page <= 1;
+            document.getElementById('btnNext').disabled = this.page >= totalPages;
+        },
+        prevPage() { if (this.page > 1) { this.page--; this.renderTable(); } },
+        nextPage() { this.page++; this.renderTable(); },
+        changePageSize(val) { this.pageSize = val === 'all' ? 'all' : parseInt(val); this.page = 1; this.renderTable(); },
+        // filtered 是「赛季记录」粒度(全部届次下 455 条 = 73 名球员的多届记录),
+        // 原来直接写「共 N 名球员」会把记录数当球员数,误导。两个口径都给出。
+        updateResultBar() {
+            const n = this.filtered.length;
+            const players = new Set(this.filtered.map(d => d.player)).size;
+            document.getElementById('resultCount').textContent =
+                n === players ? `共 ${n} 名球员` : `共 ${players} 名球员 · ${n} 条参赛记录`;
+        },
+
+        // ===== 视图 3:球员卡片 =====
+        // 口径:每球员一张卡(聚合跨届),否则全部届次下 73 人会渲染成 455 张重复卡。
+        // 球员卡片分批渲染:一次只渲染一批(PLAYER_BATCH),末尾给「加载更多」按钮。
+        // 455 行聚合后仍是 73 张卡,排序切换时全量重建 DOM 会卡顿;分批后首屏只渲染一批。
+        renderPlayers(reset = true) {
+            const data = this.filtered;
+            if (reset) this._playersShown = PLAYER_BATCH;
+            const grid = document.getElementById('playersGrid');
+            if (data.length === 0) { grid.innerHTML = '<div class="empty-line">暂无数据</div>'; return; }
+            const list0 = aggregatePlayers(data).map(p => ({...p, season: p.latestSeason}));
+            const sortBy = document.getElementById('playerSort').value;
+            const cmp = {
+                avg:     (a,b) => avgExact(b.score,b.app) - avgExact(a.score,a.app),
+                score:   (a,b) => b.score - a.score,
+                reb:     (a,b) => b.reb - a.reb,
+                ast:     (a,b) => b.ast - a.ast,
+                blk:     (a,b) => b.blk - a.blk,
+                stl:     (a,b) => b.stl - a.stl,
+                fg3m:    (a,b) => b.fg3m - a.fg3m,
+                contri:  (a,b) => b.contribution - a.contribution,
+                app:     (a,b) => b.app - a.app,
+                fgpct:   (a,b) => computedFgPct(b) - computedFgPct(a)
+            }[sortBy];
+            const list = list0.sort(cmp);
+            const shown = Math.min(this._playersShown || PLAYER_BATCH, list.length);
+            const slice = list.slice(0, shown);
+
+            const cardsHtml = slice.map(p => {
+                const initial = p.player.slice(0,1);
+                const avgS = avg(p.score, p.app).toFixed(1);
+                const avgR = avg(p.reb, p.app).toFixed(1);
+                const avgA = avg(p.ast, p.app).toFixed(1);
+                const fgpct = computedFgPct(p).toFixed(1);
+                const fg3pct = computedFg3Pct(p).toFixed(1);
+                // 不带 data-season:点击走「聚合详情」,与卡片展示的累计口径一致
+                return `<div class="player-card" data-player="${esc(p.player)}" tabindex="0" role="button">
+                    <div class="pc-header">
+                        <div class="pc-avatar">${esc(initial)}</div>
+                        <div class="pc-name-wrap">
+                            <div class="pc-player-name">${esc(p.player)}</div>
+                            <div class="pc-teams"><span class="season-badge">${p.seasonCount} 届</span><span class="pc-app">${p.app} 场</span></div>
+                        </div>
+                    </div>
+                    <div class="pc-main-metrics">
+                        <div class="pc-metric"><div class="pcm-value">${avgS}</div><div class="pcm-label">场均得分</div></div>
+                        <div class="pc-metric"><div class="pcm-value">${avgR}</div><div class="pcm-label">场均板</div></div>
+                        <div class="pc-metric"><div class="pcm-value">${avgA}</div><div class="pcm-label">场均助</div></div>
+                    </div>
+                    <div class="pc-sub-metrics">
+                        <div><span class="pcs-label">总分</span><b>${p.score}</b></div>
+                        <div><span class="pcs-label">板</span><b>${p.reb}</b></div>
+                        <div><span class="pcs-label">助</span><b>${p.ast}</b></div>
+                        <div><span class="pcs-label">断</span><b>${p.stl}</b></div>
+                        <div><span class="pcs-label">帽</span><b>${p.blk}</b></div>
+                        <div><span class="pcs-label">三分</span><b>${p.fg3m}</b></div>
+                        <div><span class="pcs-label">命中率</span><b>${fgpct}%</b></div>
+                        <div><span class="pcs-label">三分率</span><b>${fg3pct}%</b></div>
+                    </div>
+                    <div class="pc-footer">
+                        <span class="pc-tag pc-tag-plain">🎯 贡献 ${p.contribution}</span>
+                        <span class="pc-tag pc-tag-plain">📤 出手 ${p.fga}</span>
+                    </div>
+                </div>`;
+            }).join('');
+            const moreHtml = shown < list.length
+                ? `<div class="players-more">
+                       <button class="page-btn" id="btnPlayersMore" onclick="Q.loadMorePlayers()">
+                           加载更多（已显示 ${shown} / ${list.length} 名球员）
+                       </button>
+                   </div>`
+                : (list.length > PLAYER_BATCH
+                    ? `<div class="players-more players-more-end">已显示全部 ${list.length} 名球员</div>`
+                    : '');
+            grid.innerHTML = cardsHtml + moreHtml;
+        },
+
+        // 递增显示批次并重渲染(保留当前排序),用于球员卡片「加载更多」
+        loadMorePlayers() {
+            this._playersShown = (this._playersShown || PLAYER_BATCH) + PLAYER_BATCH;
+            this.renderPlayers(false);
+        },
+
+        // ===== 视图 4:纪录殿堂 =====
+        renderRecords() {
+            const data = this.filtered;
+            const cumu = document.getElementById('recordGridCumulative');
+            const avgG = document.getElementById('recordGridAverage');
+            const acc  = document.getElementById('recordGridAccuracy');
+            if (data.length === 0) {
+                cumu.innerHTML = avgG.innerHTML = acc.innerHTML = '<div class="empty-line">暂无数据</div>';
+                return;
+            }
+            const bestBy = (arr, keyFn) => arr.reduce((t,d) => keyFn(d) > keyFn(t) ? d : t, arr[0]);
+            // detail 参数:聚合口径下 owner.season 只是「最近一届」,直接显示会让人误以为
+            // 这个数字是那一届打出来的。显式写成「N 届累计 · 最近 XX」。
+            const card = (icon, label, val, owner, color, unit='', detail) => `
+                <div class="record-card record-${color}" data-player="${esc(owner.player||'')}" ${owner.player ? 'tabindex="0" role="button"' : ''}>
+                    <div class="rc-icon">${icon}</div>
+                    <div class="rc-value">${val}${unit}</div>
+                    <div class="rc-label">${label}</div>
+                    <div class="rc-detail">${esc(detail != null ? detail : (owner.player ? owner.player + ' · ' + owner.season : owner.season))}</div>
+                </div>`;
+            const aggDetail = p => {
+                const s = seasonById(p.latestSeason);
+                const sName = s && s.name ? s.name : p.latestSeason;
+                return `${p.player} · ${p.seasonCount} 届累计 · 最近 ${sName}`;
+            };
+
+            // 一次聚合复用给累计纪录 + 场均纪录 + 命中率纪录。
+            // 「累计」纪录同样必须走聚合值,否则展示的是单届峰值(且 owner.season 语义错乱)。
+            const aggAll = aggregatePlayers(data).map(p => ({...p, season: p.latestSeason}));
+
+            // 累计
+            const cItems = [
+                { icon:'🏀', label:'最多累计得分', keyFn:d=>d.score||0,      color:'gold' },
+                { icon:'🛡️', label:'最多累计篮板', keyFn:d=>d.reb||0,        color:'purple' },
+                { icon:'🎯', label:'最多累计助攻', keyFn:d=>d.ast||0,        color:'green' },
+                { icon:'💨', label:'最多三分命中', keyFn:d=>d.fg3m||0,       color:'cyan' },
+                { icon:'👊', label:'最多累计抢断', keyFn:d=>d.stl||0,        color:'red' },
+                { icon:'🚫', label:'最多累计盖帽', keyFn:d=>d.blk||0,        color:'orange' },
+                { icon:'🌟', label:'最多累计贡献', keyFn:d=>d.contribution||0, color:'gold' },
+                { icon:'📅', label:'最多出场数',   keyFn:d=>d.app||0,        color:'purple' }
+            ];
+            cumu.innerHTML = cItems.map(it => {
+                const w = bestBy(aggAll, it.keyFn);
+                return card(it.icon, it.label, it.keyFn(w), w, it.color, '', aggDetail(w));
+            }).join('');
+
+            const scopeSeasons = new Set(data.map(d => d.season)).size;
+            const avgPool = aggAll.filter(p => p.seasonCount >= minSeasons);
+            const aItems = [
+                // keyFn 用 avgExact(完整精度)避免并列值截断不确定,展示时再 toFixed(1)
+                { icon:'🔥', label:'最高场均得分', keyFn:d=>avgExact(d.score,d.app), color:'gold' },
+                { icon:'🪄', label:'最高场均篮板', keyFn:d=>avgExact(d.reb,d.app),   color:'purple' },
+                { icon:'✨', label:'最高场均助攻', keyFn:d=>avgExact(d.ast,d.app),   color:'green' },
+                { icon:'⚡', label:'最高场均抢断', keyFn:d=>avgExact(d.stl,d.app),   color:'red' },
+                { icon:'🌌', label:'最高场均盖帽', keyFn:d=>avgExact(d.blk,d.app),   color:'orange' },
+                { icon:'🚀', label:'最高场均贡献', keyFn:d=>avgExact(d.contribution,d.app), color:'gold' }
+            ];
+            if (avgPool.length === 0) {
+                avgG.innerHTML = scopeSeasons <= 1
+                    ? `<div class="empty-line">当前只看 ${scopeSeasons} 届，场均纪录需跨 ≥ ${minSeasons} 届聚合。请切回「全部届次」或选一个赛事系列</div>`
+                    : `<div class="empty-line">当前范围内参赛 ≥ ${minSeasons} 届的球员为空，可把上方「最小届数」调小</div>`;
+            }
+            else avgG.innerHTML = aItems.map(it => {
+                const w = bestBy(avgPool, it.keyFn);
+                return card(it.icon, it.label, it.keyFn(w).toFixed(1), w, it.color, '', aggDetail(w));
+            }).join('');
+
+            // 命中率(复用 avgPool,再加出手数门槛)
+            const pctPool  = avgPool.filter(p => (p.fga||0)  >= MIN_ATTEMPTS_FOR_PCT);
+            const pct2Pool = avgPool.filter(p => (p.fg2a||0) >= 20);
+            const pct3Pool = avgPool.filter(p => (p.fg3a||0) >= 20);
+            const pItems = [
+                { icon:'🎖️', label:'最高总命中率', pool: pctPool, keyFn:d=>computedFgPct(d),  color:'gold', unit:'%' },
+                { icon:'🥅', label:'最高两分命中率', pool: pct2Pool, keyFn:d=>computedFg2Pct(d), color:'green', unit:'%' },
+                { icon:'💫', label:'最高三分命中率', pool: pct3Pool, keyFn:d=>computedFg3Pct(d), color:'cyan', unit:'%' }
+            ];
+            acc.innerHTML = pItems.map(it => {
+                if (it.pool.length === 0) return card(it.icon, it.label, '—', {player:'', season:'样本不足'}, it.color);
+                const w = bestBy(it.pool, it.keyFn);
+                return card(it.icon, it.label, it.keyFn(w).toFixed(1), w, it.color, it.unit, aggDetail(w));
+            }).join('');
+        },
+
+        // ===== 球员详情 =====
+        showRowDetail(idx) {
+            const d = this.filtered[idx];
+            if (!d) return;
+            this.showPlayerDetail(d.player, d.season);
+        },
+
+        // season 为空 => 聚合口径;否则展示该单届。
+        // 聚合范围取「当前筛选结果」而非全量:全部届次下是全年累计,单赛季下自然退化为该届值,
+        // 保证弹窗数字与榜单/卡片展示的口径始终一致。
+        showPlayerDetail(player, season) {
+            let scope = this.filtered.filter(r => r.player === player);
+            if (!scope.length) scope = allData.filter(r => r.player === player);
+            if (!scope.length) return;
+            const one = season ? scope.find(r => r.season === season) : null;
+            const AGG_KEYS = ['score','reb','ast','stl','blk','tov','contribution','fga','fgm','fg2a','fg2m','fg3a','fg3m','app'];
+            const d = one || scope.reduce((acc, r) => {
+                AGG_KEYS.forEach(k => acc[k] += (r[k]||0));
+                return acc;
+            }, {player, ...AGG_KEYS.reduce((o,k) => (o[k]=0, o), {})});
+            // 徽章:单届显示赛季名;聚合显示届数,并标注系列(系列筛选下更明确)
+            const seasonLabel = sid => { const s = seasonById(sid); return s && s.name ? s.name : sid; };
+            let scopeLabel;
+            if (one) {
+                scopeLabel = `<span class="season-badge">${esc(seasonLabel(d.season))}</span>`;
+            } else {
+                const keys = [...new Set(scope.map(r => seriesKeyOf(r.season)).filter(Boolean))];
+                const seriesTxt = keys.length === 1 ? ' · ' + seriesDisplayName(keys[0], []) : '';
+                scopeLabel = `<span class="season-badge">${scope.length} 届累计${esc(seriesTxt)}</span>`;
+            }
+            const fgpct  = computedFgPct(d).toFixed(1);
+            const fg2pct = computedFg2Pct(d).toFixed(1);
+            const fg3pct = computedFg3Pct(d).toFixed(1);
+            document.getElementById('modalTitle').textContent = d.player;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-header">
+                    ${scopeLabel}
+                    <span>出场 <strong>${d.app}</strong> 场</span>
+                </div>
+                <h4 style="color:#FDB927;font-size:14px;margin-bottom:10px">📊 累计数据</h4>
+                <div class="detail-stats-grid">
+                    <div class="detail-stat"><div class="ds-value">${d.score}</div><div class="ds-label">得分</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.reb}</div><div class="ds-label">篮板</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.ast}</div><div class="ds-label">助攻</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.stl}</div><div class="ds-label">抢断</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.blk}</div><div class="ds-label">盖帽</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.tov}</div><div class="ds-label">失误</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.contribution}</div><div class="ds-label">贡献值</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.fga}</div><div class="ds-label">总出手</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.fgm}</div><div class="ds-label">总命中</div></div>
+                </div>
+                <h4 style="color:#FDB927;font-size:14px;margin:16px 0 10px">📈 场均数据</h4>
+                <div class="detail-stats-grid">
+                    <div class="detail-stat"><div class="ds-value">${avg(d.score,d.app).toFixed(1)}</div><div class="ds-label">场均得分</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.reb,d.app).toFixed(1)}</div><div class="ds-label">场均板</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.ast,d.app).toFixed(1)}</div><div class="ds-label">场均助</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.stl,d.app).toFixed(1)}</div><div class="ds-label">场均断</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.blk,d.app).toFixed(1)}</div><div class="ds-label">场均帽</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.tov,d.app).toFixed(1)}</div><div class="ds-label">场均失误</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.contribution,d.app).toFixed(1)}</div><div class="ds-label">场均贡献</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.fga,d.app).toFixed(1)}</div><div class="ds-label">场均出手</div></div>
+                    <div class="detail-stat"><div class="ds-value">${avg(d.fgm,d.app).toFixed(1)}</div><div class="ds-label">场均命中</div></div>
+                </div>
+                <h4 style="color:#FDB927;font-size:14px;margin:16px 0 10px">🎯 命中率</h4>
+                <div class="detail-stats-grid">
+                    <div class="detail-stat"><div class="ds-value">${fgpct}%</div><div class="ds-label">总命中率</div></div>
+                    <div class="detail-stat"><div class="ds-value">${fg2pct}%</div><div class="ds-label">两分命中率</div></div>
+                    <div class="detail-stat"><div class="ds-value">${fg3pct}%</div><div class="ds-label">三分命中率</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.fg2m}/${d.fg2a}</div><div class="ds-label">两分</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.fg3m}/${d.fg3a}</div><div class="ds-label">三分</div></div>
+                    <div class="detail-stat"><div class="ds-value">${d.fgm}/${d.fga}</div><div class="ds-label">总投篮</div></div>
+                </div>`;
+            document.getElementById('modalOverlay').style.display = 'flex';
+        },
+
+        closeModal() { document.getElementById('modalOverlay').style.display = 'none'; },
+
+        handleSort(col) {
+            if (this.sort.col === col) this.sort.asc = !this.sort.asc;
+            else { this.sort.col = col; this.sort.asc = false; }
+            this.applyFilters();
+        },
+
+        exportCSV() {
+            if (!this.filtered.length) { showToast('无数据可导出', 'error'); return; }
+            const headers = ['届次','赛事','球员','出场数','得分','篮板','助攻','抢断','盖帽','失误','贡献值','总出手','总命中','两分出手','两分命中','三分出手','三分命中','总命中率%','两分命中率%','三分命中率%','场均得分','场均板','场均助'];
+            const rows = this.filtered.map(d => csvRow([
+                d.season, seriesNameOf(d.season), d.player,
+                d.app, d.score, d.reb, d.ast, d.stl, d.blk, d.tov, d.contribution,
+                d.fga, d.fgm, d.fg2a, d.fg2m, d.fg3a, d.fg3m,
+                computedFgPct(d).toFixed(1), computedFg2Pct(d).toFixed(1), computedFg3Pct(d).toFixed(1),
+                avgExact(d.score,d.app).toFixed(1), avgExact(d.reb,d.app).toFixed(1), avgExact(d.ast,d.app).toFixed(1)
+            ]));
+            const csv = [csvRow(headers), ...rows].join('\r\n');   // RFC4180: CRLF 行结束
+            const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `苍穹赛事数据_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast(`📥 已导出 ${this.filtered.length} 条数据`, 'success');
+        },
+
+        exportAsJS() {
+            if (!this.filtered.length) { showToast('❌ 无数据可导出', 'error'); return; }
+            const keys = ['season','player','app','score','reb','ast','stl','blk','tov','contribution','fga','fgm','fg2a','fg2m','fg3a','fg3m','fgpct','fg2pct','fg3pct'];
+            // 用 JSON.stringify 保证含引号/反斜杠/换行的球员名不会破坏语法
+            const lines = this.filtered.map(d => {
+                const obj = {};
+                keys.forEach(k => { obj[k] = d[k] == null ? null : d[k]; });
+                return '  ' + JSON.stringify(obj);
+            });
+            const code = `const MATCH_DATA = [\n${lines.join(',\n')}\n];`;
+            const blob = new Blob([code], {type:'text/plain;charset=utf-8'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `match-data_${new Date().toISOString().slice(0,10)}.js`;
+            a.click();
+            showToast(`💾 已导出 ${this.filtered.length} 条数据`, 'success');
+        },
+
+        clearFilters() {
+            this.filters = { season:'', appMin:'', appMax:'', avgMin:'', avgMax:'', fgpctMin:'', keyword:'', players:new Set(), preset:'all' };
+            document.getElementById('filterSeason').value = '';
+            document.getElementById('filterAppMin').value = '';
+            document.getElementById('filterAppMax').value = '';
+            document.getElementById('filterAvgMin').value = '';
+            document.getElementById('filterAvgMax').value = '';
+            document.getElementById('filterFgpctMin').value = '';
+            document.getElementById('filterKeyword').value = '';
+            this.renderShortcuts();
+            this.populatePlayers();
+            this.applyFilters();
+        },
+
+        applyPreset(preset) {
+            this.filters.preset = PRESET_BY_ID[preset] ? preset : 'all';
+            this.renderShortcuts();
+            this.applyFilters();
+        },
+
+        bindEvents() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => this.switchView(b.dataset.view)));
+            // 快捷按钮是动态渲染的(renderShortcuts),用事件委托避免重绘后监听丢失
+            const chipBox = document.getElementById('shortcutChips');
+            if (chipBox) chipBox.addEventListener('click', e => {
+                const btn = e.target.closest('.chip-shortcut');
+                if (btn) this.applyPreset(btn.dataset.preset);
+            });
+
+            document.getElementById('filterSeason').addEventListener('change', async e => {
+                const sid = e.target.value;
+                this.filters.season = sid;
+                // series:X 是系列级筛选,不对应单个赛季文件,无需(也无法)按需加载
+                if (sid && !sid.startsWith('series:') && !seasonCache[sid]) {
+                    const s = seasonById(sid);
+                    showLoadingIndicator(`加载 ${s && s.name ? s.name : sid} ...`);
+                    await loadSpecificSeason(sid);
+                    hideLoadingIndicator();
+                    rebuildAllData();
+                    this.populateSeasons();   // 内部会恢复 this.filters.season 的选中态
+                    this.populatePlayers();
+                }
+                this.applyFilters();
+            });
+            document.getElementById('filterAppMin').addEventListener('input', e => { this.filters.appMin = e.target.value; this.applyFilters(); });
+            document.getElementById('filterAppMax').addEventListener('input', e => { this.filters.appMax = e.target.value; this.applyFilters(); });
+            document.getElementById('filterAvgMin').addEventListener('input', e => { this.filters.avgMin = e.target.value; this.applyFilters(); });
+            document.getElementById('filterAvgMax').addEventListener('input', e => { this.filters.avgMax = e.target.value; this.applyFilters(); });
+            document.getElementById('filterFgpctMin').addEventListener('input', e => { this.filters.fgpctMin = e.target.value; this.applyFilters(); });
+            let dt;
+            document.getElementById('filterKeyword').addEventListener('input', e => {
+                clearTimeout(dt);
+                dt = setTimeout(() => { this.filters.keyword = e.target.value.trim(); this.applyFilters(); }, 200);
+            });
+            document.getElementById('btnClearFilter').addEventListener('click', () => this.clearFilters());
+            const resetBtn = document.getElementById('btnResetAll');
+            if (resetBtn) resetBtn.addEventListener('click', () => this.clearFilters());
+            document.getElementById('btnExport').addEventListener('click', () => this.exportCSV());
+            document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
+            document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) this.closeModal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') this.closeModal(); });
+
+            document.getElementById('playerChipList').addEventListener('click', e => {
+                const btn = e.target.closest('.player-chip');
+                if (!btn) return;
+                const name = btn.dataset.player;
+                if (this.filters.players.has(name)) this.filters.players.delete(name);
+                else this.filters.players.add(name);
+                this.applyFilters();
+                this.populatePlayers();
+            });
+
+            // 折叠切换
+            const fpTog = document.getElementById('fpToggle');
+            if (fpTog) fpTog.addEventListener('click', () => this.togglePlayerPanel());
+
+            // 已选球员 chip 支持点击 x 移除
+            const sel = document.getElementById('fpSelected');
+            if (sel) sel.addEventListener('click', e => {
+                const chip = e.target.closest('.fp-selected-chip');
+                if (!chip) return;
+                const name = chip.dataset.player;
+                this.filters.players.delete(name);
+                this.applyFilters();
+                this.populatePlayers();
+            });
+
+            // 搜索框(实时过滤 chip 列表)
+            const fpSearchEl = document.getElementById('fpSearch');
+            if (fpSearchEl) {
+                let fpDt;
+                fpSearchEl.addEventListener('input', () => {
+                    clearTimeout(fpDt);
+                    fpDt = setTimeout(() => this.populatePlayers(), 120);
+                });
+            }
+
+            // 批量操作
+            document.querySelectorAll('.fp-bulk').forEach(btn => btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const visibleNames = Array.from(document.querySelectorAll('#playerChipList .player-chip')).map(el => el.dataset.player);
+                if (action === 'all') visibleNames.forEach(n => this.filters.players.add(n));
+                else if (action === 'invert') visibleNames.forEach(n => {
+                    if (this.filters.players.has(n)) this.filters.players.delete(n);
+                    else this.filters.players.add(n);
+                });
+                else if (action === 'clear') this.filters.players.clear();
+                this.applyFilters();
+                this.populatePlayers();
+            }));
+            document.getElementById('afList').addEventListener('click', e => {
+                const chip = e.target.closest('.af-chip');
+                if (chip) this.removeFilter(chip.dataset.key);
+            });
+
+            const ps = document.getElementById('playerSort');
+            if (ps) ps.addEventListener('change', () => this.renderPlayers());
+
+            // 场均榜单最小届数门槛控件
+            const msInput = document.getElementById('minSeasonsInput');
+            if (msInput) {
+                let msDt;
+                msInput.addEventListener('input', () => {
+                    clearTimeout(msDt);
+                    msDt = setTimeout(() => this.setThreshold(msInput.value), 200);
+                });
+            }
+            document.querySelectorAll('.tc-btn').forEach(b => b.addEventListener('click', () => {
+                const delta = parseInt(b.dataset.delta) || 0;
+                this.setThreshold(minSeasons + delta);
+            }));
+
+            // 明细模式(累计 / 场均)切换
+            // ---- 事件委托:榜单行 / 表格行 / 球员卡片 / 纪录卡 打开详情(避免内联 onclick 拼接用户内容) ----
+            const openDetail = (el) => {
+                if (!el) return;
+                if (el.dataset.idx != null) {
+                    this.showRowDetail(parseInt(el.dataset.idx));
+                } else if (el.dataset.player) {   // 空字符串(样本不足的纪录卡)不可点
+                    this.showPlayerDetail(el.dataset.player, el.dataset.season || '');
+                }
+            };
+            const bindOpenDetail = (rootSel, targetSel) => {
+                const root = document.querySelector(rootSel);
+                if (!root) return;
+                root.addEventListener('click', e => openDetail(e.target.closest(targetSel)));
+                root.addEventListener('keydown', e => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    const el = e.target.closest(targetSel);
+                    if (el && (el.tabIndex >= 0)) { e.preventDefault(); openDetail(el); }
+                });
+            };
+            bindOpenDetail('#viewOverview', '.board-row');
+            bindOpenDetail('#dataBody',     '.data-row');
+            bindOpenDetail('#playersGrid',  '.player-card');
+            bindOpenDetail('#viewRecords',  '.record-card');
+
+            // 运营看板「逐届规模趋势」柱条 → 下钻到该届(设置赛季筛选)
+            // 用事件委托而非内联 onclick:season id 虽来自 manifest 可信,但保持一致的绑定风格
+            const drillToSeason = (el) => {
+                if (!el || !el.dataset.season) return;
+                const sid = el.dataset.season;
+                if (this.filters.season === sid) return;   // 已在该届,重复点击不做无谓重渲染
+                this.filters.season = sid;
+                const sel = document.getElementById('filterSeason');
+                if (sel) sel.value = sid;
+                this.applyFilters();
+                showToast(`📅 已下钻到 ${seriesNameOf(sid) || ''} ${sid}`, 'info');
+            };
+            const opsTrend = document.getElementById('opsTrend');
+            if (opsTrend) {
+                opsTrend.addEventListener('click', e => drillToSeason(e.target.closest('.ops-col')));
+                opsTrend.addEventListener('keydown', e => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    const el = e.target.closest('.ops-col');
+                    if (el && el.tabIndex >= 0) { e.preventDefault(); drillToSeason(el); }
+                });
+            }
+
+            // 表格排序 header 事件委托(只绑一次,不随 renderTable 重复)
+            const tableHead = document.getElementById('tableHead');
+            if (tableHead) {
+                tableHead.addEventListener('click', e => {
+                    const th = e.target.closest('.sortable');
+                    if (th && th.dataset.col) this.handleSort(th.dataset.col);
+                });
+            }
+
+            // 注意:两组按钮共用 .mode-btn 类名,必须按 data-mode 作用域过滤。
+            // 否则点「按届分组」会把 detailMode 设成 undefined,表格整列变空。
+            document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn[data-mode]').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                detailMode = b.dataset.mode;
+                this.renderTable();
+            }));
+
+            // 按届分组开关
+            const gOn  = document.getElementById('btnGroupOn');
+            const gOff = document.getElementById('btnGroupOff');
+            const applyGroup = (on) => {
+                detailGroup = on;
+                gOn.classList.toggle('active', on);
+                gOff.classList.toggle('active', !on);
+                this.page = 1;
+                this.renderTable();
+            };
+            if (gOn && gOff) {
+                gOn.addEventListener('click', () => applyGroup(true));
+                gOff.addEventListener('click', () => applyGroup(false));
+            }
+
+            const zone = document.getElementById('importUploadZone');
+            zone.addEventListener('click', () => document.getElementById('importFileInput').click());
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); const file = e.dataTransfer.files[0]; if (file) processImportFile(file); });
+        }
+    };
+
+    // ==================== 导入功能 ====================
+    function mapColumns(headers) {
+      const mapping = {};
+      headers.forEach(h => {
+        const hTrim = h.trim();
+        if (FIELDS_MAP[hTrim]) mapping[hTrim] = FIELDS_MAP[hTrim];
+        else {
+          // 模糊匹配
+          for (const [key, val] of Object.entries(FIELDS_MAP)) {
+            if (hTrim.includes(key)) { mapping[hTrim] = val; break; }
+          }
+          if (!mapping[hTrim]) mapping[hTrim] = null;
+        }
+      });
+      return mapping;
+    }
+
+    function parsePctString(s) {
+      if (s == null || s === '') return null;
+      const str = String(s).trim();
+      if (str.includes('#DIV') || str.toLowerCase().includes('nan')) return null;
+      const num = parseFloat(str.replace('%',''));
+      return isFinite(num) ? num : null;
+    }
+
+    function toNum(v) {
+      if (v == null || v === '') return 0;
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function convertRow(row, colMap, defaultSeason) {
+      const result = {
+        season: defaultSeason || '',
+        player:'', app:0,
+        score:0, reb:0, ast:0, stl:0, blk:0, tov:0, contribution:0,
+        fga:0, fgm:0, fg2a:0, fg2m:0, fg3a:0, fg3m:0,
+        fgpct:null, fg2pct:null, fg3pct:null
+      };
+      for (const [colName, field] of Object.entries(colMap)) {
+        if (!field) continue;
+        const val = row[colName];
+        if (field === 'fgpct' || field === 'fg2pct' || field === 'fg3pct') result[field] = parsePctString(val);
+        else if (field === 'player' || field === 'season') result[field] = String(val || '').trim();
+        else result[field] = toNum(val);
+      }
+      return result;
+    }
+
+    function showImportModal() {
+        if (!window.XLSX) {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+            s.onload = () => { document.getElementById('importOverlay').style.display = 'flex'; };
+            s.onerror = () => { showToast('❌ SheetJS 库加载失败,请仅使用 CSV 格式', 'error', 5000); document.getElementById('importOverlay').style.display = 'flex'; };
+            document.head.appendChild(s);
+        } else {
+            document.getElementById('importOverlay').style.display = 'flex';
+        }
+    }
+    function closeImportModal() { document.getElementById('importOverlay').style.display = 'none'; }
+
+    function handleImportFile(input) { const file = input.files[0]; if (file) processImportFile(file); input.value = ''; }
+
+    function processImportFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!window.XLSX) { showToast('❌ 请等待 SheetJS 加载完成后再上传', 'error'); return; }
+        if (ext === 'csv') {
+            const reader = new FileReader();
+            reader.onload = e => parseSheetData(e.target.result, 'string');
+            reader.readAsText(file, 'utf-8');
+        } else if (ext === 'xlsx' || ext === 'xls') {
+            const reader = new FileReader();
+            reader.onload = e => parseSheetData(e.target.result, 'array');
+            reader.readAsArrayBuffer(file);
+        } else { showToast('❌ 不支持的文件格式', 'error'); }
+    }
+
+    // CSV / XLSX 走同一条 SheetJS 路径,正确处理 \r\n、跨行字段、"" 转义引号等边界
+    function parseSheetData(data, type) {
+        const wb  = XLSX.read(data, { type });
+        const ws  = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        const headers = json.length > 0 ? Object.keys(json[0]) : [];
+        showImportPreview(headers, json);
+    }
+
+    function showImportPreview(headers, rows) {
+        const colMap = mapColumns(headers);
+        const mappingDiv = document.getElementById('mappingTable');
+        mappingDiv.innerHTML = headers.map(h => {
+            const field = colMap[h.trim()];
+            const status = field ? '✅ 已映射' : '❌ 未匹配';
+            const fieldLabel = field ? field : '(忽略)';
+            const required = ['player','app'].includes(field) ? ' *' : '';
+            return `<div class="mapping-row"><span class="mp-src">${esc(h)}</span><span class="mp-arrow">→</span><span class="mp-dest">${esc(fieldLabel)}${required}</span><span class="mp-status">${status}</span></div>`;
+        }).join('');
+        document.getElementById('importMapping').style.display = 'block';
+
+        const seasonInput = document.getElementById('importSeason').value.trim();
+        const defaultSeason = seasonInput || ('S' + new Date().toISOString().slice(0,10).replace(/-/g,''));
+        importedRows = rows.map(row => convertRow(row, colMap, defaultSeason)).filter(r => r.player);
+
+        document.getElementById('previewCount').textContent = `共 ${importedRows.length} 条数据,预览前 10 行(将导入到届次: ${defaultSeason})`;
+        const previewKeys = ['season','player','app','score','reb','ast','stl','blk','tov','contribution','fgm','fga','fg3m','fgpct'];
+        document.getElementById('previewTable').innerHTML = `<thead><tr>${previewKeys.map(k => `<th>${k}</th>`).join('')}</tr></thead><tbody>${importedRows.slice(0,10).map(d => `<tr>${previewKeys.map(k => `<td>${esc(d[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+        document.getElementById('importPreview').style.display = 'block';
+        document.getElementById('importActions').style.display = 'block';
+    }
+
+    function validateImportedRows() {
+        if (!importedRows.length) { showToast('❌ 无可导入数据', 'error'); return false; }
+        const missing = importedRows.filter(r => !r.player || !r.app);
+        if (missing.length === importedRows.length) {
+            showToast('❌ 所有数据缺少必填字段(球员/出场数),请检查列名', 'error'); return false;
+        }
+        return true;
+    }
+
+    function downloadSeasonJson() {
+        if (!validateImportedRows()) return;
+        const seasonId = (importedSeasonId || document.getElementById('importSeason').value || importedRows[0].season || '').trim();
+        if (!seasonId) { showToast('❌ 请先在导入弹窗顶部填写届次 ID(如 L06)', 'error'); return; }
+        // 统一 rows 中的 season 字段
+        importedRows.forEach(r => { r.season = seasonId; });
+        // 生成 JS 文件(可通过 <script> 加载,file:// 打开也能用)
+        const jsonText = JSON.stringify(importedRows, null, 2);
+        const jsWrapped = `window.__SEASONS__ = window.__SEASONS__ || {};\nwindow.__SEASONS__.${seasonId} = ${jsonText};\n`;
+        const fileName = `${seasonId}.js`;
+        const blob = new Blob([jsWrapped], {type: 'text/javascript;charset=utf-8'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+        // 计算 manifest 条目
+        const totalApps = importedRows.reduce((s,r) => s + (r.app||0), 0);
+        const entryObj = {
+            id: seasonId,
+            name: seasonId,
+            type: 'league',
+            playerCount: importedRows.length,
+            totalApps: totalApps,
+            file: fileName
+        };
+        document.getElementById('mtipFile').textContent = fileName;
+        document.getElementById('mtipEntry').textContent = JSON.stringify(entryObj, null, 2);
+        document.getElementById('importManifestTip').style.display = 'block';
+        showToast(`✅ 已生成 ${fileName} 供下载`, 'success', 4000);
+    }
+
+    function previewOnly() {
+        if (!validateImportedRows()) return;
+        saveImported(importedRows);
+        closeImportModal();
+        Q.refreshAll();
+        showToast(`🧪 已在本机加载 ${importedRows.length} 条(不影响仓库数据)`, 'info', 4000);
+        importedRows = [];
+    }
+
+    // 记录赛季 ID(下载 JSON 时使用)
+    document.getElementById('importSeason').addEventListener('input', e => {
+        importedSeasonId = e.target.value.trim();
+    });
+
+    Q.init();
+
+    // ==================== 苍穹氛围层交互(纯增强,失败也不影响数据功能) ====================
+    (function initCqChrome() {
+        const bar = document.getElementById('cqScrollProgress');
+        const top = document.getElementById('cqBackTop');
+        let ticking = false;
+        // 用 rAF 节流:滚动进度条 + 返回顶部显隐共用一次计算
+        function update() {
+            ticking = false;
+            const doc = document.documentElement;
+            const scrollable = doc.scrollHeight - window.innerHeight;
+            const y = window.scrollY || doc.scrollTop || 0;
+            if (bar) bar.style.width = (scrollable > 0 ? (y / scrollable) * 100 : 0) + '%';
+            if (top) top.classList.toggle('show', y > 400);
+        }
+        function onScroll() {
+            if (!ticking) { ticking = true; requestAnimationFrame(update); }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
+        if (top) {
+            top.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    })();
+    </script>
+</body>
+
+</html>
